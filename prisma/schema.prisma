@@ -1,0 +1,406 @@
+// Prisma Schema for Hall Management System
+// Sprint 1 MVP - Arabic Hall Management with Qoyod Integration
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// ============================================
+// User Management
+// ============================================
+
+// Enums handled as Strings for SQLite compatibility
+// enum UserRole {
+//   ADMIN
+//   ROOM_SUPERVISOR
+//   ACCOUNTANT
+//   EMPLOYEE
+// }
+
+// enum UserStatus {
+//   ACTIVE
+//   INACTIVE
+// }
+
+model User {
+  id        String     @id @default(cuid())
+  username  String     @unique
+  password  String     // bcrypt hashed
+  nameAr    String     // Arabic name: الاسم
+  email     String?    @unique
+  phone     String?
+  role      String     // UserRole
+  status    String     @default("ACTIVE") // UserStatus
+  
+  // Audit trail
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+  lastLogin DateTime?
+  
+  // Relations
+  createdBookings   Booking[]  @relation("BookingCreatedBy")
+  updatedBookings   Booking[]  @relation("BookingUpdatedBy")
+  createdCustomers  Customer[] @relation("CustomerCreatedBy")
+  createdInvoices   Invoice[]  @relation("InvoiceCreatedBy")
+  createdPayments   Payment[]  @relation("PaymentCreatedBy")
+  
+  @@map("users")
+}
+
+// ============================================
+// Customer Management
+// ============================================
+
+// enum CustomerType {
+//   INDIVIDUAL
+//   COMPANY
+// }
+
+model Customer {
+  id            String       @id @default(cuid())
+  nameAr        String       // الاسم (Arabic)
+  phone         String
+  email         String?
+  idNumber      String?      // رقم الهوية
+  address       String?      // العنوان
+  customerType  String       @default("INDIVIDUAL") // CustomerType
+  notes         String?      // ملاحظات
+  
+  // Soft delete
+  isDeleted     Boolean      @default(false)
+  deletedAt     DateTime?
+  
+  // Audit trail
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+  createdById   String
+  createdBy     User         @relation("CustomerCreatedBy", fields: [createdById], references: [id])
+  
+  // Relations
+  bookings      Booking[]
+  invoices      Invoice[]
+  
+  @@index([phone])
+  @@index([isDeleted])
+  @@map("customers")
+}
+
+// ============================================
+// Hall/Room Management
+// ============================================
+
+// enum HallStatus {
+//   ACTIVE
+//   INACTIVE
+//   MAINTENANCE
+// }
+
+model Hall {
+  id            String     @id @default(cuid())
+  nameAr        String     // اسم القاعة
+  capacity      Int        // السعة (number of guests)
+  basePrice     Decimal    // Base rental price
+  hourlyRate    Decimal?   // Optional hourly rate
+  
+  // Amenities (stored as JSON string for SQLite)
+  amenities     String?    // JSON string: {chairs: true, tables: true...}
+  
+  location      String?    // Location/floor
+  description   String?    // وصف القاعة
+  status        String     @default("ACTIVE") // HallStatus
+  
+  // Soft delete
+  isDeleted     Boolean    @default(false)
+  deletedAt     DateTime?
+  
+  // Audit trail
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @updatedAt
+  
+  // Relations
+  bookings      Booking[]
+  
+  @@index([status])
+  @@index([isDeleted])
+  @@map("halls")
+}
+
+// ============================================
+// Booking Management
+// ============================================
+
+// enum BookingStatus {
+//   PENDING
+//   CONFIRMED
+//   CANCELLED
+//   COMPLETED
+// }
+
+// enum EventType {
+//   WEDDING
+//   ENGAGEMENT
+//   BIRTHDAY
+//   CONFERENCE
+//   GRADUATION
+//   OTHER
+// }
+
+model Booking {
+  id              String        @id @default(cuid())
+  bookingNumber   String        @unique // Auto-generated: BK-2025-0001
+  
+  // Customer & Hall
+  customerId      String
+  customer        Customer      @relation(fields: [customerId], references: [id])
+  hallId          String
+  hall            Hall          @relation(fields: [hallId], references: [id])
+  
+  // Event Details
+  eventType       String        // EventType
+  eventDate       DateTime      // تاريخ المناسبة
+  startTime       DateTime      // وقت البداية
+  endTime         DateTime      // وقت النهاية
+  guestCount      Int?          // عدد الضيوف
+  notes           String?       // ملاحظات
+  
+  // Financial
+  totalAmount     Decimal       
+  discountAmount  Decimal       @default(0) 
+  vatAmount       Decimal       
+  finalAmount     Decimal       
+  
+  // Status
+  status          String        @default("PENDING") // BookingStatus
+  
+  // Soft delete
+  isDeleted       Boolean       @default(false)
+  deletedAt       DateTime?
+  
+  // Audit trail
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+  createdById     String
+  createdBy       User          @relation("BookingCreatedBy", fields: [createdById], references: [id])
+  updatedById     String?
+  updatedBy       User?         @relation("BookingUpdatedBy", fields: [updatedById], references: [id])
+  
+  // Relations
+  invoices        Invoice[]
+  payments        Payment[]
+  statusHistory   BookingStatusHistory[]
+  
+  @@index([bookingNumber])
+  @@index([eventDate])
+  @@index([status])
+  @@index([customerId])
+  @@index([hallId])
+  @@index([isDeleted])
+  @@map("bookings")
+}
+
+// Track booking status changes
+model BookingStatusHistory {
+  id          String        @id @default(cuid())
+  bookingId   String
+  booking     Booking       @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  
+  fromStatus  String?       // BookingStatus
+  toStatus    String        // BookingStatus
+  notes       String?
+  
+  createdAt   DateTime      @default(now())
+  createdById String?
+  
+  @@index([bookingId])
+  @@map("booking_status_history")
+}
+
+// ============================================
+// Financial Management - Basic Tracking
+// ============================================
+
+// enum InvoiceStatus {
+//   UNPAID
+//   PARTIALLY_PAID
+//   PAID
+//   CANCELLED
+// }
+
+model Invoice {
+  id              String        @id @default(cuid())
+  invoiceNumber   String        @unique // Auto-generated: INV-2025-0001
+  
+  // Relations
+  bookingId       String
+  booking         Booking       @relation(fields: [bookingId], references: [id])
+  customerId      String
+  customer        Customer      @relation(fields: [customerId], references: [id])
+  
+  // Amounts
+  subtotal        Decimal       
+  discountAmount  Decimal       @default(0) 
+  vatAmount       Decimal       
+  totalAmount     Decimal       
+  paidAmount      Decimal       @default(0) 
+  
+  // Dates
+  issueDate       DateTime      @default(now())
+  dueDate         DateTime
+  
+  // Status
+  status          String        @default("UNPAID") // InvoiceStatus
+  
+  // Qoyod Integration
+  qoyodInvoiceId  String?       // ID from Qoyod system
+  syncedToQoyod   Boolean       @default(false)
+  lastSyncAt      DateTime?
+  
+  // Notes
+  notes           String?
+  
+  // Soft delete
+  isDeleted       Boolean       @default(false)
+  deletedAt       DateTime?
+  
+  // Audit trail
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+  createdById     String
+  createdBy       User          @relation("InvoiceCreatedBy", fields: [createdById], references: [id])
+  
+  // Relations
+  payments        Payment[]
+  
+  @@index([invoiceNumber])
+  @@index([status])
+  @@index([dueDate])
+  @@index([syncedToQoyod])
+  @@index([isDeleted])
+  @@map("invoices")
+}
+
+// ============================================
+// Payment Tracking
+// ============================================
+
+// enum PaymentMethod {
+//   CASH
+//   CARD
+//   BANK_TRANSFER
+// }
+
+model Payment {
+  id              String        @id @default(cuid())
+  paymentNumber   String        @unique // Auto-generated: PAY-2025-0001
+  
+  // Relations
+  bookingId       String
+  booking         Booking       @relation(fields: [bookingId], references: [id])
+  invoiceId       String?
+  invoice         Invoice?      @relation(fields: [invoiceId], references: [id])
+  
+  // Payment Details
+  amount          Decimal       
+  paymentMethod   String        // PaymentMethod
+  paymentDate     DateTime      @default(now())
+  notes           String?
+  
+  // Qoyod Integration
+  qoyodPaymentId  String?       // ID from Qoyod system
+  syncedToQoyod   Boolean       @default(false)
+  lastSyncAt      DateTime?
+  
+  // Soft delete
+  isDeleted       Boolean       @default(false)
+  deletedAt       DateTime?
+  
+  // Audit trail
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+  createdById     String
+  createdBy       User          @relation("PaymentCreatedBy", fields: [createdById], references: [id])
+  
+  @@index([paymentNumber])
+  @@index([paymentDate])
+  @@index([syncedToQoyod])
+  @@index([isDeleted])
+  @@map("payments")
+}
+
+// ============================================
+// Settings & Configuration
+// ============================================
+
+model Settings {
+  id                String   @id @default("system") // Single row
+  
+  // Company Information
+  companyNameAr     String   @default("نظام إدارة القاعات")
+  companyLogo       String?
+  companyPhone      String?
+  companyEmail      String?
+  companyAddress    String?
+  commercialRegNo   String?  // رقم السجل التجاري
+  vatRegNo          String?  // رقم التسجيل الضريبي
+  
+  // Financial Settings
+  vatPercentage     Decimal  @default(15) 
+  
+  // Qoyod Integration
+  qoyodApiKey       String?
+  qoyodApiSecret    String?
+  qoyodEnabled      Boolean  @default(false)
+  
+  // Audit trail
+  updatedAt         DateTime @updatedAt
+  
+  @@map("settings")
+}
+
+// ============================================
+// Accounting Sync Log (Qoyod POC)
+// ============================================
+
+// enum SyncType {
+//   CUSTOMER
+//   INVOICE
+//   PAYMENT
+//   GENERAL
+// }
+
+// enum SyncStatus {
+//   PENDING
+//   SUCCESS
+//   FAILED
+// }
+
+model AccountingSync {
+  id              String     @id @default(cuid())
+  
+  syncType        String     // SyncType
+  recordId        String     // ID of the record being synced
+  recordType      String     // Model name: Booking, Invoice, Payment, Customer
+  
+  // Qoyod Response
+  qoyodId         String?    // ID returned from Qoyod
+  status          String     @default("PENDING") // SyncStatus
+  errorMessage    String?    // Error details if failed
+  
+  // Request/Response data (for debugging)
+  requestData     String?    // JSON string
+  responseData    String?    // JSON string
+  
+  // Timing
+  createdAt       DateTime   @default(now())
+  completedAt     DateTime?
+  
+  @@index([recordId])
+  @@index([status])
+  @@index([createdAt])
+  @@map("accounting_sync_log")
+}
