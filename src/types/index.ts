@@ -1,26 +1,26 @@
 export type Role = 'ADMIN' | 'ROOM_SUPERVISOR' | 'ACCOUNTANT' | 'EMPLOYEE';
 
-// Export all Prisma types
+import type {
+  User,
+  Customer,
+  Hall,
+  Booking,
+  Invoice,
+  Payment,
+  Settings,
+  AccountingSync
+} from '@prisma/client'
+
 export type {
   User,
-  UserRole,
-  UserStatus,
   Customer,
-  CustomerType,
   Hall,
-  HallStatus,
   Booking,
-  BookingStatus,
-  EventType,
   Invoice,
-  InvoiceStatus,
   Payment,
-  PaymentMethod,
   Settings,
-  AccountingSync,
-  SyncType,
-  SyncStatus
-} from '@prisma/client'
+  AccountingSync
+}
 
 // Custom application types
 export interface DashboardStats {

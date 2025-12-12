@@ -4,6 +4,14 @@ import { prisma } from "@/lib/prisma"
 import bcrypt from "bcryptjs"
 import type { UserRole } from "@/types/enums"
 
+export interface User {
+    id: string
+    username: string
+    nameAr: string
+    role: UserRole
+    email?: string | null
+}
+
 declare module "next-auth" {
     interface User {
         id: string
@@ -22,9 +30,7 @@ declare module "next-auth" {
             email?: string | null
         }
     }
-}
 
-declare module "next-auth/jwt" {
     interface JWT {
         id: string
         username: string
@@ -110,10 +116,10 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         },
         async session({ session, token }) {
             if (token) {
-                session.user.id = token.id
-                session.user.username = token.username
-                session.user.nameAr = token.nameAr
-                session.user.role = token.role
+                session.user.id = token.id as string
+                session.user.username = token.username as string
+                session.user.nameAr = token.nameAr as string
+                session.user.role = token.role as UserRole
             }
             return session
         }
