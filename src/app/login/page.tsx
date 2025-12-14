@@ -111,6 +111,59 @@ export default function LoginPage() {
                     </button>
                 </form>
 
+                {/* Temporary Mock Login Buttons */}
+                <div className="mt-8 border-t border-gray-200 pt-6">
+                    <p className="text-center text-sm text-[var(--text-secondary)] mb-4">
+                        تسجيل دخول سريع (للعرض التجريبي)
+                    </p>
+                    <div className="grid grid-cols-2 gap-3">
+                        <button
+                            type="button"
+                            onClick={() => {
+                                setUsername('mock_admin')
+                                setPassword('any')
+                                signIn('credentials', { username: 'mock_admin', password: 'any', callbackUrl: '/dashboard' })
+                            }}
+                            className="bg-purple-100 text-purple-700 hover:bg-purple-200 py-2 px-4 rounded-md text-sm font-medium transition-colors"
+                        >
+                            مدير (Admin)
+                        </button>
+                        <button
+                            type="button"
+                            onClick={() => {
+                                setUsername('mock_supervisor')
+                                setPassword('any')
+                                signIn('credentials', { username: 'mock_supervisor', password: 'any', callbackUrl: '/dashboard' })
+                            }}
+                            className="bg-blue-100 text-blue-700 hover:bg-blue-200 py-2 px-4 rounded-md text-sm font-medium transition-colors"
+                        >
+                            مشرف (Supervisor)
+                        </button>
+                        <button
+                            type="button"
+                            onClick={() => {
+                                setUsername('mock_accountant')
+                                setPassword('any')
+                                signIn('credentials', { username: 'mock_accountant', password: 'any', callbackUrl: '/dashboard' })
+                            }}
+                            className="bg-green-100 text-green-700 hover:bg-green-200 py-2 px-4 rounded-md text-sm font-medium transition-colors"
+                        >
+                            محاسب (Accountant)
+                        </button>
+                        <button
+                            type="button"
+                            onClick={() => {
+                                setUsername('mock_employee')
+                                setPassword('any')
+                                signIn('credentials', { username: 'mock_employee', password: 'any', callbackUrl: '/dashboard' })
+                            }}
+                            className="bg-gray-100 text-gray-700 hover:bg-gray-200 py-2 px-4 rounded-md text-sm font-medium transition-colors"
+                        >
+                            موظف (Employee)
+                        </button>
+                    </div>
+                </div>
+
                 {/* Footer */}
                 <div className="mt-6 text-center text-sm text-gray-500">
                     <p>نظام إدارة القاعات والمناسبات</p>

@@ -57,6 +57,46 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
                     throw new Error("يرجى إدخال اسم المستخدم وكلمة المرور")
                 }
 
+                // ===============================================
+                // TEMPORARY MOCK LOGIN BYPASS (Netlify DB Issue)
+                // ===============================================
+                const mockUsers: Record<string, any> = {
+                    'mock_admin': {
+                        id: 'mock_admin_1',
+                        username: 'mock_admin',
+                        nameAr: 'مدير النظام (مؤقت)',
+                        role: 'ADMIN',
+                        email: 'admin@mock.com'
+                    },
+                    'mock_supervisor': {
+                        id: 'mock_sup_1',
+                        username: 'mock_supervisor',
+                        nameAr: 'مشرف القاعات (مؤقت)',
+                        role: 'ROOM_SUPERVISOR',
+                        email: 'sup@mock.com'
+                    },
+                    'mock_accountant': {
+                        id: 'mock_acct_1',
+                        username: 'mock_accountant',
+                        nameAr: 'محاسب (مؤقت)',
+                        role: 'ACCOUNTANT',
+                        email: 'acct@mock.com'
+                    },
+                    'mock_employee': {
+                        id: 'mock_emp_1',
+                        username: 'mock_employee',
+                        nameAr: 'موظف (مؤقت)',
+                        role: 'EMPLOYEE',
+                        email: 'emp@mock.com'
+                    }
+                }
+
+                if (credentials?.username && mockUsers[credentials.username as string]) {
+                    console.log("⚠️ USING MOCK USER BYPASS FOR:", credentials.username);
+                    return mockUsers[credentials.username as string];
+                }
+                // ===============================================
+
                 try {
                     const user = await prisma.user.findFirst({
                         where: {
