@@ -10,9 +10,12 @@ export default async function DashboardLayout({
 }) {
     const session = await auth()
 
-    if (!session) {
+    if (!session || !session.user) {
+        console.log("⚠️ No session or user found in DashboardLayout, redirecting to login");
         redirect('/login')
     }
+
+    console.log("✅ DashboardLayout: User authenticated:", session.user.username, session.user.role);
 
     return (
         <div className="min-h-screen bg-[var(--bg-secondary)]">
