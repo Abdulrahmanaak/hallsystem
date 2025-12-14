@@ -52,6 +52,10 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
             async authorize(credentials) {
                 console.log("🔐 Login attempt for:", credentials?.username);
 
+                if (!process.env.AUTH_SECRET) {
+                    console.error("⚠️ AUTH_SECRET is missing in environment variables!");
+                }
+
                 if (!credentials?.username || !credentials?.password) {
                     console.log("❌ Missing credentials");
                     throw new Error("يرجى إدخال اسم المستخدم وكلمة المرور")

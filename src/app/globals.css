@@ -189,7 +189,7 @@ body {
   
   /* Sidebar */
   .sidebar {
-    @apply fixed right-0 top-0 h-full w-64 bg-white;
+    @apply h-full w-64 bg-white;
     @apply border-l border-[var(--border-color)] shadow-lg;
     @apply overflow-y-auto;
   }
@@ -299,13 +299,4 @@ body {
    Responsive Utilities
    ============================================ */
 
-@media (max-width: 768px) {
-  .sidebar {
-    @apply w-full;
-    transform: translateX(100%);
-  }
-  
-  .sidebar.mobile-open {
-    transform: translateX(0);
-  }
-}
+/* Mobile interactions handled in layout components */

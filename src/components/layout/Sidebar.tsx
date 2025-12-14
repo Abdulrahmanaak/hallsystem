@@ -10,7 +10,8 @@ import {
     Building2,
     DollarSign,
     UserCog,
-    Settings
+    Settings,
+    X
 } from 'lucide-react'
 import type { UserRole } from '@/types/enums'
 
@@ -19,6 +20,7 @@ interface SidebarProps {
         nameAr: string
         role: UserRole
     }
+    onCloseMobile?: () => void
 }
 
 interface MenuItem {
@@ -28,7 +30,7 @@ interface MenuItem {
     roles: UserRole[] // Which roles can see this menu item
 }
 
-export default function Sidebar({ user }: SidebarProps) {
+export default function Sidebar({ user, onCloseMobile }: SidebarProps) {
     const pathname = usePathname()
 
     const menuItems: MenuItem[] = [
@@ -94,9 +96,19 @@ export default function Sidebar({ user }: SidebarProps) {
                 <h2 className="text-xl font-bold text-[var(--primary-700)]">
                     نظام إدارة القاعات
                 </h2>
-                <p className="text-sm text-[var(--text-secondary)] mt-1">
-                    {user.nameAr}
-                </p>
+                <div className="flex items-center justify-between mt-1">
+                    <p className="text-sm text-[var(--text-secondary)]">
+                        {user.nameAr}
+                    </p>
+                    {onCloseMobile && (
+                        <button
+                            onClick={onCloseMobile}
+                            className="lg:hidden p-1 hover:bg-gray-100 rounded-md text-gray-500"
+                        >
+                            <X size={20} />
+                        </button>
+                    )}
+                </div>
             </div>
 
             {/* Navigation Menu */}

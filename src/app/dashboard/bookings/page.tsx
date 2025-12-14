@@ -298,7 +298,7 @@ export default function BookingsPage() {
             </div>
 
             {/* Stats Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                 <Card className="bg-white border border-[var(--border-color)]">
                     <CardContent className="pt-6">
                         <div className="flex items-center gap-4">
@@ -361,7 +361,7 @@ export default function BookingsPage() {
             {/* Search & Filter */}
             <Card className="bg-white border border-[var(--border-color)]">
                 <CardContent className="py-4">
-                    <div className="flex gap-4">
+                    <div className="flex flex-col md:flex-row gap-4">
                         <div className="relative flex-1">
                             <Search className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
                             <input
@@ -375,7 +375,7 @@ export default function BookingsPage() {
                         <select
                             value={statusFilter}
                             onChange={(e) => setStatusFilter(e.target.value)}
-                            className="form-input w-48"
+                            className="form-input w-full md:w-48"
                         >
                             <option value="all">جميع الحالات</option>
                             <option value="PENDING">قيد الانتظار</option>

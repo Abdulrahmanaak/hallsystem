@@ -1,7 +1,7 @@
 'use client'
 
 import { signOut } from 'next-auth/react'
-import { LogOut, Bell } from 'lucide-react'
+import { LogOut, Bell, Menu } from 'lucide-react'
 import type { UserRole } from '@/types/enums'
 
 interface HeaderProps {
@@ -9,6 +9,7 @@ interface HeaderProps {
         nameAr: string
         role: UserRole
     }
+    onMenuClick?: () => void
 }
 
 const roleNames: Record<UserRole, string> = {
@@ -18,10 +19,18 @@ const roleNames: Record<UserRole, string> = {
     EMPLOYEE: 'موظف'
 }
 
-export default function Header({ user }: HeaderProps) {
+export default function Header({ user, onMenuClick }: HeaderProps) {
     return (
         <header className="header">
-            <div>
+            <div className="flex items-center gap-4">
+                {onMenuClick && (
+                    <button
+                        onClick={onMenuClick}
+                        className="lg:hidden p-2 hover:bg-gray-100 rounded-md text-gray-600"
+                    >
+                        <Menu size={24} />
+                    </button>
+                )}
                 {/* Page will add title here if needed */}
             </div>
 

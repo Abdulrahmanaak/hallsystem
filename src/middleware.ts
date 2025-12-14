@@ -9,7 +9,7 @@ export default auth((req) => {
     const pathname = req.nextUrl.pathname
 
     // Public paths
-    const isPublicPath = pathname === "/login"
+    const isPublicPath = pathname === "/login" || pathname.startsWith("/api/auth")
 
     // Redirect logged-in users from login page
     if (isPublicPath && token?.user) {
