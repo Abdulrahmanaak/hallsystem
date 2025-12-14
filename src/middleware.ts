@@ -12,12 +12,12 @@ export default auth((req) => {
     const isPublicPath = pathname === "/login"
 
     // Redirect logged-in users from login page
-    if (isPublicPath && token) {
+    if (isPublicPath && token?.user) {
         return NextResponse.redirect(new URL("/dashboard", req.url))
     }
 
     // Redirect non-logged-in users to login
-    if (!isPublicPath && !token) {
+    if (!isPublicPath && !token?.user) {
         return NextResponse.redirect(new URL("/login", req.url))
     }
 
