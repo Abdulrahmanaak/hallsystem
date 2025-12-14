@@ -1,4 +1,4 @@
-import { User, Role } from '@/types';
+import type { User, Role } from '@/types';
 
 const MOCK_USERS: any[] = [
     {

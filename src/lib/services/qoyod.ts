@@ -1,4 +1,4 @@
-import { Booking } from "./booking";
+import type { Booking } from "./booking";
 
 export interface QoyodStatus {
     connected: boolean;

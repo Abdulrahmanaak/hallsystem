@@ -2,8 +2,9 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { User } from '@/lib/auth';
-import { Booking, HALLS, MOCK_BOOKINGS, getHallName } from '@/lib/db';
+import type { User } from '@/lib/auth';
+import type { Booking } from '@/lib/db';
+import { HALLS, MOCK_BOOKINGS, getHallName } from '@/lib/db';
 import { Calendar, Plus, Search, Filter } from 'lucide-react';
 
 export default function BookingsPage() {

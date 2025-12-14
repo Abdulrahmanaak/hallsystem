@@ -1,4 +1,4 @@
-import { BookingStatus } from "@/lib/services/booking"
+import type { BookingStatus } from "@/lib/services/booking"
 import { cn } from "@/lib/utils"
 
 const statusStyles: Record<BookingStatus, string> = {
