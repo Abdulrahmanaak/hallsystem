@@ -1,3 +1,4 @@
+'use client'
 
 // Helper to format date to Hijri
 const formatHijri = (dateString: string) => {
