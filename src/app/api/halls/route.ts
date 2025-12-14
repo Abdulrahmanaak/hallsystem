@@ -36,10 +36,9 @@ export async function GET() {
         return NextResponse.json(formattedHalls)
     } catch (error) {
         console.error('Error fetching halls:', error)
-        return NextResponse.json(
-            { error: 'Failed to fetch halls' },
-            { status: 500 }
-        )
+        console.log('⚠️ Database unavailable, falling back to MOCK_HALLS');
+        const { MOCK_HALLS } = await import('@/lib/mock-data');
+        return NextResponse.json(MOCK_HALLS);
     }
 }
 

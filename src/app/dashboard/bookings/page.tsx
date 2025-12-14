@@ -1,4 +1,18 @@
-'use client'
+
+// Helper to format date to Hijri
+const formatHijri = (dateString: string) => {
+    if (!dateString) return ''
+    try {
+        return new Intl.DateTimeFormat('ar-SA-u-ca-islamic', {
+            day: 'numeric',
+            month: 'long',
+            year: 'numeric'
+        }).format(new Date(dateString))
+    } catch (e) {
+        return ''
+    }
+}
+
 
 import { useEffect, useState } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -84,12 +98,11 @@ export default function BookingsPage() {
     const [editingBooking, setEditingBooking] = useState<Booking | null>(null)
     const [viewingBooking, setViewingBooking] = useState<Booking | null>(null)
     const [formData, setFormData] = useState({
-        customerId: '',
+        customerName: '',
+        customerPhone: '',
         hallId: '',
         eventType: 'WEDDING',
         eventDate: '',
-        startTime: '18:00',
-        endTime: '23:00',
         guestCount: '',
         totalAmount: '',
         discountAmount: '0',
@@ -140,12 +153,11 @@ export default function BookingsPage() {
     const openAddModal = () => {
         setEditingBooking(null)
         setFormData({
-            customerId: '',
+            customerName: '',
+            customerPhone: '',
             hallId: '',
             eventType: 'WEDDING',
-            eventDate: '',
-            startTime: '18:00',
-            endTime: '23:00',
+            eventDate: new Date().toISOString().split('T')[0],
             guestCount: '',
             totalAmount: '',
             discountAmount: '0',
@@ -157,12 +169,11 @@ export default function BookingsPage() {
     const openEditModal = (booking: Booking) => {
         setEditingBooking(booking)
         setFormData({
-            customerId: booking.customerId,
+            customerName: booking.customerName || '',
+            customerPhone: booking.customerPhone || '',
             hallId: booking.hallId,
             eventType: booking.eventType,
             eventDate: booking.date,
-            startTime: booking.startTime,
-            endTime: booking.endTime,
             guestCount: booking.guestCount?.toString() || '',
             totalAmount: booking.totalAmount.toString(),
             discountAmount: booking.discountAmount.toString(),
@@ -524,18 +535,34 @@ export default function BookingsPage() {
                         <form onSubmit={handleSubmit} className="p-4 space-y-4">
                             <div className="grid grid-cols-2 gap-4">
                                 <div>
-                                    <label className="form-label">العميل *</label>
-                                    <select
-                                        required
-                                        value={formData.customerId}
-                                        onChange={(e) => setFormData({ ...formData, customerId: e.target.value })}
-                                        className="form-input w-full"
-                                    >
-                                        <option value="">اختر العميل</option>
-                                        {customers.map(c => (
-                                            <option key={c.id} value={c.id}>{c.nameAr} - {c.phone}</option>
-                                        ))}
-                                    </select>
+                                    <label className="form-label">اسم العميل *</label>
+                                    <div className="relative">
+                                        <input
+                                            required
+                                            type="text"
+                                            placeholder="الاسم الثلاثي"
+                                            value={formData.customerName}
+                                            onChange={(e) => setFormData({ ...formData, customerName: e.target.value })}
+                                            className="form-input w-full pr-10"
+                                        />
+                                        <Users className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <label className="form-label">رقم الجوال *</label>
+                                    <div className="relative">
+                                        <input
+                                            required
+                                            type="tel"
+                                            dir="ltr"
+                                            placeholder="05xxxxxxxx"
+                                            value={formData.customerPhone}
+                                            onChange={(e) => setFormData({ ...formData, customerPhone: e.target.value })}
+                                            className="form-input w-full pr-10 text-right"
+                                        />
+                                        <Search className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
+                                    </div>
                                 </div>
 
                                 <div>
@@ -586,7 +613,7 @@ export default function BookingsPage() {
 
                             <div className="grid grid-cols-3 gap-4">
                                 <div>
-                                    <label className="form-label">تاريخ المناسبة *</label>
+                                    <label className="form-label">تاريخ المناسبة (ميلادي) *</label>
                                     <input
                                         type="date"
                                         required
@@ -596,26 +623,12 @@ export default function BookingsPage() {
                                     />
                                 </div>
 
-                                <div>
-                                    <label className="form-label">وقت البداية *</label>
-                                    <input
-                                        type="time"
-                                        required
-                                        value={formData.startTime}
-                                        onChange={(e) => setFormData({ ...formData, startTime: e.target.value })}
-                                        className="form-input w-full"
-                                    />
-                                </div>
-
-                                <div>
-                                    <label className="form-label">وقت النهاية *</label>
-                                    <input
-                                        type="time"
-                                        required
-                                        value={formData.endTime}
-                                        onChange={(e) => setFormData({ ...formData, endTime: e.target.value })}
-                                        className="form-input w-full"
-                                    />
+                                <div className="col-span-2">
+                                    <label className="form-label">التاريخ الهجري (تقريبي)</label>
+                                    <div className="form-input w-full bg-gray-50 text-gray-700 flex items-center">
+                                        <Calendar className="ml-2 text-gray-400" size={18} />
+                                        {formData.eventDate ? formatHijri(formData.eventDate) : 'حدد التاريخ الميلادي أولاً'}
+                                    </div>
                                 </div>
                             </div>
 

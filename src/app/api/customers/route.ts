@@ -46,10 +46,9 @@ export async function GET() {
         return NextResponse.json(formattedCustomers)
     } catch (error) {
         console.error('Error fetching customers:', error)
-        return NextResponse.json(
-            { error: 'Failed to fetch customers' },
-            { status: 500 }
-        )
+        console.log('⚠️ Database unavailable, falling back to MOCK_CUSTOMERS');
+        const { MOCK_CUSTOMERS } = await import('@/lib/mock-data');
+        return NextResponse.json(MOCK_CUSTOMERS);
     }
 }
 

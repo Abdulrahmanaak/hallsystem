@@ -32,6 +32,11 @@ export default async function DashboardLayout({
                     {children}
                 </main>
             </div>
+            {/* Demo Mode Disclaimer */}
+            <div className="fixed bottom-0 left-0 right-0 h-8 bg-yellow-100 border-t border-yellow-200 flex items-center justify-center text-xs text-yellow-800 z-50 pointer-events-none">
+                <span className="font-bold ml-1">تجريبي:</span>
+                <span>يتم عرض بيانات وهمية نظراً لعدم توفر قاعدة البيانات.</span>
+            </div>
         </div>
     )
 }
