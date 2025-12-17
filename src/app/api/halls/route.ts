@@ -3,26 +3,38 @@ import { prisma } from '@/lib/prisma'
 
 export async function GET() {
     try {
-        const halls = await prisma.hall.findMany({
-            where: {
-                isDeleted: false
-            },
-            include: {
-                _count: {
-                    select: {
-                        bookings: true
-                    }
-                }
-            },
-            orderBy: {
-                nameAr: 'asc'
-            }
+        let halls = await prisma.hall.findMany({
+            where: { isDeleted: false },
+            include: { _count: { select: { bookings: true } } },
+            orderBy: { nameAr: 'asc' }
         })
+
+        if (halls.length === 0) {
+            console.log('🌱 Database empty, seeding default halls...')
+            const defaultHalls = [
+                { nameAr: 'القاعة الكبرى', capacity: 500, basePrice: 5000, amenities: JSON.stringify({ lighting: true, sound: true }) },
+                { nameAr: 'قاعة الحديقة', capacity: 300, basePrice: 3500, amenities: JSON.stringify({ outdoor: true }) },
+                { nameAr: 'الجناح الملكي', capacity: 100, basePrice: 1500, amenities: JSON.stringify({ vip: true }) },
+            ]
+
+            // Create sequentially to avoid race conditions in SQLite simple setup
+            for (const h of defaultHalls) {
+                await prisma.hall.create({ data: h })
+            }
+
+            // Re-fetch
+            halls = await prisma.hall.findMany({
+                where: { isDeleted: false },
+                include: { _count: { select: { bookings: true } } },
+                orderBy: { nameAr: 'asc' }
+            })
+        }
 
         const formattedHalls = halls.map(hall => ({
             id: hall.id,
             name: hall.nameAr,
             capacity: hall.capacity,
+            price: Number(hall.basePrice), // Normalized to 'price' for frontend compatibility
             basePrice: Number(hall.basePrice),
             hourlyRate: hall.hourlyRate ? Number(hall.hourlyRate) : null,
             amenities: hall.amenities,
@@ -36,9 +48,7 @@ export async function GET() {
         return NextResponse.json(formattedHalls)
     } catch (error) {
         console.error('Error fetching halls:', error)
-        console.log('⚠️ Database unavailable, falling back to MOCK_HALLS');
-        const { MOCK_HALLS } = await import('@/lib/mock-data');
-        return NextResponse.json(MOCK_HALLS);
+        return NextResponse.json({ error: 'Failed to fetch halls' }, { status: 500 });
     }
 }
 

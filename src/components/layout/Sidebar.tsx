@@ -52,12 +52,12 @@ export default function Sidebar({ user, onCloseMobile }: SidebarProps) {
             href: '/dashboard/bookings',
             roles: ['ADMIN', 'ROOM_SUPERVISOR', 'ACCOUNTANT', 'EMPLOYEE']
         },
-        {
-            label: 'العملاء',
-            icon: <Users size={20} />,
-            href: '/dashboard/customers',
-            roles: ['ADMIN', 'ROOM_SUPERVISOR', 'ACCOUNTANT', 'EMPLOYEE']
-        },
+        // {
+        //     label: 'العملاء',
+        //     icon: <Users size={20} />,
+        //     href: '/dashboard/customers',
+        //     roles: ['ADMIN', 'ROOM_SUPERVISOR', 'ACCOUNTANT', 'EMPLOYEE']
+        // },
         {
             label: 'القاعات',
             icon: <Building2 size={20} />,

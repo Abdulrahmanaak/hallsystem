@@ -1,6 +1,8 @@
 'use client'
 
+import Link from 'next/link'
 import { useEffect, useState } from 'react'
+
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import {
     ChevronRight,
@@ -285,9 +287,9 @@ export default function CalendarPage() {
                                     <p className="text-[var(--text-secondary)]">
                                         لا توجد حجوزات في هذا اليوم
                                     </p>
-                                    <button className="btn-primary mt-4">
+                                    <Link href="/dashboard/bookings/new" className="btn-primary mt-4 inline-block">
                                         + إضافة حجز
-                                    </button>
+                                    </Link>
                                 </div>
                             ) : (
                                 <div className="space-y-4">

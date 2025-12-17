@@ -77,6 +77,14 @@ export async function PUT(
         if (body.guestCount !== undefined) updateData.guestCount = body.guestCount ? parseInt(body.guestCount) : null
         if (body.notes !== undefined) updateData.notes = body.notes || null
 
+        // New Fields
+        if (body.sectionType !== undefined) updateData.sectionType = body.sectionType
+        if (body.mealType !== undefined) updateData.mealType = body.mealType
+        if (body.services !== undefined) updateData.services = body.services ? JSON.stringify(body.services) : null
+        if (body.coffeeServers !== undefined) updateData.coffeeServers = body.coffeeServers ? parseInt(body.coffeeServers) : null
+        if (body.sacrifices !== undefined) updateData.sacrifices = body.sacrifices ? parseInt(body.sacrifices) : null
+        if (body.downPayment !== undefined) updateData.downPayment = parseFloat(body.downPayment) || 0
+
         // Recalculate amounts if totalAmount or discountAmount changed
         if (body.totalAmount !== undefined || body.discountAmount !== undefined) {
             const totalAmount = parseFloat(body.totalAmount) || 0

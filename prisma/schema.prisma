@@ -166,10 +166,16 @@ model Booking {
   startTime       DateTime      // وقت البداية
   endTime         DateTime      // وقت النهاية
   guestCount      Int?          // عدد الضيوف
+  sectionType     String?       // "MEN", "WOMEN", "BOTH"
+  mealType        String?       // "DINNER", "LUNCH", "BREAKFAST"
+  services        String?       // JSON string of selected service IDs
+  coffeeServers   Int?          // Number of coffee servers
+  sacrifices      Int?          // Number of sacrifices (sheep)
   notes           String?       // ملاحظات
   
   // Financial
   totalAmount     Decimal       
+  downPayment     Decimal       @default(0) // العربون
   discountAmount  Decimal       @default(0) 
   vatAmount       Decimal       
   finalAmount     Decimal       

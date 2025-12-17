@@ -1,9 +1,17 @@
+import Link from 'next/link'
+
 export default async function DashboardPage() {
     return (
         <div>
-            <h1 className="text-2xl font-bold text-[var(--text-primary)] mb-6">
-                لوحة التحكم
-            </h1>
+            <div className="flex items-center justify-between mb-6">
+                <h1 className="text-2xl font-bold text-[var(--text-primary)]">
+                    لوحة التحكم
+                </h1>
+                <Link href="/dashboard/bookings/new" className="bg-[var(--primary-600)] text-white px-4 py-2 rounded-lg hover:bg-[var(--primary-700)] transition-colors flex items-center gap-2">
+                    <span className="text-xl">+</span>
+                    <span>حجز جديد</span>
+                </Link>
+            </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
                 {/* Stats Cards - Will be implemented next */}

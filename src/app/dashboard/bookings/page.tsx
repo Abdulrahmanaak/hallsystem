@@ -15,6 +15,7 @@ const formatHijri = (dateString: string) => {
 }
 
 
+import Link from 'next/link'
 import { useEffect, useState } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import {
@@ -291,10 +292,10 @@ export default function BookingsPage() {
                     </p>
                 </div>
 
-                <button onClick={openAddModal} className="btn-primary flex items-center gap-2">
+                <Link href="/dashboard/bookings/new" className="btn-primary flex items-center gap-2">
                     <Plus size={20} />
                     حجز جديد
-                </button>
+                </Link>
             </div>
 
             {/* Stats Cards */}
