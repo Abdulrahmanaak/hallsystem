@@ -346,15 +346,6 @@ export default function NewBookingPage() {
                                 </div>
 
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    <div className="space-y-2">
-                                        <Label>عدد الضيوف (للوجبات)</Label>
-                                        <Input
-                                            type="number"
-                                            min="0"
-                                            value={guestCount}
-                                            onChange={e => setGuestCount(Number(e.target.value))}
-                                        />
-                                    </div>
 
                                     <div className="space-y-2">
                                         <Label>الأقسام</Label>
@@ -531,19 +522,30 @@ export default function NewBookingPage() {
                                 </div>
                             </div>
 
-                            <div className="space-y-2">
-                                <Label>الوجبة</Label>
-                                <select
-                                    className="w-full h-10 px-3 rounded-md border border-input bg-background"
-                                    value={mealType}
-                                    onChange={e => setMealType(e.target.value)}
-                                >
-                                    {MEAL_TYPES.map(t => (
-                                        <option key={t.id} value={t.id}>
-                                            {t.label} ({t.price > 0 ? `${t.price} ريال/شخص` : 'مجاني'})
-                                        </option>
-                                    ))}
-                                </select>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div className="space-y-2">
+                                    <Label>عدد الضيوف (للوجبات)</Label>
+                                    <Input
+                                        type="number"
+                                        min="0"
+                                        value={guestCount}
+                                        onChange={e => setGuestCount(Number(e.target.value))}
+                                    />
+                                </div>
+                                <div className="space-y-2">
+                                    <Label>الوجبة</Label>
+                                    <select
+                                        className="w-full h-10 px-3 rounded-md border border-input bg-background"
+                                        value={mealType}
+                                        onChange={e => setMealType(e.target.value)}
+                                    >
+                                        {MEAL_TYPES.map(t => (
+                                            <option key={t.id} value={t.id}>
+                                                {t.label} ({t.price > 0 ? `${t.price} ريال/شخص` : 'مجاني'})
+                                            </option>
+                                        ))}
+                                    </select>
+                                </div>
                             </div>
                         </CardContent>
                     </Card>
