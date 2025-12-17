@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import {
     Building2,
@@ -14,8 +14,13 @@ import {
     X,
     CheckCircle,
     XCircle,
-    Wrench
+    Wrench,
+    Settings,
+    Coffee,
+    Scissors
 } from 'lucide-react'
+import { Label } from '@/components/ui/label'
+import { Input } from '@/components/ui/input'
 
 interface Hall {
     id: string
@@ -29,7 +34,70 @@ interface Hall {
     status: string
     bookingsCount: number
     createdAt: string
+    // New Configuration Fields
+    defaultCoffeeServers: number
+    defaultSacrifices: number
+    coffeeServerPrice: number
+    sacrificePrice: number
+    extraSectionPrice: number
 }
+
+const MOCK_HALLS: Hall[] = [
+    {
+        id: 'hall-1',
+        name: 'القاعة الكبرى',
+        capacity: 500,
+        basePrice: 5000,
+        hourlyRate: null,
+        amenities: 'مجهزة بالكامل',
+        location: 'الدور الأرضي',
+        description: 'قاعة فاخرة مناسبة للأعراس والمناسبات الكبيرة',
+        status: 'ACTIVE',
+        bookingsCount: 12,
+        createdAt: new Date().toISOString(),
+        defaultCoffeeServers: 10,
+        defaultSacrifices: 5,
+        coffeeServerPrice: 100,
+        sacrificePrice: 1500,
+        extraSectionPrice: 1000
+    },
+    {
+        id: 'hall-2',
+        name: 'قاعة الحديقة',
+        capacity: 300,
+        basePrice: 3500,
+        hourlyRate: null,
+        amenities: 'إطلالة خارجية',
+        location: 'الحديقة الخارجية',
+        description: 'قاعة مفتوحة مع تشجير وإضاءة خافتة',
+        status: 'ACTIVE',
+        bookingsCount: 8,
+        createdAt: new Date().toISOString(),
+        defaultCoffeeServers: 6,
+        defaultSacrifices: 3,
+        coffeeServerPrice: 100,
+        sacrificePrice: 1500,
+        extraSectionPrice: 1000
+    },
+    {
+        id: 'hall-3',
+        name: 'الجناح الملكي',
+        capacity: 100,
+        basePrice: 1500,
+        hourlyRate: null,
+        amenities: 'خدمة VIP',
+        location: 'الدور الثاني',
+        description: 'جناح خاص للمناسبات الصغيرة والاجتماعات',
+        status: 'ACTIVE',
+        bookingsCount: 5,
+        createdAt: new Date().toISOString(),
+        defaultCoffeeServers: 2,
+        defaultSacrifices: 0,
+        coffeeServerPrice: 100,
+        sacrificePrice: 1500,
+        extraSectionPrice: 1000
+    }
+]
 
 const STATUS_CONFIG: Record<string, { label: string; color: string; icon: React.ReactNode }> = {
     'ACTIVE': { label: 'نشط', color: 'bg-green-100 text-green-800', icon: <CheckCircle size={14} /> },
@@ -38,11 +106,11 @@ const STATUS_CONFIG: Record<string, { label: string; color: string; icon: React.
 }
 
 export default function HallsPage() {
-    const [halls, setHalls] = useState<Hall[]>([])
-    const [loading, setLoading] = useState(true)
+    const [halls, setHalls] = useState<Hall[]>(MOCK_HALLS)
     const [searchTerm, setSearchTerm] = useState('')
     const [showModal, setShowModal] = useState(false)
     const [editingHall, setEditingHall] = useState<Hall | null>(null)
+
     const [formData, setFormData] = useState({
         nameAr: '',
         capacity: '',
@@ -51,25 +119,14 @@ export default function HallsPage() {
         location: '',
         description: '',
         status: 'ACTIVE',
-        amenities: ''
+        amenities: '',
+        // New Fields
+        defaultCoffeeServers: '0',
+        defaultSacrifices: '0',
+        coffeeServerPrice: '100',
+        sacrificePrice: '1500',
+        extraSectionPrice: '1000'
     })
-    const [saving, setSaving] = useState(false)
-
-    const fetchHalls = async () => {
-        try {
-            const response = await fetch('/api/halls')
-            const data = await response.json()
-            setHalls(data)
-        } catch (error) {
-            console.error('Error fetching halls:', error)
-        } finally {
-            setLoading(false)
-        }
-    }
-
-    useEffect(() => {
-        fetchHalls()
-    }, [])
 
     const filteredHalls = halls.filter(h =>
         h.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -86,7 +143,12 @@ export default function HallsPage() {
             location: '',
             description: '',
             status: 'ACTIVE',
-            amenities: ''
+            amenities: '',
+            defaultCoffeeServers: '0',
+            defaultSacrifices: '0',
+            coffeeServerPrice: '100',
+            sacrificePrice: '1500',
+            extraSectionPrice: '1000'
         })
         setShowModal(true)
     }
@@ -101,74 +163,54 @@ export default function HallsPage() {
             location: hall.location || '',
             description: hall.description || '',
             status: hall.status,
-            amenities: hall.amenities || ''
+            amenities: hall.amenities || '',
+            defaultCoffeeServers: hall.defaultCoffeeServers.toString(),
+            defaultSacrifices: hall.defaultSacrifices.toString(),
+            coffeeServerPrice: hall.coffeeServerPrice.toString(),
+            sacrificePrice: hall.sacrificePrice.toString(),
+            extraSectionPrice: hall.extraSectionPrice.toString()
         })
         setShowModal(true)
     }
 
-    const handleSubmit = async (e: React.FormEvent) => {
+    const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault()
-        setSaving(true)
 
-        try {
-            const url = editingHall
-                ? `/api/halls/${editingHall.id}`
-                : '/api/halls'
-
-            const method = editingHall ? 'PUT' : 'POST'
-
-            const response = await fetch(url, {
-                method,
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    nameAr: formData.nameAr,
-                    capacity: parseInt(formData.capacity),
-                    basePrice: parseFloat(formData.basePrice),
-                    hourlyRate: formData.hourlyRate ? parseFloat(formData.hourlyRate) : null,
-                    location: formData.location || null,
-                    description: formData.description || null,
-                    status: formData.status,
-                    amenities: formData.amenities || null
-                })
-            })
-
-            if (response.ok) {
-                setShowModal(false)
-                fetchHalls()
-            }
-        } catch (error) {
-            console.error('Error saving hall:', error)
-        } finally {
-            setSaving(false)
+        const newHall: Hall = {
+            id: editingHall ? editingHall.id : `hall-${Date.now()}`,
+            name: formData.nameAr,
+            capacity: parseInt(formData.capacity) || 0,
+            basePrice: parseFloat(formData.basePrice) || 0,
+            hourlyRate: formData.hourlyRate ? parseFloat(formData.hourlyRate) : null,
+            location: formData.location || null,
+            description: formData.description || null,
+            status: formData.status,
+            amenities: formData.amenities || null,
+            bookingsCount: editingHall ? editingHall.bookingsCount : 0,
+            createdAt: editingHall ? editingHall.createdAt : new Date().toISOString(),
+            // New Fields
+            defaultCoffeeServers: parseInt(formData.defaultCoffeeServers) || 0,
+            defaultSacrifices: parseInt(formData.defaultSacrifices) || 0,
+            coffeeServerPrice: parseFloat(formData.coffeeServerPrice) || 0,
+            sacrificePrice: parseFloat(formData.sacrificePrice) || 0,
+            extraSectionPrice: parseFloat(formData.extraSectionPrice) || 0
         }
+
+        if (editingHall) {
+            setHalls(halls.map(h => h.id === editingHall.id ? newHall : h))
+        } else {
+            setHalls([...halls, newHall])
+        }
+        setShowModal(false)
     }
 
-    const handleDelete = async (id: string) => {
+    const handleDelete = (id: string) => {
         if (!confirm('هل أنت متأكد من حذف هذه القاعة؟')) return
-
-        try {
-            const response = await fetch(`/api/halls/${id}`, {
-                method: 'DELETE'
-            })
-
-            if (response.ok) {
-                fetchHalls()
-            }
-        } catch (error) {
-            console.error('Error deleting hall:', error)
-        }
+        setHalls(halls.filter(h => h.id !== id))
     }
 
     const totalCapacity = halls.reduce((sum, h) => sum + h.capacity, 0)
     const activeHalls = halls.filter(h => h.status === 'ACTIVE').length
-
-    if (loading) {
-        return (
-            <div className="flex items-center justify-center h-64">
-                <div className="text-lg text-gray-500">جاري التحميل...</div>
-            </div>
-        )
-    }
 
     return (
         <div className="space-y-6">
@@ -324,6 +366,16 @@ export default function HallsPage() {
                                 )}
                             </div>
 
+                            {/* Configuration Preview */}
+                            <div className="grid grid-cols-2 gap-2 text-xs text-slate-500 bg-slate-50 p-2 rounded">
+                                <div className='flex items-center gap-1'>
+                                    <Coffee size={12} /> {hall.defaultCoffeeServers} قهوجي
+                                </div>
+                                <div className='flex items-center gap-1'>
+                                    <Scissors size={12} /> {hall.defaultSacrifices} ذبائح
+                                </div>
+                            </div>
+
                             {hall.description && (
                                 <p className="text-sm text-[var(--text-muted)] line-clamp-2">
                                     {hall.description}
@@ -357,7 +409,7 @@ export default function HallsPage() {
             {/* Add/Edit Modal */}
             {showModal && (
                 <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-                    <div className="bg-white rounded-lg shadow-xl w-full max-w-md mx-4 max-h-[90vh] overflow-y-auto">
+                    <div className="bg-white rounded-lg shadow-xl w-full max-w-2xl mx-4 max-h-[90vh] overflow-y-auto">
                         <div className="flex items-center justify-between p-4 border-b border-[var(--border-color)]">
                             <h3 className="text-lg font-bold">
                                 {editingHall ? 'تعديل القاعة' : 'إضافة قاعة جديدة'}
@@ -370,103 +422,170 @@ export default function HallsPage() {
                             </button>
                         </div>
 
-                        <form onSubmit={handleSubmit} className="p-4 space-y-4">
-                            <div>
-                                <label className="form-label">اسم القاعة *</label>
-                                <input
-                                    type="text"
-                                    required
-                                    value={formData.nameAr}
-                                    onChange={(e) => setFormData({ ...formData, nameAr: e.target.value })}
-                                    className="form-input w-full"
-                                    placeholder="اسم القاعة"
-                                />
+                        <form onSubmit={handleSubmit} className="p-4 space-y-6">
+
+                            {/* Basic Info */}
+                            <div className="space-y-4">
+                                <h4 className="font-medium text-sm text-slate-900 border-b pb-2 flex items-center gap-2">
+                                    <Building2 size={16} /> البيانات الأساسية
+                                </h4>
+                                <div>
+                                    <label className="form-label">اسم القاعة *</label>
+                                    <input
+                                        type="text"
+                                        required
+                                        value={formData.nameAr}
+                                        onChange={(e) => setFormData({ ...formData, nameAr: e.target.value })}
+                                        className="form-input w-full"
+                                        placeholder="اسم القاعة"
+                                    />
+                                </div>
+
+                                <div className="grid grid-cols-2 gap-4">
+                                    <div>
+                                        <label className="form-label">السعة *</label>
+                                        <input
+                                            type="number"
+                                            required
+                                            min="1"
+                                            value={formData.capacity}
+                                            onChange={(e) => setFormData({ ...formData, capacity: e.target.value })}
+                                            className="form-input w-full"
+                                            placeholder="عدد الأشخاص"
+                                        />
+                                    </div>
+
+                                    <div>
+                                        <label className="form-label">السعر الأساسي *</label>
+                                        <input
+                                            type="number"
+                                            required
+                                            min="0"
+                                            step="0.01"
+                                            value={formData.basePrice}
+                                            onChange={(e) => setFormData({ ...formData, basePrice: e.target.value })}
+                                            className="form-input w-full"
+                                            placeholder="ر.س"
+                                        />
+                                    </div>
+                                </div>
                             </div>
 
-                            <div className="grid grid-cols-2 gap-4">
+                            {/* Configuration Defaults */}
+                            <div className="space-y-4">
+                                <h4 className="font-medium text-sm text-slate-900 border-b pb-2 flex items-center gap-2">
+                                    <Settings size={16} /> إعدادات الخدمات الافتراضية
+                                </h4>
+
+                                <div className="grid grid-cols-2 gap-6">
+                                    {/* Coffee Servers */}
+                                    <div className="space-y-3 p-3 bg-slate-50 rounded-lg border">
+                                        <Label className="text-xs font-semibold text-slate-500 uppercase tracking-wider">عمال الضيافة (القهوجية)</Label>
+                                        <div>
+                                            <Label className="text-xs">العدد الافتراضي</Label>
+                                            <Input
+                                                type="number"
+                                                min="0"
+                                                value={formData.defaultCoffeeServers}
+                                                onChange={e => setFormData({ ...formData, defaultCoffeeServers: e.target.value })}
+                                            />
+                                        </div>
+                                        <div>
+                                            <Label className="text-xs">السعر للعامل (ر.س)</Label>
+                                            <Input
+                                                type="number"
+                                                min="0"
+                                                value={formData.coffeeServerPrice}
+                                                onChange={e => setFormData({ ...formData, coffeeServerPrice: e.target.value })}
+                                            />
+                                        </div>
+                                    </div>
+
+                                    {/* Sacrifices */}
+                                    <div className="space-y-3 p-3 bg-slate-50 rounded-lg border">
+                                        <Label className="text-xs font-semibold text-slate-500 uppercase tracking-wider">الذبائح</Label>
+                                        <div>
+                                            <Label className="text-xs">العدد الافتراضي</Label>
+                                            <Input
+                                                type="number"
+                                                min="0"
+                                                value={formData.defaultSacrifices}
+                                                onChange={e => setFormData({ ...formData, defaultSacrifices: e.target.value })}
+                                            />
+                                        </div>
+                                        <div>
+                                            <Label className="text-xs">السعر للذبيحة (ر.س)</Label>
+                                            <Input
+                                                type="number"
+                                                min="0"
+                                                value={formData.sacrificePrice}
+                                                onChange={e => setFormData({ ...formData, sacrificePrice: e.target.value })}
+                                            />
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div className="grid grid-cols-2 gap-4">
+                                    <div>
+                                        <Label>سعر إضافة قسم ثاني (ر.س)</Label>
+                                        <Input
+                                            type="number"
+                                            min="0"
+                                            value={formData.extraSectionPrice}
+                                            onChange={e => setFormData({ ...formData, extraSectionPrice: e.target.value })}
+                                        />
+                                        <p className="text-[10px] text-slate-500 mt-1">يضاف عند اختيار "قسمين"</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Additional Info */}
+                            <div className="space-y-4">
+                                <h4 className="font-medium text-sm text-slate-900 border-b pb-2 flex items-center gap-2">
+                                    <MapPin size={16} /> معلومات إضافية
+                                </h4>
                                 <div>
-                                    <label className="form-label">السعة *</label>
+                                    <label className="form-label">الموقع</label>
                                     <input
-                                        type="number"
-                                        required
-                                        min="1"
-                                        value={formData.capacity}
-                                        onChange={(e) => setFormData({ ...formData, capacity: e.target.value })}
+                                        type="text"
+                                        value={formData.location}
+                                        onChange={(e) => setFormData({ ...formData, location: e.target.value })}
                                         className="form-input w-full"
-                                        placeholder="عدد الأشخاص"
+                                        placeholder="الطابق / المبنى"
                                     />
                                 </div>
 
                                 <div>
-                                    <label className="form-label">السعر الأساسي *</label>
-                                    <input
-                                        type="number"
-                                        required
-                                        min="0"
-                                        step="0.01"
-                                        value={formData.basePrice}
-                                        onChange={(e) => setFormData({ ...formData, basePrice: e.target.value })}
+                                    <label className="form-label">الحالة</label>
+                                    <select
+                                        value={formData.status}
+                                        onChange={(e) => setFormData({ ...formData, status: e.target.value })}
                                         className="form-input w-full"
-                                        placeholder="ر.س"
+                                    >
+                                        <option value="ACTIVE">نشط</option>
+                                        <option value="INACTIVE">غير نشط</option>
+                                        <option value="MAINTENANCE">صيانة</option>
+                                    </select>
+                                </div>
+
+                                <div>
+                                    <label className="form-label">الوصف</label>
+                                    <textarea
+                                        value={formData.description}
+                                        onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                                        className="form-input w-full"
+                                        rows={3}
+                                        placeholder="وصف القاعة والمميزات..."
                                     />
                                 </div>
                             </div>
 
-                            <div>
-                                <label className="form-label">السعر بالساعة (اختياري)</label>
-                                <input
-                                    type="number"
-                                    min="0"
-                                    step="0.01"
-                                    value={formData.hourlyRate}
-                                    onChange={(e) => setFormData({ ...formData, hourlyRate: e.target.value })}
-                                    className="form-input w-full"
-                                    placeholder="ر.س / ساعة"
-                                />
-                            </div>
-
-                            <div>
-                                <label className="form-label">الموقع</label>
-                                <input
-                                    type="text"
-                                    value={formData.location}
-                                    onChange={(e) => setFormData({ ...formData, location: e.target.value })}
-                                    className="form-input w-full"
-                                    placeholder="الطابق / المبنى"
-                                />
-                            </div>
-
-                            <div>
-                                <label className="form-label">الحالة</label>
-                                <select
-                                    value={formData.status}
-                                    onChange={(e) => setFormData({ ...formData, status: e.target.value })}
-                                    className="form-input w-full"
-                                >
-                                    <option value="ACTIVE">نشط</option>
-                                    <option value="INACTIVE">غير نشط</option>
-                                    <option value="MAINTENANCE">صيانة</option>
-                                </select>
-                            </div>
-
-                            <div>
-                                <label className="form-label">الوصف</label>
-                                <textarea
-                                    value={formData.description}
-                                    onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                                    className="form-input w-full"
-                                    rows={3}
-                                    placeholder="وصف القاعة والمميزات..."
-                                />
-                            </div>
-
-                            <div className="flex gap-3 pt-4">
+                            <div className="flex gap-3 pt-4 border-t">
                                 <button
                                     type="submit"
-                                    disabled={saving}
                                     className="btn-primary flex-1"
                                 >
-                                    {saving ? 'جاري الحفظ...' : (editingHall ? 'حفظ التعديلات' : 'إضافة القاعة')}
+                                    {editingHall ? 'حفظ التعديلات' : 'إضافة القاعة'}
                                 </button>
                                 <button
                                     type="button"
