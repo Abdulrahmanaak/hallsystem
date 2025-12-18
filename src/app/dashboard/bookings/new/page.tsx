@@ -8,18 +8,110 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter }
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 
-import { ArrowLeft, Save, Calendar as CalendarIcon, Check, Calculator } from "lucide-react"
+import { ArrowLeft, Save, Calendar as CalendarIcon, Check, Calculator, Lock } from "lucide-react"
 import Link from "next/link"
 import { Calendar } from "@/components/ui/calendar"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { cn } from "@/lib/utils"
 
-// --- Constants & Types ---
+// --- LocalStorage Key (must match halls page) ---
+const HALLS_STORAGE_KEY = 'hallsystem_halls_data'
 
-const HALLS = [
-    { id: 'hall-1', name: 'القاعة الكبرى', capacity: 500, price: 5000 },
-    { id: 'hall-2', name: 'قاعة الحديقة', capacity: 300, price: 3500 },
-    { id: 'hall-3', name: 'الجناح الملكي', capacity: 100, price: 1500 },
+// --- Types matching Hall page ---
+interface MealPrices {
+    dinner: number
+    lunch: number
+    breakfast: number
+    snacks: number
+}
+
+interface Hall {
+    id: string
+    name: string
+    capacity: number
+    basePrice: number
+    hourlyRate: number | null
+    amenities: string | null
+    location: string | null
+    description: string | null
+    status: string
+    bookingsCount: number
+    createdAt: string
+    defaultCoffeeServers: number
+    defaultSacrifices: number
+    coffeeServerPrice: number
+    sacrificePrice: number
+    extraSectionPrice: number
+    defaultGuestCount: number
+    defaultSectionType: 'men' | 'women' | 'both'
+    mealPrices: MealPrices
+}
+
+// --- Default Halls (fallback if localStorage is empty) ---
+const DEFAULT_HALLS: Hall[] = [
+    {
+        id: 'hall-1',
+        name: 'القاعة الكبرى',
+        capacity: 500,
+        basePrice: 5000,
+        hourlyRate: null,
+        amenities: 'مجهزة بالكامل',
+        location: 'الدور الأرضي',
+        description: 'قاعة فاخرة مناسبة للأعراس والمناسبات الكبيرة',
+        status: 'ACTIVE',
+        bookingsCount: 12,
+        createdAt: new Date().toISOString(),
+        defaultCoffeeServers: 10,
+        defaultSacrifices: 5,
+        coffeeServerPrice: 100,
+        sacrificePrice: 1500,
+        extraSectionPrice: 1000,
+        defaultGuestCount: 500,
+        defaultSectionType: 'both' as const,
+        mealPrices: { dinner: 150, lunch: 100, breakfast: 50, snacks: 30 }
+    },
+    {
+        id: 'hall-2',
+        name: 'قاعة الحديقة',
+        capacity: 300,
+        basePrice: 3500,
+        hourlyRate: null,
+        amenities: 'إطلالة خارجية',
+        location: 'الحديقة الخارجية',
+        description: 'قاعة مفتوحة مع تشجير وإضاءة خافتة',
+        status: 'ACTIVE',
+        bookingsCount: 8,
+        createdAt: new Date().toISOString(),
+        defaultCoffeeServers: 6,
+        defaultSacrifices: 3,
+        coffeeServerPrice: 100,
+        sacrificePrice: 1500,
+        extraSectionPrice: 1000,
+        defaultGuestCount: 300,
+        defaultSectionType: 'both' as const,
+        mealPrices: { dinner: 120, lunch: 80, breakfast: 40, snacks: 25 }
+    },
+    {
+        id: 'hall-3',
+        name: 'الجناح الملكي',
+        capacity: 100,
+        basePrice: 1500,
+        hourlyRate: null,
+        amenities: 'خدمة VIP',
+        location: 'الدور الثاني',
+        description: 'جناح خاص للمناسبات الصغيرة والاجتماعات',
+        status: 'ACTIVE',
+        bookingsCount: 5,
+        createdAt: new Date().toISOString(),
+        defaultCoffeeServers: 2,
+        defaultSacrifices: 0,
+        coffeeServerPrice: 100,
+        sacrificePrice: 1500,
+        extraSectionPrice: 1000,
+        defaultGuestCount: 100,
+        defaultSectionType: 'men' as const,
+        mealPrices: { dinner: 200, lunch: 150, breakfast: 80, snacks: 50 }
+    }
 ]
 
 const EVENT_TYPES = [
@@ -31,11 +123,11 @@ const EVENT_TYPES = [
 ]
 
 const MEAL_TYPES = [
-    { id: 'dinner', label: 'عشاء', price: 150 }, // Price per person
-    { id: 'lunch', label: 'غداء', price: 100 },
-    { id: 'breakfast', label: 'فطور', price: 50 },
-    { id: 'snacks', label: 'وجبات خفيفة', price: 30 },
-    { id: 'none', label: 'لا يوجد', price: 0 }
+    { id: 'dinner', label: 'عشاء' },
+    { id: 'lunch', label: 'غداء' },
+    { id: 'breakfast', label: 'فطور' },
+    { id: 'snacks', label: 'وجبات خفيفة' },
+    { id: 'none', label: 'لا يوجد' }
 ]
 
 const SERVICES_LIST = [
@@ -84,6 +176,20 @@ const findGregorianFromHijri = (hYear: string, hMonth: string, hDay: string) => 
     return null;
 }
 
+// Load halls from localStorage
+const loadHallsFromStorage = (): Hall[] => {
+    if (typeof window === 'undefined') return DEFAULT_HALLS
+    try {
+        const stored = localStorage.getItem(HALLS_STORAGE_KEY)
+        if (stored) {
+            return JSON.parse(stored)
+        }
+    } catch (e) {
+        console.error('Error loading halls from localStorage:', e)
+    }
+    return DEFAULT_HALLS
+}
+
 export default function NewBookingPage() {
     const router = useRouter()
     const [loading, setLoading] = useState(false)
@@ -110,14 +216,14 @@ export default function NewBookingPage() {
     const [eventType, setEventType] = useState("WEDDING")
 
     // Hall & Services
-    const [halls, setHalls] = useState<any[]>([])
+    const [halls, setHalls] = useState<Hall[]>([])
     const [selectedHallId, setSelectedHallId] = useState('')
     const [sectionType, setSectionType] = useState('both') // men, women, both
     const [selectedServices, setSelectedServices] = useState<string[]>([])
     const [mealType, setMealType] = useState(MEAL_TYPES[0].id)
     const [guestCount, setGuestCount] = useState<number>(0)
 
-    // New Fields
+    // New Fields - These will be set from Hall Config and are READ ONLY
     const [coffeeServers, setCoffeeServers] = useState<number>(0)
     const [sacrifices, setSacrifices] = useState<number>(0)
 
@@ -127,35 +233,28 @@ export default function NewBookingPage() {
 
     // --- Effects & Logic ---
 
-    // Fetch Halls logic
+    // Load Halls from localStorage
     useEffect(() => {
-        const fetchHalls = async () => {
-            try {
-                const res = await fetch('/api/halls')
-                if (!res.ok) throw new Error('Failed to fetch halls')
-                const data = await res.json()
-                setHalls(data)
-                if (data.length > 0) {
-                    setSelectedHallId(data[0].id)
-                }
-            } catch (err) {
-                console.error("Error fetching halls:", err)
-            } finally {
-                setLoadingHalls(false)
-            }
+        const loaded = loadHallsFromStorage()
+        setHalls(loaded.filter(h => h.status === 'ACTIVE')) // Only show active halls
+        if (loaded.length > 0) {
+            setSelectedHallId(loaded[0].id)
         }
-        fetchHalls()
+        setLoadingHalls(false)
     }, [])
 
-    const selectedHall = useMemo(() => halls.find(h => h.id === selectedHallId) || (halls[0] || { price: 0, name: '', capacity: 0 }), [halls, selectedHallId])
+    const selectedHall = useMemo(() => halls.find(h => h.id === selectedHallId) || (halls[0] || null), [halls, selectedHallId])
 
     // Update defaults when hall selection changes
     useEffect(() => {
         if (selectedHall) {
-            const cap = selectedHall.capacity || 0
-            setGuestCount(cap) // Default guest count to full capacity
-            setCoffeeServers(Math.ceil(cap / 50)) // Logic: 1 server per 50 guests
-            setSacrifices(Math.ceil(cap / 100)) // Logic: 1 sacrifice per 100 guests
+            // Set guest count from hall config (or capacity as fallback)
+            setGuestCount(selectedHall.defaultGuestCount || selectedHall.capacity || 0)
+            // Set section type from hall config (READ ONLY)
+            setSectionType(selectedHall.defaultSectionType || 'both')
+            // Set coffee servers and sacrifices from hall config (READ ONLY)
+            setCoffeeServers(selectedHall.defaultCoffeeServers || 0)
+            setSacrifices(selectedHall.defaultSacrifices || 0)
         }
     }, [selectedHallId, selectedHall])
 
@@ -196,24 +295,35 @@ export default function NewBookingPage() {
     }
 
     // Calculations
-    const basePrice = selectedHall?.price || 0
+    const basePrice = selectedHall?.basePrice || 0
     const servicesPrice = selectedServices.reduce((sum, id) => {
         const s = SERVICES_LIST.find(srv => srv.id === id)
         return sum + (s?.price || 0)
     }, 0)
 
-    // Section Logic: Both sections cost more
-    const sectionSurcharge = sectionType === 'both' ? 1000 : 0
+    // Section Logic: Both sections cost more (use hall config)
+    const sectionSurcharge = sectionType === 'both' ? (selectedHall?.extraSectionPrice || 1000) : 0
 
-    // Meal Calculation
-    const selectedMeal = MEAL_TYPES.find(m => m.id === mealType)
-    const mealPrice = (selectedMeal?.price || 0) * guestCount
+    // Meal Calculation - Use prices from Hall Config
+    const getMealPrice = () => {
+        if (!selectedHall || mealType === 'none') return 0
+        const prices = selectedHall.mealPrices || { dinner: 150, lunch: 100, breakfast: 50, snacks: 30 }
+        switch (mealType) {
+            case 'dinner': return prices.dinner || 0
+            case 'lunch': return prices.lunch || 0
+            case 'breakfast': return prices.breakfast || 0
+            case 'snacks': return prices.snacks || 0
+            default: return 0
+        }
+    }
+    const mealPricePerPerson = getMealPrice()
+    const mealTotalPrice = mealPricePerPerson * guestCount
 
-    // Extra Services Calculation
-    const coffeeServersPrice = coffeeServers * 100
-    const sacrificesPrice = sacrifices * 1500
+    // Extra Services Calculation - Use prices from Hall Config
+    const coffeeServersPrice = coffeeServers * (selectedHall?.coffeeServerPrice || 100)
+    const sacrificesPrice = sacrifices * (selectedHall?.sacrificePrice || 1500)
 
-    const subTotal = basePrice + servicesPrice + sectionSurcharge + mealPrice + coffeeServersPrice + sacrificesPrice
+    const subTotal = basePrice + servicesPrice + sectionSurcharge + mealTotalPrice + coffeeServersPrice + sacrificesPrice
     const discountAmount = Math.round(subTotal * (discountPercent / 100))
     const totalAmount = subTotal - discountAmount
     const remainingAmount = totalAmount - downPayment
@@ -339,7 +449,7 @@ export default function NewBookingPage() {
                                             >
                                                 <div className="font-semibold">{hall.name}</div>
                                                 <div className="text-sm text-slate-500 mt-1">السعة: {hall.capacity} شخص</div>
-                                                <div className="text-sm font-medium text-[var(--primary-700)] mt-2">{hall.price.toLocaleString()} ريال</div>
+                                                <div className="text-sm font-medium text-[var(--primary-700)] mt-2">{hall.basePrice.toLocaleString()} ريال</div>
                                             </div>
                                         ))}
                                     </div>
@@ -348,22 +458,24 @@ export default function NewBookingPage() {
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
 
                                     <div className="space-y-2">
-                                        <Label>الأقسام</Label>
-                                        <div className="flex gap-2 p-1 bg-slate-100 rounded-md">
+                                        <Label className="flex items-center gap-2">
+                                            الأقسام
+                                            <Lock size={12} className="text-slate-400" />
+                                        </Label>
+                                        <div className="flex gap-2 p-1 bg-slate-100 rounded-md opacity-75">
                                             {['men', 'women', 'both'].map(type => (
-                                                <button
+                                                <div
                                                     key={type}
-                                                    type="button"
-                                                    onClick={() => setSectionType(type)}
-                                                    className={`flex-1 py-1.5 text-sm rounded-md transition-all justify-center text-center
+                                                    className={`flex-1 py-1.5 text-sm rounded-md justify-center text-center cursor-not-allowed
                                                         ${sectionType === type
                                                             ? 'bg-white shadow text-[var(--primary-700)] font-medium'
-                                                            : 'text-slate-500 hover:text-slate-700'}`}
+                                                            : 'text-slate-400'}`}
                                                 >
                                                     {type === 'men' ? 'رجال' : type === 'women' ? 'نساء' : 'قسمين'}
-                                                </button>
+                                                </div>
                                             ))}
                                         </div>
+                                        <p className="text-xs text-slate-400">محدد من إعدادات القاعة</p>
                                     </div>
 
                                     <div className="space-y-2">
@@ -498,39 +610,58 @@ export default function NewBookingPage() {
                                 </div>
                             </div>
 
-                            {/* NEW FIELDS: Servers and Sacrifices */}
+                            {/* Coffee Servers and Sacrifices - READ ONLY */}
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                 <div className="space-y-2">
-                                    <Label>عدد عمال الضيافة (القهوجية)</Label>
+                                    <Label className="flex items-center gap-2">
+                                        عدد عمال الضيافة (القهوجية)
+                                        <Lock size={12} className="text-slate-400" />
+                                    </Label>
                                     <Input
                                         type="number"
                                         min="0"
                                         value={coffeeServers}
-                                        onChange={e => setCoffeeServers(Number(e.target.value))}
+                                        disabled
+                                        className="bg-slate-100 cursor-not-allowed"
                                     />
-                                    <p className="text-xs text-slate-400">افتراضي: 1 لكل 50 ضيف (100 ريال/عامل)</p>
+                                    <p className="text-xs text-slate-400">
+                                        افتراضي: {selectedHall?.defaultCoffeeServers || 0} ({selectedHall?.coffeeServerPrice || 100} ريال/عامل)
+                                    </p>
                                 </div>
                                 <div className="space-y-2">
-                                    <Label>عدد الذبائح</Label>
+                                    <Label className="flex items-center gap-2">
+                                        عدد الذبائح
+                                        <Lock size={12} className="text-slate-400" />
+                                    </Label>
                                     <Input
                                         type="number"
                                         min="0"
                                         value={sacrifices}
-                                        onChange={e => setSacrifices(Number(e.target.value))}
+                                        disabled
+                                        className="bg-slate-100 cursor-not-allowed"
                                     />
-                                    <p className="text-xs text-slate-400">افتراضي: 1 لكل 100 ضيف (1500 ريال/ذبيحة)</p>
+                                    <p className="text-xs text-slate-400">
+                                        افتراضي: {selectedHall?.defaultSacrifices || 0} ({selectedHall?.sacrificePrice || 1500} ريال/ذبيحة)
+                                    </p>
                                 </div>
                             </div>
 
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div className="space-y-2">
-                                    <Label>عدد الضيوف (للوجبات)</Label>
+                                    <Label className="flex items-center gap-2">
+                                        عدد الضيوف (للوجبات)
+                                        <Lock size={12} className="text-slate-400" />
+                                    </Label>
                                     <Input
                                         type="number"
                                         min="0"
                                         value={guestCount}
-                                        onChange={e => setGuestCount(Number(e.target.value))}
+                                        disabled
+                                        className="bg-slate-100 cursor-not-allowed"
                                     />
+                                    <p className="text-xs text-slate-400">
+                                        افتراضي: {selectedHall?.defaultGuestCount || selectedHall?.capacity || 0} (محدد من إعدادات القاعة)
+                                    </p>
                                 </div>
                                 <div className="space-y-2">
                                     <Label>الوجبة</Label>
@@ -541,7 +672,7 @@ export default function NewBookingPage() {
                                     >
                                         {MEAL_TYPES.map(t => (
                                             <option key={t.id} value={t.id}>
-                                                {t.label} ({t.price > 0 ? `${t.price} ريال/شخص` : 'مجاني'})
+                                                {t.label} {t.id !== 'none' && selectedHall?.mealPrices ? `(${selectedHall.mealPrices[t.id as keyof MealPrices] || 0} ريال/شخص)` : ''}
                                             </option>
                                         ))}
                                     </select>
@@ -561,13 +692,13 @@ export default function NewBookingPage() {
                             {/* Breakdown */}
                             <div className="space-y-2 text-sm">
                                 <div className="flex justify-between">
-                                    <span className="text-slate-600">القاعة ({selectedHall.name})</span>
-                                    <span className="font-medium">{selectedHall.price.toLocaleString()}</span>
+                                    <span className="text-slate-600">القاعة ({selectedHall?.name || '-'})</span>
+                                    <span className="font-medium">{(selectedHall?.basePrice || 0).toLocaleString()}</span>
                                 </div>
                                 {sectionType === 'both' && (
                                     <div className="flex justify-between text-slate-600">
                                         <span>رسوم قسمين</span>
-                                        <span>+1,000</span>
+                                        <span>+{(selectedHall?.extraSectionPrice || 1000).toLocaleString()}</span>
                                     </div>
                                 )}
 
@@ -586,7 +717,7 @@ export default function NewBookingPage() {
                                 {coffeeServers > 0 && (
                                     <div className="flex justify-between text-slate-600">
                                         <span>قهوجية ({coffeeServers})</span>
-                                        <span>+{(coffeeServers * 100).toLocaleString()}</span>
+                                        <span>+{coffeeServersPrice.toLocaleString()}</span>
                                     </div>
                                 )}
 
@@ -594,20 +725,36 @@ export default function NewBookingPage() {
                                 {sacrifices > 0 && (
                                     <div className="flex justify-between text-slate-600">
                                         <span>ذبائح ({sacrifices})</span>
-                                        <span>+{(sacrifices * 1500).toLocaleString()}</span>
+                                        <span>+{sacrificesPrice.toLocaleString()}</span>
                                     </div>
                                 )}
 
-                                {mealPrice > 0 && (
+                                {mealTotalPrice > 0 && (
                                     <div className="flex justify-between text-green-700 font-medium">
-                                        <span>الوجبات ({guestCount} ضيف)</span>
-                                        <span>+{mealPrice.toLocaleString()}</span>
+                                        <span>الوجبات ({guestCount} ضيف × {mealPricePerPerson} ر.س)</span>
+                                        <span>+{mealTotalPrice.toLocaleString()}</span>
                                     </div>
                                 )}
                                 <div className="pt-2 border-t border-dashed border-slate-300 flex justify-between font-semibold">
                                     <span>المجموع الفرعي</span>
                                     <span>{subTotal.toLocaleString()}</span>
                                 </div>
+
+                                {/* Discount Amount Display */}
+                                {discountAmount > 0 && (
+                                    <div className="flex justify-between text-red-600">
+                                        <span>الخصم ({discountPercent}%)</span>
+                                        <span>-{discountAmount.toLocaleString()}</span>
+                                    </div>
+                                )}
+
+                                {/* Down Payment Display */}
+                                {downPayment > 0 && (
+                                    <div className="flex justify-between text-blue-600">
+                                        <span>العربون المدفوع</span>
+                                        <span>-{downPayment.toLocaleString()}</span>
+                                    </div>
+                                )}
                             </div>
 
                             {/* Discount */}

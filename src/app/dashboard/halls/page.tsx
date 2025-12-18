@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import {
     Building2,
@@ -17,12 +17,23 @@ import {
     Wrench,
     Settings,
     Coffee,
-    Scissors
+    Scissors,
+    Utensils
 } from 'lucide-react'
 import { Label } from '@/components/ui/label'
 import { Input } from '@/components/ui/input'
 
-interface Hall {
+// LocalStorage Key
+const HALLS_STORAGE_KEY = 'hallsystem_halls_data'
+
+export interface MealPrices {
+    dinner: number
+    lunch: number
+    breakfast: number
+    snacks: number
+}
+
+export interface Hall {
     id: string
     name: string
     capacity: number
@@ -34,12 +45,24 @@ interface Hall {
     status: string
     bookingsCount: number
     createdAt: string
-    // New Configuration Fields
+    // Configuration Fields
     defaultCoffeeServers: number
     defaultSacrifices: number
     coffeeServerPrice: number
     sacrificePrice: number
     extraSectionPrice: number
+    // Booking Defaults
+    defaultGuestCount: number
+    defaultSectionType: 'men' | 'women' | 'both'
+    // Meal Prices
+    mealPrices: MealPrices
+}
+
+const DEFAULT_MEAL_PRICES: MealPrices = {
+    dinner: 150,
+    lunch: 100,
+    breakfast: 50,
+    snacks: 30
 }
 
 const MOCK_HALLS: Hall[] = [
@@ -59,7 +82,10 @@ const MOCK_HALLS: Hall[] = [
         defaultSacrifices: 5,
         coffeeServerPrice: 100,
         sacrificePrice: 1500,
-        extraSectionPrice: 1000
+        extraSectionPrice: 1000,
+        defaultGuestCount: 500,
+        defaultSectionType: 'both' as const,
+        mealPrices: { dinner: 150, lunch: 100, breakfast: 50, snacks: 30 }
     },
     {
         id: 'hall-2',
@@ -77,7 +103,10 @@ const MOCK_HALLS: Hall[] = [
         defaultSacrifices: 3,
         coffeeServerPrice: 100,
         sacrificePrice: 1500,
-        extraSectionPrice: 1000
+        extraSectionPrice: 1000,
+        defaultGuestCount: 300,
+        defaultSectionType: 'both' as const,
+        mealPrices: { dinner: 120, lunch: 80, breakfast: 40, snacks: 25 }
     },
     {
         id: 'hall-3',
@@ -95,7 +124,10 @@ const MOCK_HALLS: Hall[] = [
         defaultSacrifices: 0,
         coffeeServerPrice: 100,
         sacrificePrice: 1500,
-        extraSectionPrice: 1000
+        extraSectionPrice: 1000,
+        defaultGuestCount: 100,
+        defaultSectionType: 'men' as const,
+        mealPrices: { dinner: 200, lunch: 150, breakfast: 80, snacks: 50 }
     }
 ]
 
@@ -105,11 +137,36 @@ const STATUS_CONFIG: Record<string, { label: string; color: string; icon: React.
     'MAINTENANCE': { label: 'صيانة', color: 'bg-yellow-100 text-yellow-800', icon: <Wrench size={14} /> }
 }
 
+// Helper to load halls from localStorage
+const loadHallsFromStorage = (): Hall[] => {
+    if (typeof window === 'undefined') return MOCK_HALLS
+    try {
+        const stored = localStorage.getItem(HALLS_STORAGE_KEY)
+        if (stored) {
+            return JSON.parse(stored)
+        }
+    } catch (e) {
+        console.error('Error loading halls from localStorage:', e)
+    }
+    return MOCK_HALLS
+}
+
+// Helper to save halls to localStorage
+const saveHallsToStorage = (halls: Hall[]) => {
+    if (typeof window === 'undefined') return
+    try {
+        localStorage.setItem(HALLS_STORAGE_KEY, JSON.stringify(halls))
+    } catch (e) {
+        console.error('Error saving halls to localStorage:', e)
+    }
+}
+
 export default function HallsPage() {
-    const [halls, setHalls] = useState<Hall[]>(MOCK_HALLS)
+    const [halls, setHalls] = useState<Hall[]>([])
     const [searchTerm, setSearchTerm] = useState('')
     const [showModal, setShowModal] = useState(false)
     const [editingHall, setEditingHall] = useState<Hall | null>(null)
+    const [isLoaded, setIsLoaded] = useState(false)
 
     const [formData, setFormData] = useState({
         nameAr: '',
@@ -120,13 +177,35 @@ export default function HallsPage() {
         description: '',
         status: 'ACTIVE',
         amenities: '',
-        // New Fields
+        // Service Defaults
         defaultCoffeeServers: '0',
         defaultSacrifices: '0',
         coffeeServerPrice: '100',
         sacrificePrice: '1500',
-        extraSectionPrice: '1000'
+        extraSectionPrice: '1000',
+        // Booking Defaults
+        defaultGuestCount: '',
+        defaultSectionType: 'both',
+        // Meal Prices
+        mealPriceDinner: '150',
+        mealPriceLunch: '100',
+        mealPriceBreakfast: '50',
+        mealPriceSnacks: '30'
     })
+
+    // Load from localStorage on mount
+    useEffect(() => {
+        const loaded = loadHallsFromStorage()
+        setHalls(loaded)
+        setIsLoaded(true)
+    }, [])
+
+    // Save to localStorage whenever halls change
+    useEffect(() => {
+        if (isLoaded) {
+            saveHallsToStorage(halls)
+        }
+    }, [halls, isLoaded])
 
     const filteredHalls = halls.filter(h =>
         h.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -148,7 +227,13 @@ export default function HallsPage() {
             defaultSacrifices: '0',
             coffeeServerPrice: '100',
             sacrificePrice: '1500',
-            extraSectionPrice: '1000'
+            extraSectionPrice: '1000',
+            defaultGuestCount: '',
+            defaultSectionType: 'both',
+            mealPriceDinner: '150',
+            mealPriceLunch: '100',
+            mealPriceBreakfast: '50',
+            mealPriceSnacks: '30'
         })
         setShowModal(true)
     }
@@ -168,7 +253,13 @@ export default function HallsPage() {
             defaultSacrifices: hall.defaultSacrifices.toString(),
             coffeeServerPrice: hall.coffeeServerPrice.toString(),
             sacrificePrice: hall.sacrificePrice.toString(),
-            extraSectionPrice: hall.extraSectionPrice.toString()
+            extraSectionPrice: hall.extraSectionPrice.toString(),
+            defaultGuestCount: (hall.defaultGuestCount || hall.capacity).toString(),
+            defaultSectionType: hall.defaultSectionType || 'both',
+            mealPriceDinner: hall.mealPrices?.dinner?.toString() || '150',
+            mealPriceLunch: hall.mealPrices?.lunch?.toString() || '100',
+            mealPriceBreakfast: hall.mealPrices?.breakfast?.toString() || '50',
+            mealPriceSnacks: hall.mealPrices?.snacks?.toString() || '30'
         })
         setShowModal(true)
     }
@@ -188,12 +279,22 @@ export default function HallsPage() {
             amenities: formData.amenities || null,
             bookingsCount: editingHall ? editingHall.bookingsCount : 0,
             createdAt: editingHall ? editingHall.createdAt : new Date().toISOString(),
-            // New Fields
+            // Service Defaults
             defaultCoffeeServers: parseInt(formData.defaultCoffeeServers) || 0,
             defaultSacrifices: parseInt(formData.defaultSacrifices) || 0,
             coffeeServerPrice: parseFloat(formData.coffeeServerPrice) || 0,
             sacrificePrice: parseFloat(formData.sacrificePrice) || 0,
-            extraSectionPrice: parseFloat(formData.extraSectionPrice) || 0
+            extraSectionPrice: parseFloat(formData.extraSectionPrice) || 0,
+            // Booking Defaults
+            defaultGuestCount: parseInt(formData.defaultGuestCount) || parseInt(formData.capacity) || 0,
+            defaultSectionType: formData.defaultSectionType as 'men' | 'women' | 'both',
+            // Meal Prices
+            mealPrices: {
+                dinner: parseFloat(formData.mealPriceDinner) || 0,
+                lunch: parseFloat(formData.mealPriceLunch) || 0,
+                breakfast: parseFloat(formData.mealPriceBreakfast) || 0,
+                snacks: parseFloat(formData.mealPriceSnacks) || 0
+            }
         }
 
         if (editingHall) {
@@ -539,46 +640,84 @@ export default function HallsPage() {
                                 </div>
                             </div>
 
-                            {/* Additional Info */}
+                            {/* Booking Defaults */}
                             <div className="space-y-4">
                                 <h4 className="font-medium text-sm text-slate-900 border-b pb-2 flex items-center gap-2">
-                                    <MapPin size={16} /> معلومات إضافية
+                                    <Users size={16} /> إعدادات الحجز الافتراضية
                                 </h4>
-                                <div>
-                                    <label className="form-label">الموقع</label>
-                                    <input
-                                        type="text"
-                                        value={formData.location}
-                                        onChange={(e) => setFormData({ ...formData, location: e.target.value })}
-                                        className="form-input w-full"
-                                        placeholder="الطابق / المبنى"
-                                    />
-                                </div>
-
-                                <div>
-                                    <label className="form-label">الحالة</label>
-                                    <select
-                                        value={formData.status}
-                                        onChange={(e) => setFormData({ ...formData, status: e.target.value })}
-                                        className="form-input w-full"
-                                    >
-                                        <option value="ACTIVE">نشط</option>
-                                        <option value="INACTIVE">غير نشط</option>
-                                        <option value="MAINTENANCE">صيانة</option>
-                                    </select>
-                                </div>
-
-                                <div>
-                                    <label className="form-label">الوصف</label>
-                                    <textarea
-                                        value={formData.description}
-                                        onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                                        className="form-input w-full"
-                                        rows={3}
-                                        placeholder="وصف القاعة والمميزات..."
-                                    />
+                                <div className="grid grid-cols-2 gap-4">
+                                    <div>
+                                        <Label>عدد الضيوف الافتراضي</Label>
+                                        <Input
+                                            type="number"
+                                            min="0"
+                                            placeholder="يساوي السعة إذا ترك فارغاً"
+                                            value={formData.defaultGuestCount}
+                                            onChange={e => setFormData({ ...formData, defaultGuestCount: e.target.value })}
+                                        />
+                                        <p className="text-[10px] text-slate-500 mt-1">العدد الافتراضي للوجبات أثناء الحجز</p>
+                                    </div>
+                                    <div>
+                                        <Label>الأقسام الافتراضية</Label>
+                                        <select
+                                            className="w-full h-10 px-3 rounded-md border border-input bg-background text-sm"
+                                            value={formData.defaultSectionType}
+                                            onChange={e => setFormData({ ...formData, defaultSectionType: e.target.value })}
+                                        >
+                                            <option value="men">رجال فقط</option>
+                                            <option value="women">نساء فقط</option>
+                                            <option value="both">قسمين (رجال ونساء)</option>
+                                        </select>
+                                        <p className="text-[10px] text-slate-500 mt-1">نوع الأقسام الافتراضي للحجز</p>
+                                    </div>
                                 </div>
                             </div>
+
+                            {/* Meal Prices */}
+                            <div className="space-y-4">
+                                <h4 className="font-medium text-sm text-slate-900 border-b pb-2 flex items-center gap-2">
+                                    <Utensils size={16} /> أسعار الوجبات (للشخص الواحد)
+                                </h4>
+                                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                                    <div>
+                                        <Label className="text-xs">عشاء (ر.س)</Label>
+                                        <Input
+                                            type="number"
+                                            min="0"
+                                            value={formData.mealPriceDinner}
+                                            onChange={e => setFormData({ ...formData, mealPriceDinner: e.target.value })}
+                                        />
+                                    </div>
+                                    <div>
+                                        <Label className="text-xs">غداء (ر.س)</Label>
+                                        <Input
+                                            type="number"
+                                            min="0"
+                                            value={formData.mealPriceLunch}
+                                            onChange={e => setFormData({ ...formData, mealPriceLunch: e.target.value })}
+                                        />
+                                    </div>
+                                    <div>
+                                        <Label className="text-xs">فطور (ر.س)</Label>
+                                        <Input
+                                            type="number"
+                                            min="0"
+                                            value={formData.mealPriceBreakfast}
+                                            onChange={e => setFormData({ ...formData, mealPriceBreakfast: e.target.value })}
+                                        />
+                                    </div>
+                                    <div>
+                                        <Label className="text-xs">وجبات خفيفة (ر.س)</Label>
+                                        <Input
+                                            type="number"
+                                            min="0"
+                                            value={formData.mealPriceSnacks}
+                                            onChange={e => setFormData({ ...formData, mealPriceSnacks: e.target.value })}
+                                        />
+                                    </div>
+                                </div>
+                            </div>
+
 
                             <div className="flex gap-3 pt-4 border-t">
                                 <button
