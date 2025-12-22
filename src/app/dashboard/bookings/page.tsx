@@ -509,9 +509,9 @@ export default function BookingsPage() {
                                 {searchTerm || statusFilter !== 'all' ? 'لا توجد نتائج' : 'لا توجد حجوزات بعد'}
                             </p>
                             {!searchTerm && statusFilter === 'all' && (
-                                <button onClick={openAddModal} className="btn-primary mt-4">
+                                <Link href="/dashboard/bookings/new" className="btn-primary mt-4 inline-block">
                                     إضافة أول حجز
-                                </button>
+                                </Link>
                             )}
                         </div>
                     )}

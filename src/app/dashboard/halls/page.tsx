@@ -449,7 +449,7 @@ export default function HallsPage() {
                         </CardHeader>
 
                         <CardContent className="space-y-3">
-                            {/* Info */}
+                            {/* Info - Only capacity and price */}
                             <div className="space-y-2">
                                 <div className="flex items-center gap-2 text-sm text-[var(--text-secondary)]">
                                     <Users size={14} />
@@ -459,31 +459,9 @@ export default function HallsPage() {
                                     <DollarSign size={14} />
                                     <span>السعر: {hall.basePrice.toLocaleString()} ر.س</span>
                                 </div>
-                                {hall.location && (
-                                    <div className="flex items-center gap-2 text-sm text-[var(--text-secondary)]">
-                                        <MapPin size={14} />
-                                        <span>{hall.location}</span>
-                                    </div>
-                                )}
                             </div>
 
-                            {/* Configuration Preview */}
-                            <div className="grid grid-cols-2 gap-2 text-xs text-slate-500 bg-slate-50 p-2 rounded">
-                                <div className='flex items-center gap-1'>
-                                    <Coffee size={12} /> {hall.defaultCoffeeServers} قهوجي
-                                </div>
-                                <div className='flex items-center gap-1'>
-                                    <Scissors size={12} /> {hall.defaultSacrifices} ذبائح
-                                </div>
-                            </div>
-
-                            {hall.description && (
-                                <p className="text-sm text-[var(--text-muted)] line-clamp-2">
-                                    {hall.description}
-                                </p>
-                            )}
-
-                            {/* Stats */}
+                            {/* Stats - Bookings Count */}
                             <div className="pt-3 border-t border-[var(--border-color)] flex justify-between items-center">
                                 <span className="text-sm text-[var(--text-secondary)]">الحجوزات</span>
                                 <span className="text-lg font-bold text-[var(--primary-700)]">{hall.bookingsCount}</span>
@@ -572,14 +550,14 @@ export default function HallsPage() {
                                 </div>
                             </div>
 
-                            {/* Configuration Defaults */}
+                            {/* TEMPORARILY HIDDEN - Default Services Settings Section
+                               To restore, uncomment this section
                             <div className="space-y-4">
                                 <h4 className="font-medium text-sm text-slate-900 border-b pb-2 flex items-center gap-2">
                                     <Settings size={16} /> إعدادات الخدمات الافتراضية
                                 </h4>
 
                                 <div className="grid grid-cols-2 gap-6">
-                                    {/* Coffee Servers */}
                                     <div className="space-y-3 p-3 bg-slate-50 rounded-lg border">
                                         <Label className="text-xs font-semibold text-slate-500 uppercase tracking-wider">عمال الضيافة (القهوجية)</Label>
                                         <div>
@@ -602,7 +580,6 @@ export default function HallsPage() {
                                         </div>
                                     </div>
 
-                                    {/* Sacrifices */}
                                     <div className="space-y-3 p-3 bg-slate-50 rounded-lg border">
                                         <Label className="text-xs font-semibold text-slate-500 uppercase tracking-wider">الذبائح</Label>
                                         <div>
@@ -639,8 +616,9 @@ export default function HallsPage() {
                                     </div>
                                 </div>
                             </div>
+                            END OF TEMPORARILY HIDDEN SECTION */}
 
-                            {/* Booking Defaults */}
+                            {/* TEMPORARILY HIDDEN - Booking Defaults Section
                             <div className="space-y-4">
                                 <h4 className="font-medium text-sm text-slate-900 border-b pb-2 flex items-center gap-2">
                                     <Users size={16} /> إعدادات الحجز الافتراضية
@@ -672,8 +650,9 @@ export default function HallsPage() {
                                     </div>
                                 </div>
                             </div>
+                            END OF BOOKING DEFAULTS SECTION */}
 
-                            {/* Meal Prices */}
+                            {/* TEMPORARILY HIDDEN - Meal Prices Section
                             <div className="space-y-4">
                                 <h4 className="font-medium text-sm text-slate-900 border-b pb-2 flex items-center gap-2">
                                     <Utensils size={16} /> أسعار الوجبات (للشخص الواحد)
@@ -717,6 +696,7 @@ export default function HallsPage() {
                                     </div>
                                 </div>
                             </div>
+                            END OF MEAL PRICES SECTION */}
 
 
                             <div className="flex gap-3 pt-4 border-t">

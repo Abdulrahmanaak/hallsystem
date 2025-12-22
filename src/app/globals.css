@@ -26,21 +26,29 @@ body {
    ============================================ */
 
 :root {
-  /* Primary Blue Palette */
-  --primary-50: #e3f2fd;
-  --primary-100: #bbdefb;
-  --primary-200: #90caf9;
-  --primary-300: #64b5f6;
-  --primary-400: #42a5f5;
-  --primary-500: #2196f3; /* Main blue */
-  --primary-600: #1e88e5;
-  --primary-700: #1976d2;
-  --primary-800: #1565c0;
-  --primary-900: #0d47a1;
+  /* Appgen Primary Blue Palette */
+  --primary-50: #e8eef8;
+  --primary-100: #c6d4f0;
+  --primary-200: #a1b9e7;
+  --primary-300: #7b9dde;
+  --primary-400: #5576d6;
+  --primary-500: #2f55d4; /* Appgen Royal Blue */
+  --primary-600: #2a4cc0;
+  --primary-700: #2343ab;
+  --primary-800: #1d3a96;
+  --primary-900: #142b72;
+  
+  /* Accent Colors */
+  --accent-green: #10b981;
+  --accent-green-light: #d1fae5;
+  
+  /* Dark Theme for Footer */
+  --dark-bg: #161c2d;
+  --dark-text: #8492a6;
   
   /* Neutral Grays */
   --gray-50: #fafafa;
-  --gray-100: #f5f5f5;
+  --gray-100: #f8f9fa;
   --gray-200: #eeeeee;
   --gray-300: #e0e0e0;
   --gray-400: #bdbdbd;
@@ -62,16 +70,16 @@ body {
   
   /* Background & Text */
   --bg-primary: #ffffff;
-  --bg-secondary: #f5f7fa;
-  --text-primary: #2d3748;
-  --text-secondary: #718096;
+  --bg-secondary: #f8f9fa;
+  --text-primary: #161c2d;
+  --text-secondary: #8492a6;
   --text-muted: #a0aec0;
   
   /* Borders & Shadows */
   --border-color: #e2e8f0;
   --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
   --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+  --shadow-lg: 0 10px 25px -5px rgba(47, 85, 212, 0.15);
 }
 
 /* ============================================

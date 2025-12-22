@@ -294,6 +294,17 @@ export default function NewBookingPage() {
         )
     }
 
+    // Helper: Calculate estimated total for a hall based on its defaults
+    const getHallEstimatedTotal = (hall: Hall) => {
+        const base = hall.basePrice || 0
+        const sectionCharge = hall.defaultSectionType === 'both' ? (hall.extraSectionPrice || 1000) : 0
+        const coffeeCharge = (hall.defaultCoffeeServers || 0) * (hall.coffeeServerPrice || 100)
+        const sacrificeCharge = (hall.defaultSacrifices || 0) * (hall.sacrificePrice || 1500)
+        // Assuming dinner as default meal for estimation
+        const mealCharge = (hall.mealPrices?.dinner || 150) * (hall.defaultGuestCount || hall.capacity || 0)
+        return base + sectionCharge + coffeeCharge + sacrificeCharge + mealCharge
+    }
+
     // Calculations
     const basePrice = selectedHall?.basePrice || 0
     const servicesPrice = selectedServices.reduce((sum, id) => {
@@ -324,8 +335,9 @@ export default function NewBookingPage() {
     const sacrificesPrice = sacrifices * (selectedHall?.sacrificePrice || 1500)
 
     const subTotal = basePrice + servicesPrice + sectionSurcharge + mealTotalPrice + coffeeServersPrice + sacrificesPrice
-    const discountAmount = Math.round(subTotal * (discountPercent / 100))
-    const totalAmount = subTotal - discountAmount
+    // Use basePrice for discount and remaining calculations (as per user request)
+    const discountAmount = Math.round(basePrice * (discountPercent / 100))
+    const totalAmount = basePrice - discountAmount
     const remainingAmount = totalAmount - downPayment
 
     const handleSubmit = async (e: React.FormEvent) => {
@@ -449,45 +461,24 @@ export default function NewBookingPage() {
                                             >
                                                 <div className="font-semibold">{hall.name}</div>
                                                 <div className="text-sm text-slate-500 mt-1">السعة: {hall.capacity} شخص</div>
+                                                <div className="text-xs text-slate-500 mt-1">
+                                                    القسم: {hall.defaultSectionType === 'men' ? 'رجال' : hall.defaultSectionType === 'women' ? 'نساء' : 'قسمين'}
+                                                </div>
                                                 <div className="text-sm font-medium text-[var(--primary-700)] mt-2">{hall.basePrice.toLocaleString()} ريال</div>
                                             </div>
                                         ))}
                                     </div>
                                 </div>
 
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-
-                                    <div className="space-y-2">
-                                        <Label className="flex items-center gap-2">
-                                            الأقسام
-                                            <Lock size={12} className="text-slate-400" />
-                                        </Label>
-                                        <div className="flex gap-2 p-1 bg-slate-100 rounded-md opacity-75">
-                                            {['men', 'women', 'both'].map(type => (
-                                                <div
-                                                    key={type}
-                                                    className={`flex-1 py-1.5 text-sm rounded-md justify-center text-center cursor-not-allowed
-                                                        ${sectionType === type
-                                                            ? 'bg-white shadow text-[var(--primary-700)] font-medium'
-                                                            : 'text-slate-400'}`}
-                                                >
-                                                    {type === 'men' ? 'رجال' : type === 'women' ? 'نساء' : 'قسمين'}
-                                                </div>
-                                            ))}
-                                        </div>
-                                        <p className="text-xs text-slate-400">محدد من إعدادات القاعة</p>
-                                    </div>
-
-                                    <div className="space-y-2">
-                                        <Label>نوع المناسبة *</Label>
-                                        <select
-                                            className="w-full h-10 px-3 rounded-md border border-input bg-background text-sm"
-                                            value={eventType}
-                                            onChange={e => setEventType(e.target.value)}
-                                        >
-                                            {EVENT_TYPES.map(t => <option key={t.id} value={t.id}>{t.label}</option>)}
-                                        </select>
-                                    </div>
+                                <div className="space-y-2">
+                                    <Label>نوع المناسبة *</Label>
+                                    <select
+                                        className="w-full h-10 px-3 rounded-md border border-input bg-background text-sm"
+                                        value={eventType}
+                                        onChange={e => setEventType(e.target.value)}
+                                    >
+                                        {EVENT_TYPES.map(t => <option key={t.id} value={t.id}>{t.label}</option>)}
+                                    </select>
                                 </div>
                             </div>
 
@@ -574,112 +565,7 @@ export default function NewBookingPage() {
                         </CardContent>
                     </Card>
 
-                    {/* 3. Services & Meal */}
-                    <Card className="shadow-sm">
-                        <CardHeader className="pb-3">
-                            <CardTitle className="text-lg flex items-center gap-2">
-                                <span className="bg-orange-100 p-1 rounded">🍽️</span>
-                                الخدمات والضيافة
-                            </CardTitle>
-                        </CardHeader>
-                        <CardContent className="space-y-6">
-
-                            {/* SERVICES GRID */}
-                            <div className="space-y-3">
-                                <Label>الخدمات الإضافية</Label>
-                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                                    {SERVICES_LIST.map(service => (
-                                        <div
-                                            key={service.id}
-                                            onClick={() => toggleService(service.id)}
-                                            className={`flex items-center space-x-3 space-x-reverse p-3 rounded-lg border cursor-pointer transition-colors
-                                                ${selectedServices.includes(service.id)
-                                                    ? 'bg-orange-50 border-orange-200'
-                                                    : 'bg-white border-slate-200 hover:bg-slate-50'}`}
-                                        >
-                                            <div className={`w-5 h-5 rounded border flex items-center justify-center
-                                                ${selectedServices.includes(service.id) ? 'bg-orange-500 border-orange-500 text-white' : 'border-slate-300'}`}>
-                                                {selectedServices.includes(service.id) && <Check size={14} />}
-                                            </div>
-                                            <div className="flex-1">
-                                                <div className="text-sm font-medium">{service.name}</div>
-                                                <div className="text-xs text-slate-500">+{service.price} ريال</div>
-                                            </div>
-                                        </div>
-                                    ))}
-                                </div>
-                            </div>
-
-                            {/* Coffee Servers and Sacrifices - READ ONLY */}
-                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                <div className="space-y-2">
-                                    <Label className="flex items-center gap-2">
-                                        عدد عمال الضيافة (القهوجية)
-                                        <Lock size={12} className="text-slate-400" />
-                                    </Label>
-                                    <Input
-                                        type="number"
-                                        min="0"
-                                        value={coffeeServers}
-                                        disabled
-                                        className="bg-slate-100 cursor-not-allowed"
-                                    />
-                                    <p className="text-xs text-slate-400">
-                                        افتراضي: {selectedHall?.defaultCoffeeServers || 0} ({selectedHall?.coffeeServerPrice || 100} ريال/عامل)
-                                    </p>
-                                </div>
-                                <div className="space-y-2">
-                                    <Label className="flex items-center gap-2">
-                                        عدد الذبائح
-                                        <Lock size={12} className="text-slate-400" />
-                                    </Label>
-                                    <Input
-                                        type="number"
-                                        min="0"
-                                        value={sacrifices}
-                                        disabled
-                                        className="bg-slate-100 cursor-not-allowed"
-                                    />
-                                    <p className="text-xs text-slate-400">
-                                        افتراضي: {selectedHall?.defaultSacrifices || 0} ({selectedHall?.sacrificePrice || 1500} ريال/ذبيحة)
-                                    </p>
-                                </div>
-                            </div>
-
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <div className="space-y-2">
-                                    <Label className="flex items-center gap-2">
-                                        عدد الضيوف (للوجبات)
-                                        <Lock size={12} className="text-slate-400" />
-                                    </Label>
-                                    <Input
-                                        type="number"
-                                        min="0"
-                                        value={guestCount}
-                                        disabled
-                                        className="bg-slate-100 cursor-not-allowed"
-                                    />
-                                    <p className="text-xs text-slate-400">
-                                        افتراضي: {selectedHall?.defaultGuestCount || selectedHall?.capacity || 0} (محدد من إعدادات القاعة)
-                                    </p>
-                                </div>
-                                <div className="space-y-2">
-                                    <Label>الوجبة</Label>
-                                    <select
-                                        className="w-full h-10 px-3 rounded-md border border-input bg-background"
-                                        value={mealType}
-                                        onChange={e => setMealType(e.target.value)}
-                                    >
-                                        {MEAL_TYPES.map(t => (
-                                            <option key={t.id} value={t.id}>
-                                                {t.label} {t.id !== 'none' && selectedHall?.mealPrices ? `(${selectedHall.mealPrices[t.id as keyof MealPrices] || 0} ريال/شخص)` : ''}
-                                            </option>
-                                        ))}
-                                    </select>
-                                </div>
-                            </div>
-                        </CardContent>
-                    </Card>
+                    {/* Services & Meal section removed from display - calculations still work in background */}
                 </div>
 
                 {/* --- LEFT COLUMN (Summary & Payment) --- */}
@@ -689,106 +575,58 @@ export default function NewBookingPage() {
                             <CardTitle className="text-lg">ملخص التكاليف</CardTitle>
                         </CardHeader>
                         <CardContent className="space-y-4">
-                            {/* Breakdown */}
-                            <div className="space-y-2 text-sm">
-                                <div className="flex justify-between">
-                                    <span className="text-slate-600">القاعة ({selectedHall?.name || '-'})</span>
-                                    <span className="font-medium">{(selectedHall?.basePrice || 0).toLocaleString()}</span>
-                                </div>
-                                {sectionType === 'both' && (
-                                    <div className="flex justify-between text-slate-600">
-                                        <span>رسوم قسمين</span>
-                                        <span>+{(selectedHall?.extraSectionPrice || 1000).toLocaleString()}</span>
-                                    </div>
-                                )}
-
-                                {/* Individual Services Breakdown */}
-                                {selectedServices.map(sid => {
-                                    const s = SERVICES_LIST.find(srv => srv.id === sid)
-                                    return s ? (
-                                        <div key={sid} className="flex justify-between text-slate-600 text-xs">
-                                            <span>{s.name}</span>
-                                            <span>+{s.price}</span>
-                                        </div>
-                                    ) : null
-                                })}
-
-                                {/* Coffee Servers Breakdown */}
-                                {coffeeServers > 0 && (
-                                    <div className="flex justify-between text-slate-600">
-                                        <span>قهوجية ({coffeeServers})</span>
-                                        <span>+{coffeeServersPrice.toLocaleString()}</span>
-                                    </div>
-                                )}
-
-                                {/* Sacrifices Breakdown */}
-                                {sacrifices > 0 && (
-                                    <div className="flex justify-between text-slate-600">
-                                        <span>ذبائح ({sacrifices})</span>
-                                        <span>+{sacrificesPrice.toLocaleString()}</span>
-                                    </div>
-                                )}
-
-                                {mealTotalPrice > 0 && (
-                                    <div className="flex justify-between text-green-700 font-medium">
-                                        <span>الوجبات ({guestCount} ضيف × {mealPricePerPerson} ر.س)</span>
-                                        <span>+{mealTotalPrice.toLocaleString()}</span>
-                                    </div>
-                                )}
-                                <div className="pt-2 border-t border-dashed border-slate-300 flex justify-between font-semibold">
-                                    <span>المجموع الفرعي</span>
-                                    <span>{subTotal.toLocaleString()}</span>
-                                </div>
-
-                                {/* Discount Amount Display */}
-                                {discountAmount > 0 && (
-                                    <div className="flex justify-between text-red-600">
-                                        <span>الخصم ({discountPercent}%)</span>
-                                        <span>-{discountAmount.toLocaleString()}</span>
-                                    </div>
-                                )}
-
-                                {/* Down Payment Display */}
-                                {downPayment > 0 && (
-                                    <div className="flex justify-between text-blue-600">
-                                        <span>العربون المدفوع</span>
-                                        <span>-{downPayment.toLocaleString()}</span>
-                                    </div>
-                                )}
+                            {/* Price Summary */}
+                            <div className="flex justify-between font-semibold text-base pb-3 border-b border-slate-200">
+                                <span>السعر</span>
+                                <span>{basePrice.toLocaleString()} ر.س</span>
                             </div>
 
-                            {/* Discount */}
-                            <div className="space-y-2 pt-2">
-                                <Label className="text-xs">الخصم (%)</Label>
-                                <div className="relative">
+                            {/* Discount & Down Payment - Side by Side */}
+                            <div className="grid grid-cols-2 gap-3">
+                                <div className="space-y-1">
+                                    <Label className="text-xs">الخصم (%)</Label>
+                                    <div className="relative">
+                                        <Input
+                                            type="number"
+                                            min="0" max="100"
+                                            value={discountPercent}
+                                            onChange={e => setDiscountPercent(Number(e.target.value))}
+                                            className="pl-8"
+                                        />
+                                        <span className="absolute left-3 top-2.5 text-slate-400">%</span>
+                                    </div>
+                                </div>
+                                <div className="space-y-1">
+                                    <Label className="text-xs">العربون (ر.س)</Label>
                                     <Input
                                         type="number"
-                                        min="0" max="100"
-                                        value={discountPercent}
-                                        onChange={e => setDiscountPercent(Number(e.target.value))}
-                                        className="pl-8"
+                                        min="0"
+                                        value={downPayment}
+                                        onChange={e => setDownPayment(Number(e.target.value))}
                                     />
-                                    <span className="absolute left-3 top-2.5 text-slate-400">%</span>
                                 </div>
                             </div>
 
-                            {/* Down Payment */}
-                            <div className="space-y-2">
-                                <Label className="text-xs">العربون (ر.س)</Label>
-                                <Input
-                                    type="number"
-                                    min="0"
-                                    value={downPayment}
-                                    onChange={e => setDownPayment(Number(e.target.value))}
-                                />
-                            </div>
+                            {/* Summary Display - Only show if values exist */}
+                            {(discountAmount > 0 || downPayment > 0) && (
+                                <div className="space-y-1 py-2 border-t border-dashed border-slate-300 text-sm">
+                                    {discountAmount > 0 && (
+                                        <div className="flex justify-between text-red-600">
+                                            <span>الخصم ({discountPercent}%)</span>
+                                            <span>-{discountAmount.toLocaleString()} ر.س</span>
+                                        </div>
+                                    )}
+                                    {downPayment > 0 && (
+                                        <div className="flex justify-between text-blue-600">
+                                            <span>العربون</span>
+                                            <span>-{downPayment.toLocaleString()} ر.س</span>
+                                        </div>
+                                    )}
+                                </div>
+                            )}
 
                             {/* Total Final */}
-                            <div className="bg-[var(--primary-700)] text-white p-4 rounded-lg mt-4 space-y-1">
-                                <div className="flex justify-between text-sm opacity-90">
-                                    <span>الإجمالي (بعد الخصم)</span>
-                                    <span>{totalAmount.toLocaleString()} ر.س</span>
-                                </div>
+                            <div className="bg-[var(--primary-700)] text-white p-4 rounded-lg space-y-1">
                                 <div className="flex justify-between text-xl font-bold">
                                     <span>المتبقي</span>
                                     <span>{remainingAmount.toLocaleString()} ر.س</span>
@@ -799,7 +637,7 @@ export default function NewBookingPage() {
                         <CardFooter>
                             <Button
                                 type="submit"
-                                className="w-full h-12 text-lg font-bold bg-[var(--primary-600)] hover:bg-[var(--primary-700)]"
+                                className="w-full h-12 text-lg font-bold bg-[var(--primary-600)] hover:bg-[var(--primary-700)] text-white"
                                 disabled={loading}
                             >
                                 {loading ? "جاري الحفظ..." : "تأكيد الحجز"}
