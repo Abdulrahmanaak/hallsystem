@@ -67,7 +67,7 @@ export function Calendar({ mode = 'gregorian', selected, onSelect, className }: 
     // Grid Generation logic
     const renderHeader = () => {
         if (mode === 'gregorian') {
-            return viewDate.toLocaleString('ar-SA', { month: 'long', year: 'numeric' });
+            return viewDate.toLocaleString('ar-SA-u-ca-gregory', { month: 'long', year: 'numeric' });
         } else {
             const h = getHijriParts(viewDate);
             return `${h.month} ${h.year}`;
