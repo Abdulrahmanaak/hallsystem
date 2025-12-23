@@ -228,8 +228,8 @@ export default function NewBookingPage() {
     const [sacrifices, setSacrifices] = useState<number>(0)
 
     // Financial
-    const [discountPercent, setDiscountPercent] = useState(0)
-    const [downPayment, setDownPayment] = useState(0)
+    const [discountPercent, setDiscountPercent] = useState<string>('')
+    const [downPayment, setDownPayment] = useState<string>('')
 
     // --- Effects & Logic ---
 
@@ -336,9 +336,9 @@ export default function NewBookingPage() {
 
     const subTotal = basePrice + servicesPrice + sectionSurcharge + mealTotalPrice + coffeeServersPrice + sacrificesPrice
     // Use basePrice for discount and remaining calculations (as per user request)
-    const discountAmount = Math.round(basePrice * (discountPercent / 100))
+    const discountAmount = Math.round(basePrice * ((Number(discountPercent) || 0) / 100))
     const totalAmount = basePrice - discountAmount
-    const remainingAmount = totalAmount - downPayment
+    const remainingAmount = totalAmount - (Number(downPayment) || 0)
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
@@ -590,8 +590,9 @@ export default function NewBookingPage() {
                                             type="number"
                                             min="0" max="100"
                                             value={discountPercent}
-                                            onChange={e => setDiscountPercent(Number(e.target.value))}
+                                            onChange={e => setDiscountPercent(e.target.value)}
                                             className="pl-8"
+                                            placeholder="0"
                                         />
                                         <span className="absolute left-3 top-2.5 text-slate-400">%</span>
                                     </div>
@@ -602,13 +603,14 @@ export default function NewBookingPage() {
                                         type="number"
                                         min="0"
                                         value={downPayment}
-                                        onChange={e => setDownPayment(Number(e.target.value))}
+                                        onChange={e => setDownPayment(e.target.value)}
+                                        placeholder="0"
                                     />
                                 </div>
                             </div>
 
                             {/* Summary Display - Only show if values exist */}
-                            {(discountAmount > 0 || downPayment > 0) && (
+                            {(discountAmount > 0 || (Number(downPayment) || 0) > 0) && (
                                 <div className="space-y-1 py-2 border-t border-dashed border-slate-300 text-sm">
                                     {discountAmount > 0 && (
                                         <div className="flex justify-between text-red-600">
@@ -616,10 +618,10 @@ export default function NewBookingPage() {
                                             <span>-{discountAmount.toLocaleString()} ر.س</span>
                                         </div>
                                     )}
-                                    {downPayment > 0 && (
+                                    {(Number(downPayment) || 0) > 0 && (
                                         <div className="flex justify-between text-blue-600">
                                             <span>العربون</span>
-                                            <span>-{downPayment.toLocaleString()} ر.س</span>
+                                            <span>-{(Number(downPayment) || 0).toLocaleString()} ر.س</span>
                                         </div>
                                     )}
                                 </div>
