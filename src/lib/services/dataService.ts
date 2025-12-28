@@ -8,11 +8,14 @@ import {
     hallsAdapter,
     customersAdapter,
     bookingsAdapter,
-    storageUtils,
+    storageUtils
+} from './localStorageAdapter'
+import type {
     LocalHall,
     LocalCustomer,
     LocalBooking
 } from './localStorageAdapter'
+
 
 // Cache for DB connection status
 let dbConnectionStatus: boolean | null = null

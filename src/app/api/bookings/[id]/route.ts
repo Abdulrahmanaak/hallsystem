@@ -2,6 +2,8 @@ import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { isDbAvailable, bookingsService } from '@/lib/services/dataService'
 import { bookingsAdapter } from '@/lib/services/localStorageAdapter'
+import type { LocalBooking } from '@/lib/services/localStorageAdapter'
+
 
 // GET single booking
 export async function GET(
@@ -151,15 +153,15 @@ export async function PUT(
             localUpdateData.endTime = body.endTime
         }
 
-        const booking = bookingsAdapter.update(id, localUpdateData as Partial<typeof booking>)
-        if (!booking) {
+        const updatedBooking = bookingsAdapter.update(id, localUpdateData as Partial<LocalBooking>)
+        if (!updatedBooking) {
             return NextResponse.json(
                 { error: 'Booking not found' },
                 { status: 404 }
             )
         }
 
-        return NextResponse.json(booking)
+        return NextResponse.json(updatedBooking)
     } catch (error) {
         console.error('Error updating booking:', error)
         return NextResponse.json(
