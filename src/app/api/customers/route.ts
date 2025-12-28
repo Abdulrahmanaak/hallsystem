@@ -49,9 +49,10 @@ export async function GET() {
                     createdAt: customer.createdAt.toISOString()
                 }))
 
+                console.log(`👥 [API/customers] GET: Returning ${formattedCustomers.length} customers from DB`)
                 return NextResponse.json(formattedCustomers)
             } catch (error) {
-                console.error('Error fetching customers from DB, falling back to localStorage:', error)
+                console.error('👥 [API/customers] DB fetch failed, using localStorage:', error)
             }
         }
 
@@ -72,6 +73,7 @@ export async function GET() {
             createdAt: c.createdAt
         }))
 
+        console.log(`👥 [API/customers] GET: Returning ${formattedCustomers.length} customers from localStorage`)
         return NextResponse.json(formattedCustomers)
     } catch (error) {
         console.error('Error fetching customers:', error)

@@ -7,6 +7,7 @@ import { bookingsAdapter, customersAdapter } from '@/lib/services/localStorageAd
 export async function GET() {
     try {
         const bookings = await bookingsService.getAll()
+        console.log(`📝 [API/bookings] GET: Returning ${bookings.length} bookings`)
         return NextResponse.json(bookings)
     } catch (error) {
         console.error('Error fetching bookings:', error)

@@ -7,7 +7,9 @@ export async function GET() {
 
         // If no halls exist in either DB or localStorage, seed defaults
         if (halls.length === 0) {
-            console.log('🌱 No halls found, using default halls from localStorage adapter')
+            console.log('🌱 [API/halls] No halls found, using default halls')
+        } else {
+            console.log(`🏛️ [API/halls] GET: Returning ${halls.length} halls`)
         }
 
         // Format halls for frontend compatibility

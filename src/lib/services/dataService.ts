@@ -29,6 +29,7 @@ export async function isDbAvailable(): Promise<boolean> {
     // Use cached status if checked recently
     const now = Date.now()
     if (dbConnectionStatus !== null && (now - lastConnectionCheck) < CONNECTION_CHECK_INTERVAL) {
+        console.log(`📊 [DataService] DB Status: ${dbConnectionStatus ? 'Connected' : 'Disconnected'} (cached)`)
         return dbConnectionStatus
     }
 
@@ -38,9 +39,10 @@ export async function isDbAvailable(): Promise<boolean> {
         dbConnectionStatus = true
         lastConnectionCheck = now
         storageUtils.setDbStatus(true)
+        console.log('📊 [DataService] DB Status: Connected ✅')
         return true
     } catch (error) {
-        console.warn('Database connection check failed:', error)
+        console.warn('📊 [DataService] DB Status: Disconnected ❌ - Using localStorage fallback')
         dbConnectionStatus = false
         lastConnectionCheck = now
         storageUtils.setDbStatus(false)
@@ -68,6 +70,7 @@ export const hallsService = {
                     orderBy: { nameAr: 'asc' }
                 })
 
+                console.log('🔄 [API/halls] Fetched from: Database')
                 return halls.map(hall => ({
                     id: hall.id,
                     name: hall.nameAr,
@@ -93,10 +96,11 @@ export const hallsService = {
                     mealPrices: hall.mealPrices ? JSON.parse(hall.mealPrices) : { dinner: 150, lunch: 100, breakfast: 50, snacks: 30 }
                 }))
             } catch (error) {
-                console.error('Error fetching halls from DB, falling back to localStorage:', error)
+                console.error('🔄 [API/halls] DB fetch failed, using localStorage:', error)
                 return hallsAdapter.getAll()
             }
         }
+        console.log('🔄 [API/halls] Fetched from: localStorage')
         return hallsAdapter.getAll()
     },
 

@@ -183,11 +183,14 @@ function getFromStorage<T>(key: string, defaultValue: T): T {
     try {
         const stored = localStorage.getItem(key)
         if (stored) {
-            return JSON.parse(stored)
+            const data = JSON.parse(stored)
+            console.log(`📖 [localStorage] Loaded ${Array.isArray(data) ? data.length : 1} items from ${key}`)
+            return data
         }
     } catch (e) {
-        console.error(`Error reading from localStorage (${key}):`, e)
+        console.error(`❌ [localStorage] Error reading from ${key}:`, e)
     }
+    console.log(`📖 [localStorage] Using default data for ${key}`)
     return defaultValue
 }
 
@@ -195,9 +198,10 @@ function saveToStorage<T>(key: string, data: T): boolean {
     if (typeof window === 'undefined') return false
     try {
         localStorage.setItem(key, JSON.stringify(data))
+        console.log(`💾 [localStorage] Saved ${Array.isArray(data) ? data.length : 1} items to ${key}`)
         return true
     } catch (e) {
-        console.error(`Error saving to localStorage (${key}):`, e)
+        console.error(`❌ [localStorage] Error saving to ${key}:`, e)
         return false
     }
 }
