@@ -1,5 +1,7 @@
 import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
+import { isDbAvailable, bookingsService } from '@/lib/services/dataService'
+import { bookingsAdapter } from '@/lib/services/localStorageAdapter'
 
 // GET single booking
 export async function GET(
@@ -8,21 +10,39 @@ export async function GET(
 ) {
     try {
         const { id } = await params
+        const dbAvailable = await isDbAvailable()
 
-        const booking = await prisma.booking.findUnique({
-            where: { id },
-            include: {
-                customer: true,
-                hall: true,
-                invoices: true,
-                payments: true,
-                statusHistory: {
-                    orderBy: { createdAt: 'desc' }
+        if (dbAvailable) {
+            try {
+                const booking = await prisma.booking.findUnique({
+                    where: { id },
+                    include: {
+                        customer: true,
+                        hall: true,
+                        invoices: true,
+                        payments: true,
+                        statusHistory: {
+                            orderBy: { createdAt: 'desc' }
+                        }
+                    }
+                })
+
+                if (!booking || booking.isDeleted) {
+                    return NextResponse.json(
+                        { error: 'Booking not found' },
+                        { status: 404 }
+                    )
                 }
-            }
-        })
 
-        if (!booking || booking.isDeleted) {
+                return NextResponse.json(booking)
+            } catch (error) {
+                console.error('Error fetching booking from DB:', error)
+            }
+        }
+
+        // Fallback to localStorage
+        const booking = bookingsAdapter.getById(id)
+        if (!booking) {
             return NextResponse.json(
                 { error: 'Booking not found' },
                 { status: 404 }
@@ -47,6 +67,7 @@ export async function PUT(
     try {
         const { id } = await params
         const body = await request.json()
+        const dbAvailable = await isDbAvailable()
 
         // Parse date and times if provided
         let updateData: Record<string, unknown> = {}
@@ -100,14 +121,43 @@ export async function PUT(
             updateData.finalAmount = finalAmount
         }
 
-        const booking = await prisma.booking.update({
-            where: { id },
-            data: updateData,
-            include: {
-                customer: { select: { nameAr: true } },
-                hall: { select: { nameAr: true } }
+        if (dbAvailable) {
+            try {
+                const booking = await prisma.booking.update({
+                    where: { id },
+                    data: updateData,
+                    include: {
+                        customer: { select: { nameAr: true } },
+                        hall: { select: { nameAr: true } }
+                    }
+                })
+
+                return NextResponse.json(booking)
+            } catch (error) {
+                console.error('Error updating booking in DB:', error)
             }
-        })
+        }
+
+        // Fallback to localStorage
+        const localUpdateData: Record<string, unknown> = { ...updateData }
+        if (updateData.eventDate) {
+            localUpdateData.eventDate = (updateData.eventDate as Date).toISOString()
+            localUpdateData.date = (updateData.eventDate as Date).toISOString().split('T')[0]
+        }
+        if (updateData.startTime) {
+            localUpdateData.startTime = body.startTime
+        }
+        if (updateData.endTime) {
+            localUpdateData.endTime = body.endTime
+        }
+
+        const booking = bookingsAdapter.update(id, localUpdateData as Partial<typeof booking>)
+        if (!booking) {
+            return NextResponse.json(
+                { error: 'Booking not found' },
+                { status: 404 }
+            )
+        }
 
         return NextResponse.json(booking)
     } catch (error) {
@@ -126,15 +176,33 @@ export async function DELETE(
 ) {
     try {
         const { id } = await params
+        const dbAvailable = await isDbAvailable()
 
-        await prisma.booking.update({
-            where: { id },
-            data: {
-                isDeleted: true,
-                deletedAt: new Date(),
-                status: 'CANCELLED'
+        if (dbAvailable) {
+            try {
+                await prisma.booking.update({
+                    where: { id },
+                    data: {
+                        isDeleted: true,
+                        deletedAt: new Date(),
+                        status: 'CANCELLED'
+                    }
+                })
+
+                return NextResponse.json({ success: true })
+            } catch (error) {
+                console.error('Error deleting booking from DB:', error)
             }
-        })
+        }
+
+        // Fallback to localStorage
+        const success = bookingsAdapter.delete(id)
+        if (!success) {
+            return NextResponse.json(
+                { error: 'Booking not found' },
+                { status: 404 }
+            )
+        }
 
         return NextResponse.json({ success: true })
     } catch (error) {
@@ -162,27 +230,46 @@ export async function PATCH(
             )
         }
 
-        // Get admin user
-        const adminUser = await prisma.user.findFirst({
-            where: { role: 'ADMIN', status: 'ACTIVE' },
-            select: { id: true }
-        })
+        const dbAvailable = await isDbAvailable()
 
-        // Update booking status and create history record
-        const booking = await prisma.booking.update({
-            where: { id },
-            data: {
-                status: body.status,
-                statusHistory: {
-                    create: {
-                        fromStatus: body.fromStatus || 'PENDING',
-                        toStatus: body.status,
-                        createdById: adminUser?.id || null,
-                        notes: body.notes || null
+        if (dbAvailable) {
+            try {
+                // Get admin user
+                const adminUser = await prisma.user.findFirst({
+                    where: { role: 'ADMIN', status: 'ACTIVE' },
+                    select: { id: true }
+                })
+
+                // Update booking status and create history record
+                const booking = await prisma.booking.update({
+                    where: { id },
+                    data: {
+                        status: body.status,
+                        statusHistory: {
+                            create: {
+                                fromStatus: body.fromStatus || 'PENDING',
+                                toStatus: body.status,
+                                createdById: adminUser?.id || null,
+                                notes: body.notes || null
+                            }
+                        }
                     }
-                }
+                })
+
+                return NextResponse.json(booking)
+            } catch (error) {
+                console.error('Error updating booking status in DB:', error)
             }
-        })
+        }
+
+        // Fallback to localStorage
+        const booking = bookingsAdapter.updateStatus(id, body.status)
+        if (!booking) {
+            return NextResponse.json(
+                { error: 'Booking not found' },
+                { status: 404 }
+            )
+        }
 
         return NextResponse.json(booking)
     } catch (error) {

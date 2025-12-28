@@ -1,76 +1,16 @@
 import { NextResponse } from 'next/server'
+import { bookingsService, customersService, isDbAvailable } from '@/lib/services/dataService'
 import { prisma } from '@/lib/prisma'
+import { bookingsAdapter, customersAdapter } from '@/lib/services/localStorageAdapter'
 
 // GET - Fetch all bookings
 export async function GET() {
     try {
-        const bookings = await prisma.booking.findMany({
-            where: {
-                isDeleted: false
-            },
-            include: {
-                hall: {
-                    select: {
-                        id: true,
-                        nameAr: true
-                    }
-                },
-                customer: {
-                    select: {
-                        id: true,
-                        nameAr: true,
-                        phone: true,
-                        email: true,
-                        idNumber: true
-                    }
-                }
-            },
-            orderBy: {
-                eventDate: 'desc'
-            }
-        })
-
-        // Format bookings for display
-        const formattedBookings = bookings.map(booking => ({
-            id: booking.id,
-            bookingNumber: booking.bookingNumber,
-            customerId: booking.customerId,
-            customerName: booking.customer.nameAr,
-            customerPhone: booking.customer.phone,
-            customerEmail: booking.customer.email,
-            customerIdNumber: booking.customer.idNumber,
-            hallId: booking.hallId,
-            hallName: booking.hall.nameAr,
-            eventType: booking.eventType,
-            eventDate: booking.eventDate.toISOString(),
-            date: booking.eventDate.toISOString().split('T')[0],
-            startTime: booking.startTime.toISOString().split('T')[1].substring(0, 5),
-            endTime: booking.endTime.toISOString().split('T')[1].substring(0, 5),
-            guestCount: booking.guestCount,
-            sectionType: booking.sectionType,
-            mealType: booking.mealType,
-            services: booking.services ? JSON.parse(booking.services) : [],
-            coffeeServers: booking.coffeeServers,
-            sacrifices: booking.sacrifices,
-            waterCartons: booking.waterCartons,
-            status: booking.status,
-            totalAmount: Number(booking.totalAmount),
-            downPayment: Number(booking.downPayment),
-            discountAmount: Number(booking.discountAmount),
-            vatAmount: Number(booking.vatAmount),
-            finalAmount: Number(booking.finalAmount),
-            serviceRevenue: Number(booking.serviceRevenue),
-            servicesBreakdown: booking.servicesBreakdown,
-            notes: booking.notes,
-            createdAt: booking.createdAt.toISOString()
-        }))
-
-        return NextResponse.json(formattedBookings)
+        const bookings = await bookingsService.getAll()
+        return NextResponse.json(bookings)
     } catch (error) {
         console.error('Error fetching bookings:', error)
-        // Fallback to empty array or MOCK if preferred, but for DB integration we want to see errors if DB fails.
-        // Keeping MOCK fallback for now as per previous logic to be safe, but simplified.
-        return NextResponse.json([], { status: 500 }) // Return 500 or empty for now to indicate DB issue
+        return NextResponse.json([], { status: 500 })
     }
 }
 
@@ -79,106 +19,102 @@ async function generateBookingNumber(): Promise<string> {
     const year = new Date().getFullYear()
     const prefix = `BK-${year}-`
 
-    const lastBooking = await prisma.booking.findFirst({
-        where: {
-            bookingNumber: {
-                startsWith: prefix
+    // Check if DB is available
+    if (await isDbAvailable()) {
+        try {
+            const lastBooking = await prisma.booking.findFirst({
+                where: {
+                    bookingNumber: {
+                        startsWith: prefix
+                    }
+                },
+                orderBy: {
+                    bookingNumber: 'desc'
+                }
+            })
+
+            let nextNumber = 1
+            if (lastBooking) {
+                const lastNumber = parseInt(lastBooking.bookingNumber.split('-')[2])
+                nextNumber = lastNumber + 1
             }
-        },
-        orderBy: {
-            bookingNumber: 'desc'
+
+            return `${prefix}${nextNumber.toString().padStart(4, '0')}`
+        } catch (error) {
+            console.error('Error generating booking number from DB:', error)
+        }
+    }
+
+    // Fallback: generate from localStorage
+    const bookings = bookingsAdapter.getAll()
+    let maxNumber = 0
+    bookings.forEach(b => {
+        if (b.bookingNumber.startsWith(prefix)) {
+            const num = parseInt(b.bookingNumber.split('-')[2])
+            if (num > maxNumber) maxNumber = num
         }
     })
 
-    let nextNumber = 1
-    if (lastBooking) {
-        const lastNumber = parseInt(lastBooking.bookingNumber.split('-')[2])
-        nextNumber = lastNumber + 1
-    }
-
-    return `${prefix}${nextNumber.toString().padStart(4, '0')}`
+    return `${prefix}${(maxNumber + 1).toString().padStart(4, '0')}`
 }
 
 // POST - Create new booking
 export async function POST(request: Request) {
     try {
         const body = await request.json()
-
-        // Get admin user
-        const adminUser = await prisma.user.findFirst({
-            where: { role: 'ADMIN', status: 'ACTIVE' },
-            select: { id: true }
-        }) || { id: 'manual-entry' } // Fallback if no admin user found (e.g. fresh dev db)
-
-        const bookingNumber = await generateBookingNumber()
+        const dbAvailable = await isDbAvailable()
 
         // Find or Create Customer
         let customerId = body.customerId
+        let customerName = body.customerName
+        let customerPhone = body.customerPhone
 
         if (!customerId && body.customerName && body.customerPhone) {
             // Check if customer exists by ID Number (Priority) or Phone
             let existingCustomer = null
 
             if (body.customerIdNumber) {
-                existingCustomer = await prisma.customer.findFirst({
-                    where: { idNumber: body.customerIdNumber }
-                })
+                existingCustomer = await customersService.findByIdNumber(body.customerIdNumber)
             }
 
             if (!existingCustomer) {
-                existingCustomer = await prisma.customer.findFirst({
-                    where: { phone: body.customerPhone }
-                })
+                existingCustomer = await customersService.findByPhone(body.customerPhone)
             }
 
             if (existingCustomer) {
                 customerId = existingCustomer.id
-                // Optionally update missing info
-                if (body.customerIdNumber && !existingCustomer.idNumber) {
-                    await prisma.customer.update({
-                        where: { id: customerId },
-                        data: { idNumber: body.customerIdNumber }
-                    })
-                }
+                customerName = existingCustomer.nameAr
+                customerPhone = existingCustomer.phone
             } else {
                 // Create new customer
-                // Ensure we have a valid createdById if adminUser is generic
-                const newCustomer = await prisma.customer.create({
-                    data: {
-                        nameAr: body.customerName,
-                        phone: body.customerPhone,
-                        idNumber: body.customerIdNumber,
-                        email: body.customerEmail,
-                        createdById: adminUser.id !== 'manual-entry' ? adminUser.id : 'unknown', // This might fail if 'unknown' user doesn't exist. 
-                        // Actually, for MVP with fresh DB, let's assume valid user or create one?
-                        // Ideally we should handle this. For now let's try to assume admin exists or use a dummy ID if allowed. 
-                        // Since 'createdById' is required and links to User, we MUST have a valid User ID.
-                        // Let's assume the seed created a user, or finding first user works.
-                    }
+                const newCustomer = await customersService.create({
+                    nameAr: body.customerName,
+                    phone: body.customerPhone,
+                    idNumber: body.customerIdNumber,
+                    email: body.customerEmail
                 })
                 customerId = newCustomer.id
             }
         }
 
-        if (!customerId) {
+        if (!customerId && !customerName) {
             return NextResponse.json(
                 { error: 'Customer details required' },
                 { status: 400 }
             )
         }
 
-        // Calculate amounts (Trust client for MVP Prototyping, but ensuring types)
+        const bookingNumber = await generateBookingNumber()
+
+        // Calculate amounts
         const totalAmount = parseFloat(body.totalAmount) || 0
-        const discountAmount = parseFloat(body.discountAmount) || 0 // NOTE: Body sends discountPercent usually? No, updated BookingPage sends pure totalAmount. 
-        // Logic in Page: totalAmount = subTotal - discountAmount. 
-        // We need to verify what NewBookingPage sends.
-        // It sends: { ... totalAmount, ... } 
-        // It does NOT send discountAmount explicitly in the payload structure I saw earlier!
-        // Wait, let's check what NewBookingPage sends.
+        const discountAmount = parseFloat(body.discountAmount) || 0
+        const downPayment = parseFloat(body.downPayment) || 0
+        const vatAmount = parseFloat(body.vatAmount) || 0
+        const finalAmount = totalAmount - discountAmount
 
         // Date logic
-        const eventDate = new Date(body.date) // 'date' field from payload
-        // Parse time strings "HH:mm" to Date objects combined with eventDate
+        const eventDate = new Date(body.date)
         const [startHours, startMinutes] = (body.startTime || "16:00").split(':').map(Number)
         const startTime = new Date(eventDate)
         startTime.setHours(startHours, startMinutes, 0, 0)
@@ -187,64 +123,110 @@ export async function POST(request: Request) {
         const endTime = new Date(eventDate)
         endTime.setHours(endHours, endMinutes, 0, 0)
 
-        // Ensure we have a creator
-        const creatorId = adminUser.id !== 'manual-entry' ? adminUser.id : await ensureSystemUser()
+        if (dbAvailable) {
+            try {
+                // Get admin user
+                const adminUser = await prisma.user.findFirst({
+                    where: { role: 'ADMIN', status: 'ACTIVE' },
+                    select: { id: true }
+                }) || { id: await ensureSystemUser() }
 
-        const booking = await prisma.booking.create({
-            data: {
-                bookingNumber,
-                customerId,
-                hallId: body.hallId,
-                eventType: body.eventType, // "WEDDING", etc.
-                eventDate,
-                startTime,
-                endTime,
-                guestCount: body.guestCount ? parseInt(body.guestCount) : null,
-                sectionType: body.sectionType, // "both", "men", ...
-                mealType: body.mealType, // "dinner", ...
-                services: body.services ? JSON.stringify(body.services) : null, // Store as JSON
-                coffeeServers: body.coffeeServers ? parseInt(body.coffeeServers) : null,
-                sacrifices: body.sacrifices ? parseInt(body.sacrifices) : null,
-                waterCartons: body.waterCartons ? parseInt(body.waterCartons) : null,
+                const booking = await prisma.booking.create({
+                    data: {
+                        bookingNumber,
+                        customerId,
+                        hallId: body.hallId,
+                        eventType: body.eventType,
+                        eventDate,
+                        startTime,
+                        endTime,
+                        guestCount: body.guestCount ? parseInt(body.guestCount) : null,
+                        sectionType: body.sectionType,
+                        mealType: body.mealType,
+                        services: body.services ? JSON.stringify(body.services) : null,
+                        coffeeServers: body.coffeeServers ? parseInt(body.coffeeServers) : null,
+                        sacrifices: body.sacrifices ? parseInt(body.sacrifices) : null,
+                        waterCartons: body.waterCartons ? parseInt(body.waterCartons) : null,
+                        totalAmount,
+                        downPayment,
+                        discountAmount,
+                        vatAmount,
+                        finalAmount,
+                        serviceRevenue: parseFloat(body.serviceRevenue) || 0,
+                        servicesBreakdown: body.servicesBreakdown || null,
+                        status: body.status || "TENTATIVE",
+                        createdById: adminUser.id
+                    },
+                    include: {
+                        customer: { select: { nameAr: true } },
+                        hall: { select: { nameAr: true } }
+                    }
+                })
 
-                totalAmount,    // Original price (VAT inclusive)
-                downPayment: parseFloat(body.downPayment) || 0,
-                discountAmount: parseFloat(body.discountAmount) || 0,
-                vatAmount: parseFloat(body.vatAmount) || 0, // VAT extracted from inclusive price
-                finalAmount: totalAmount - (parseFloat(body.discountAmount) || 0), // Total after discount (VAT already included)
-                serviceRevenue: parseFloat(body.serviceRevenue) || 0, // Internal value of services (for Qoyod)
-                servicesBreakdown: body.servicesBreakdown || null, // JSON breakdown
-
-                status: body.status || "TENTATIVE",
-                createdById: creatorId
-            },
-            include: {
-                customer: { select: { nameAr: true } },
-                hall: { select: { nameAr: true } }
+                return NextResponse.json(booking, { status: 201 })
+            } catch (error) {
+                console.error('Error creating booking in DB, falling back to localStorage:', error)
             }
+        }
+
+        // Fallback to localStorage
+        const newBooking = bookingsAdapter.create({
+            bookingNumber,
+            customerId: customerId || '',
+            customerName: customerName || body.customerName,
+            customerPhone: customerPhone || body.customerPhone,
+            customerEmail: body.customerEmail,
+            customerIdNumber: body.customerIdNumber,
+            hallId: body.hallId,
+            hallName: body.hallName || '',
+            eventType: body.eventType,
+            eventDate: eventDate.toISOString(),
+            date: body.date,
+            startTime: body.startTime || "16:00",
+            endTime: body.endTime || "23:00",
+            guestCount: body.guestCount ? parseInt(body.guestCount) : null,
+            sectionType: body.sectionType,
+            mealType: body.mealType,
+            services: body.services,
+            coffeeServers: body.coffeeServers ? parseInt(body.coffeeServers) : undefined,
+            sacrifices: body.sacrifices ? parseInt(body.sacrifices) : undefined,
+            waterCartons: body.waterCartons ? parseInt(body.waterCartons) : undefined,
+            totalAmount,
+            downPayment,
+            discountAmount,
+            vatAmount,
+            finalAmount,
+            serviceRevenue: parseFloat(body.serviceRevenue) || undefined,
+            servicesBreakdown: body.servicesBreakdown,
+            status: body.status || "TENTATIVE",
+            notes: body.notes
         })
 
-        return NextResponse.json(booking, { status: 201 })
+        return NextResponse.json(newBooking, { status: 201 })
     } catch (error) {
         console.error('Error creating booking:', error)
-        return NextResponse.json({ error: 'Database operation failed', details: String(error) }, { status: 500 });
+        return NextResponse.json({ error: 'Database operation failed', details: String(error) }, { status: 500 })
     }
 }
 
 // Helper to ensure a user exists for foreign keys
-async function ensureSystemUser() {
-    const user = await prisma.user.findFirst()
-    if (user) return user.id
+async function ensureSystemUser(): Promise<string> {
+    try {
+        const user = await prisma.user.findFirst()
+        if (user) return user.id
 
-    // Create dummy user if none exists (for dev only)
-    const newUser = await prisma.user.create({
-        data: {
-            username: 'system',
-            password: 'hashedpassword',
-            nameAr: 'النظام',
-            role: 'ADMIN'
-        }
-    })
-    return newUser.id
+        // Create dummy user if none exists (for dev only)
+        const newUser = await prisma.user.create({
+            data: {
+                username: 'system',
+                password: 'hashedpassword',
+                nameAr: 'النظام',
+                role: 'ADMIN'
+            }
+        })
+        return newUser.id
+    } catch (error) {
+        console.error('Error ensuring system user:', error)
+        return 'system'
+    }
 }
-

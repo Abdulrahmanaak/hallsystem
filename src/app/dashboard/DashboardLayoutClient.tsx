@@ -1,9 +1,10 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Sidebar from '@/components/layout/Sidebar'
 import Header from '@/components/layout/Header'
 import type { UserRole } from '@/types/enums'
+import { Database, CloudOff } from 'lucide-react'
 
 interface DashboardLayoutClientProps {
     children: React.ReactNode
@@ -15,6 +16,34 @@ interface DashboardLayoutClientProps {
 
 export default function DashboardLayoutClient({ children, user }: DashboardLayoutClientProps) {
     const [isSidebarOpen, setIsSidebarOpen] = useState(false)
+    const [isDbConnected, setIsDbConnected] = useState<boolean | null>(null)
+    const [isChecking, setIsChecking] = useState(true)
+
+    // Check database connection status periodically
+    useEffect(() => {
+        const checkDbStatus = async () => {
+            try {
+                // Try to fetch halls as a health check
+                const response = await fetch('/api/halls', { method: 'HEAD' })
+                // If we get any response, API is working
+                // The actual DB status is determined by the API route
+                setIsDbConnected(response.ok)
+            } catch (error) {
+                console.error('Health check failed:', error)
+                setIsDbConnected(false)
+            } finally {
+                setIsChecking(false)
+            }
+        }
+
+        // Check on mount
+        checkDbStatus()
+
+        // Check every 60 seconds
+        const interval = setInterval(checkDbStatus, 60000)
+
+        return () => clearInterval(interval)
+    }, [])
 
     return (
         <div className="min-h-screen bg-[var(--bg-secondary)]">
@@ -43,15 +72,37 @@ export default function DashboardLayoutClient({ children, user }: DashboardLayou
                 />
 
                 {/* Page Content */}
-                <main className="p-4 lg:p-6">
+                <main className="p-4 lg:p-6 pb-16">
                     {children}
                 </main>
             </div>
 
-            {/* Demo Mode Disclaimer */}
-            <div className="fixed bottom-0 left-0 right-0 h-8 bg-yellow-100 border-t border-yellow-200 flex items-center justify-center text-xs text-yellow-800 z-50 pointer-events-none">
-                <span className="font-bold ml-1">تجريبي:</span>
-                <span>يتم عرض بيانات وهمية نظراً لعدم توفر قاعدة البيانات.</span>
+            {/* Connection Status Indicator */}
+            <div className={`
+                fixed bottom-0 left-0 right-0 h-10 border-t flex items-center justify-center text-sm z-50
+                ${isChecking
+                    ? 'bg-gray-100 border-gray-200 text-gray-600'
+                    : isDbConnected
+                        ? 'bg-green-50 border-green-200 text-green-700'
+                        : 'bg-yellow-100 border-yellow-200 text-yellow-800'
+                }
+            `}>
+                {isChecking ? (
+                    <>
+                        <span className="animate-pulse">جاري فحص الاتصال...</span>
+                    </>
+                ) : isDbConnected ? (
+                    <>
+                        <Database size={16} className="ml-2 text-green-600" />
+                        <span>متصل بقاعدة البيانات</span>
+                    </>
+                ) : (
+                    <>
+                        <CloudOff size={16} className="ml-2 text-yellow-600" />
+                        <span className="font-bold ml-1">وضع العمل المحلي:</span>
+                        <span>البيانات محفوظة في المتصفح (localStorage)</span>
+                    </>
+                )}
             </div>
         </div>
     )
