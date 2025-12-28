@@ -50,12 +50,17 @@ export async function GET() {
             sectionType: booking.sectionType,
             mealType: booking.mealType,
             services: booking.services ? JSON.parse(booking.services) : [],
+            coffeeServers: booking.coffeeServers,
+            sacrifices: booking.sacrifices,
+            waterCartons: booking.waterCartons,
             status: booking.status,
             totalAmount: Number(booking.totalAmount),
             downPayment: Number(booking.downPayment),
             discountAmount: Number(booking.discountAmount),
             vatAmount: Number(booking.vatAmount),
             finalAmount: Number(booking.finalAmount),
+            serviceRevenue: Number(booking.serviceRevenue),
+            servicesBreakdown: booking.servicesBreakdown,
             notes: booking.notes,
             createdAt: booking.createdAt.toISOString()
         }))
@@ -200,14 +205,15 @@ export async function POST(request: Request) {
                 services: body.services ? JSON.stringify(body.services) : null, // Store as JSON
                 coffeeServers: body.coffeeServers ? parseInt(body.coffeeServers) : null,
                 sacrifices: body.sacrifices ? parseInt(body.sacrifices) : null,
+                waterCartons: body.waterCartons ? parseInt(body.waterCartons) : null,
 
-                totalAmount,    // Total after discount (Actual Charge)
+                totalAmount,    // Original price (VAT inclusive)
                 downPayment: parseFloat(body.downPayment) || 0,
-                // discountAmount: ??? Client didn't send it?
-                // Let's assume body.totalAmount is the FINAL price.
-                // We should store what we have.
-                vatAmount: 0, // Simplified for now
-                finalAmount: totalAmount, // For now same as total
+                discountAmount: parseFloat(body.discountAmount) || 0,
+                vatAmount: parseFloat(body.vatAmount) || 0, // VAT extracted from inclusive price
+                finalAmount: totalAmount - (parseFloat(body.discountAmount) || 0), // Total after discount (VAT already included)
+                serviceRevenue: parseFloat(body.serviceRevenue) || 0, // Internal value of services (for Qoyod)
+                servicesBreakdown: body.servicesBreakdown || null, // JSON breakdown
 
                 status: body.status || "TENTATIVE",
                 createdById: creatorId

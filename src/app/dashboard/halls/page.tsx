@@ -48,8 +48,10 @@ export interface Hall {
     // Configuration Fields
     defaultCoffeeServers: number
     defaultSacrifices: number
+    defaultWaterCartons: number
     coffeeServerPrice: number
     sacrificePrice: number
+    waterCartonPrice: number
     extraSectionPrice: number
     // Booking Defaults
     defaultGuestCount: number
@@ -80,8 +82,10 @@ const MOCK_HALLS: Hall[] = [
         createdAt: new Date().toISOString(),
         defaultCoffeeServers: 10,
         defaultSacrifices: 5,
+        defaultWaterCartons: 10,
         coffeeServerPrice: 100,
         sacrificePrice: 1500,
+        waterCartonPrice: 50,
         extraSectionPrice: 1000,
         defaultGuestCount: 500,
         defaultSectionType: 'both' as const,
@@ -101,8 +105,10 @@ const MOCK_HALLS: Hall[] = [
         createdAt: new Date().toISOString(),
         defaultCoffeeServers: 6,
         defaultSacrifices: 3,
+        defaultWaterCartons: 8,
         coffeeServerPrice: 100,
         sacrificePrice: 1500,
+        waterCartonPrice: 50,
         extraSectionPrice: 1000,
         defaultGuestCount: 300,
         defaultSectionType: 'both' as const,
@@ -122,8 +128,10 @@ const MOCK_HALLS: Hall[] = [
         createdAt: new Date().toISOString(),
         defaultCoffeeServers: 2,
         defaultSacrifices: 0,
+        defaultWaterCartons: 4,
         coffeeServerPrice: 100,
         sacrificePrice: 1500,
+        waterCartonPrice: 50,
         extraSectionPrice: 1000,
         defaultGuestCount: 100,
         defaultSectionType: 'men' as const,
@@ -180,8 +188,10 @@ export default function HallsPage() {
         // Service Defaults
         defaultCoffeeServers: '0',
         defaultSacrifices: '0',
+        defaultWaterCartons: '0',
         coffeeServerPrice: '100',
         sacrificePrice: '1500',
+        waterCartonPrice: '50',
         extraSectionPrice: '1000',
         // Booking Defaults
         defaultGuestCount: '',
@@ -193,16 +203,33 @@ export default function HallsPage() {
         mealPriceSnacks: '30'
     })
 
-    // Load from localStorage on mount
+    // Load from API on mount
     useEffect(() => {
-        const loaded = loadHallsFromStorage()
-        setHalls(loaded)
-        setIsLoaded(true)
+        const fetchHalls = async () => {
+            try {
+                const res = await fetch('/api/halls')
+                if (res.ok) {
+                    const data = await res.json()
+                    setHalls(data)
+                } else {
+                    // Fallback to localStorage if API fails
+                    const loaded = loadHallsFromStorage()
+                    setHalls(loaded)
+                }
+            } catch (error) {
+                console.error('Failed to fetch halls:', error)
+                const loaded = loadHallsFromStorage()
+                setHalls(loaded)
+            } finally {
+                setIsLoaded(true)
+            }
+        }
+        fetchHalls()
     }, [])
 
-    // Save to localStorage whenever halls change
+    // Also save to localStorage as backup when halls change
     useEffect(() => {
-        if (isLoaded) {
+        if (isLoaded && halls.length > 0) {
             saveHallsToStorage(halls)
         }
     }, [halls, isLoaded])
@@ -225,8 +252,10 @@ export default function HallsPage() {
             amenities: '',
             defaultCoffeeServers: '0',
             defaultSacrifices: '0',
+            defaultWaterCartons: '0',
             coffeeServerPrice: '100',
             sacrificePrice: '1500',
+            waterCartonPrice: '50',
             extraSectionPrice: '1000',
             defaultGuestCount: '',
             defaultSectionType: 'both',
@@ -251,8 +280,10 @@ export default function HallsPage() {
             amenities: hall.amenities || '',
             defaultCoffeeServers: hall.defaultCoffeeServers.toString(),
             defaultSacrifices: hall.defaultSacrifices.toString(),
+            defaultWaterCartons: (hall.defaultWaterCartons || 0).toString(),
             coffeeServerPrice: hall.coffeeServerPrice.toString(),
             sacrificePrice: hall.sacrificePrice.toString(),
+            waterCartonPrice: (hall.waterCartonPrice || 50).toString(),
             extraSectionPrice: hall.extraSectionPrice.toString(),
             defaultGuestCount: (hall.defaultGuestCount || hall.capacity).toString(),
             defaultSectionType: hall.defaultSectionType || 'both',
@@ -264,12 +295,12 @@ export default function HallsPage() {
         setShowModal(true)
     }
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
 
-        const newHall: Hall = {
-            id: editingHall ? editingHall.id : `hall-${Date.now()}`,
-            name: formData.nameAr,
+        const hallData = {
+            id: editingHall?.id,
+            nameAr: formData.nameAr,
             capacity: parseInt(formData.capacity) || 0,
             basePrice: parseFloat(formData.basePrice) || 0,
             hourlyRate: formData.hourlyRate ? parseFloat(formData.hourlyRate) : null,
@@ -277,30 +308,61 @@ export default function HallsPage() {
             description: formData.description || null,
             status: formData.status,
             amenities: formData.amenities || null,
-            bookingsCount: editingHall ? editingHall.bookingsCount : 0,
-            createdAt: editingHall ? editingHall.createdAt : new Date().toISOString(),
             // Service Defaults
             defaultCoffeeServers: parseInt(formData.defaultCoffeeServers) || 0,
             defaultSacrifices: parseInt(formData.defaultSacrifices) || 0,
-            coffeeServerPrice: parseFloat(formData.coffeeServerPrice) || 0,
-            sacrificePrice: parseFloat(formData.sacrificePrice) || 0,
+            defaultWaterCartons: parseInt(formData.defaultWaterCartons) || 0,
+            coffeeServerPrice: parseFloat(formData.coffeeServerPrice) || 100,
+            sacrificePrice: parseFloat(formData.sacrificePrice) || 1500,
+            waterCartonPrice: parseFloat(formData.waterCartonPrice) || 50,
             extraSectionPrice: parseFloat(formData.extraSectionPrice) || 0,
             // Booking Defaults
             defaultGuestCount: parseInt(formData.defaultGuestCount) || parseInt(formData.capacity) || 0,
-            defaultSectionType: formData.defaultSectionType as 'men' | 'women' | 'both',
+            defaultSectionType: formData.defaultSectionType,
             // Meal Prices
             mealPrices: {
-                dinner: parseFloat(formData.mealPriceDinner) || 0,
-                lunch: parseFloat(formData.mealPriceLunch) || 0,
-                breakfast: parseFloat(formData.mealPriceBreakfast) || 0,
-                snacks: parseFloat(formData.mealPriceSnacks) || 0
+                dinner: parseFloat(formData.mealPriceDinner) || 150,
+                lunch: parseFloat(formData.mealPriceLunch) || 100,
+                breakfast: parseFloat(formData.mealPriceBreakfast) || 50,
+                snacks: parseFloat(formData.mealPriceSnacks) || 30
             }
         }
 
-        if (editingHall) {
-            setHalls(halls.map(h => h.id === editingHall.id ? newHall : h))
-        } else {
-            setHalls([...halls, newHall])
+        try {
+            const method = editingHall ? 'PUT' : 'POST'
+            const res = await fetch('/api/halls', {
+                method,
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(hallData)
+            })
+
+            if (res.ok) {
+                // Refresh halls list from API
+                const refreshRes = await fetch('/api/halls')
+                if (refreshRes.ok) {
+                    const data = await refreshRes.json()
+                    setHalls(data)
+                }
+            } else {
+                const error = await res.json()
+                alert('خطأ في حفظ القاعة: ' + (error.error || 'خطأ غير معروف'))
+            }
+        } catch (error) {
+            console.error('Failed to save hall:', error)
+            // Fallback: save locally
+            const newHall: Hall = {
+                ...hallData,
+                id: editingHall?.id || `hall-${Date.now()}`,
+                name: hallData.nameAr,
+                bookingsCount: editingHall?.bookingsCount || 0,
+                createdAt: editingHall?.createdAt || new Date().toISOString(),
+                defaultSectionType: hallData.defaultSectionType as 'men' | 'women' | 'both'
+            }
+            if (editingHall) {
+                setHalls(halls.map(h => h.id === editingHall.id ? newHall : h))
+            } else {
+                setHalls([...halls, newHall])
+            }
         }
         setShowModal(false)
     }
@@ -448,21 +510,47 @@ export default function HallsPage() {
                             </div>
                         </CardHeader>
 
-                        <CardContent className="space-y-3">
-                            {/* Info - Only capacity and price */}
-                            <div className="space-y-2">
-                                <div className="flex items-center gap-2 text-sm text-[var(--text-secondary)]">
+                        <CardContent className="space-y-2">
+                            {/* Basic Info */}
+                            <div className="space-y-1 text-sm text-[var(--text-secondary)]">
+                                <div className="flex items-center gap-2">
                                     <Users size={14} />
                                     <span>السعة: {hall.capacity} شخص</span>
                                 </div>
-                                <div className="flex items-center gap-2 text-sm text-[var(--text-secondary)]">
+                                <div className="flex items-center gap-2">
                                     <DollarSign size={14} />
                                     <span>السعر: {hall.basePrice.toLocaleString()} ر.س</span>
+                                </div>
+                                <div className="flex items-center gap-2 text-xs">
+                                    <span className="text-[var(--text-muted)]">القسم:</span>
+                                    <span className="font-medium">
+                                        {hall.defaultSectionType === 'men' ? 'رجال' :
+                                            hall.defaultSectionType === 'women' ? 'نساء' : 'قسمين'}
+                                    </span>
+                                </div>
+                            </div>
+
+                            {/* Services - Compact */}
+                            <div className="pt-2 border-t border-[var(--border-color)]">
+                                <p className="text-[10px] text-[var(--text-muted)] mb-1">الخدمات:</p>
+                                <div className="flex gap-2 text-[10px]">
+                                    <div className="bg-amber-50 rounded px-2 py-1 text-center flex-1">
+                                        <div className="text-amber-700 font-medium">صبابين</div>
+                                        <div>{hall.defaultCoffeeServers || 0} × {hall.coffeeServerPrice || 0}</div>
+                                    </div>
+                                    <div className="bg-red-50 rounded px-2 py-1 text-center flex-1">
+                                        <div className="text-red-700 font-medium">ذبائح</div>
+                                        <div>{hall.defaultSacrifices || 0} × {hall.sacrificePrice || 0}</div>
+                                    </div>
+                                    <div className="bg-blue-50 rounded px-2 py-1 text-center flex-1">
+                                        <div className="text-blue-700 font-medium">ماء</div>
+                                        <div>{hall.defaultWaterCartons || 0} × {hall.waterCartonPrice || 0}</div>
+                                    </div>
                                 </div>
                             </div>
 
                             {/* Stats - Bookings Count */}
-                            <div className="pt-3 border-t border-[var(--border-color)] flex justify-between items-center">
+                            <div className="pt-2 border-t border-[var(--border-color)] flex justify-between items-center">
                                 <span className="text-sm text-[var(--text-secondary)]">الحجوزات</span>
                                 <span className="text-lg font-bold text-[var(--primary-700)]">{hall.bookingsCount}</span>
                             </div>
@@ -550,14 +638,13 @@ export default function HallsPage() {
                                 </div>
                             </div>
 
-                            {/* TEMPORARILY HIDDEN - Default Services Settings Section
-                               To restore, uncomment this section
+                            {/* Default Services Settings Section */}
                             <div className="space-y-4">
                                 <h4 className="font-medium text-sm text-slate-900 border-b pb-2 flex items-center gap-2">
                                     <Settings size={16} /> إعدادات الخدمات الافتراضية
                                 </h4>
 
-                                <div className="grid grid-cols-2 gap-6">
+                                <div className="grid grid-cols-3 gap-4">
                                     <div className="space-y-3 p-3 bg-slate-50 rounded-lg border">
                                         <Label className="text-xs font-semibold text-slate-500 uppercase tracking-wider">عمال الضيافة (القهوجية)</Label>
                                         <div>
@@ -601,29 +688,38 @@ export default function HallsPage() {
                                             />
                                         </div>
                                     </div>
-                                </div>
 
-                                <div className="grid grid-cols-2 gap-4">
-                                    <div>
-                                        <Label>سعر إضافة قسم ثاني (ر.س)</Label>
-                                        <Input
-                                            type="number"
-                                            min="0"
-                                            value={formData.extraSectionPrice}
-                                            onChange={e => setFormData({ ...formData, extraSectionPrice: e.target.value })}
-                                        />
-                                        <p className="text-[10px] text-slate-500 mt-1">يضاف عند اختيار "قسمين"</p>
+                                    <div className="space-y-3 p-3 bg-slate-50 rounded-lg border">
+                                        <Label className="text-xs font-semibold text-slate-500 uppercase tracking-wider">كراتين الماء</Label>
+                                        <div>
+                                            <Label className="text-xs">العدد الافتراضي</Label>
+                                            <Input
+                                                type="number"
+                                                min="0"
+                                                value={formData.defaultWaterCartons}
+                                                onChange={e => setFormData({ ...formData, defaultWaterCartons: e.target.value })}
+                                            />
+                                        </div>
+                                        <div>
+                                            <Label className="text-xs">السعر للكرتون (ر.س)</Label>
+                                            <Input
+                                                type="number"
+                                                min="0"
+                                                value={formData.waterCartonPrice}
+                                                onChange={e => setFormData({ ...formData, waterCartonPrice: e.target.value })}
+                                            />
+                                        </div>
                                     </div>
                                 </div>
                             </div>
-                            END OF TEMPORARILY HIDDEN SECTION */}
 
-                            {/* TEMPORARILY HIDDEN - Booking Defaults Section
+                            {/* Booking Defaults Section */}
                             <div className="space-y-4">
                                 <h4 className="font-medium text-sm text-slate-900 border-b pb-2 flex items-center gap-2">
                                     <Users size={16} /> إعدادات الحجز الافتراضية
                                 </h4>
-                                <div className="grid grid-cols-2 gap-4">
+                                <div className="grid grid-cols-1 gap-4">
+                                    {/* Hidden: عدد الضيوف الافتراضي
                                     <div>
                                         <Label>عدد الضيوف الافتراضي</Label>
                                         <Input
@@ -635,6 +731,7 @@ export default function HallsPage() {
                                         />
                                         <p className="text-[10px] text-slate-500 mt-1">العدد الافتراضي للوجبات أثناء الحجز</p>
                                     </div>
+                                    */}
                                     <div>
                                         <Label>الأقسام الافتراضية</Label>
                                         <select
@@ -650,7 +747,6 @@ export default function HallsPage() {
                                     </div>
                                 </div>
                             </div>
-                            END OF BOOKING DEFAULTS SECTION */}
 
                             {/* TEMPORARILY HIDDEN - Meal Prices Section
                             <div className="space-y-4">

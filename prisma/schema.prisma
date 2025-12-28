@@ -114,6 +114,22 @@ model Hall {
   description   String?    // وصف القاعة
   status        String     @default("ACTIVE") // HallStatus
   
+  // Service Defaults
+  defaultCoffeeServers  Int?      @default(0)
+  defaultSacrifices     Int?      @default(0)
+  defaultWaterCartons   Int?      @default(0)
+  coffeeServerPrice     Decimal?  @default(100)
+  sacrificePrice        Decimal?  @default(1500)
+  waterCartonPrice      Decimal?  @default(50)
+  extraSectionPrice     Decimal?  @default(0)
+  
+  // Booking Defaults
+  defaultGuestCount     Int?
+  defaultSectionType    String?   @default("both") // men, women, both
+  
+  // Meal Prices (stored as JSON)
+  mealPrices            String?   // JSON: { dinner, lunch, breakfast, snacks }
+  
   // Soft delete
   isDeleted     Boolean    @default(false)
   deletedAt     DateTime?
@@ -169,8 +185,9 @@ model Booking {
   sectionType     String?       // "MEN", "WOMEN", "BOTH"
   mealType        String?       // "DINNER", "LUNCH", "BREAKFAST"
   services        String?       // JSON string of selected service IDs
-  coffeeServers   Int?          // Number of coffee servers
-  sacrifices      Int?          // Number of sacrifices (sheep)
+  coffeeServers   Int?          // Number of coffee servers (صبابين)
+  sacrifices      Int?          // Number of sacrifices (ذبائح)
+  waterCartons    Int?          // Number of water cartons (كراتين ماء)
   notes           String?       // ملاحظات
   
   // Financial
@@ -178,7 +195,9 @@ model Booking {
   downPayment     Decimal       @default(0) // العربون
   discountAmount  Decimal       @default(0) 
   vatAmount       Decimal       
-  finalAmount     Decimal       
+  finalAmount     Decimal
+  serviceRevenue  Decimal       @default(0) // Internal value of included services (for Qoyod)
+  servicesBreakdown String?     // JSON: {"coffee": 500, "water": 200, "sacrifice": 1500}       
   
   // Status
   status          String        @default("PENDING") // BookingStatus

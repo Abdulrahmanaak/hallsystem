@@ -12,6 +12,7 @@ export interface Booking {
     date: string; // ISO Date string
     startTime: string; // HH:mm
     endTime: string; // HH:mm
+    eventType?: string; // WEDDING, ENGAGEMENT, etc.
     guestCount?: number;
     sectionType?: string;
     mealType?: string;
@@ -20,9 +21,13 @@ export interface Booking {
     hallName?: string; // Added for display
     status: BookingStatus;
     totalAmount: number;
+    discountAmount?: number;
     downPayment?: number;
     coffeeServers?: number;
     sacrifices?: number;
+    waterCartons?: number;
+    serviceRevenue?: number;
+    servicesBreakdown?: string;
     createdAt: string;
 }
 
@@ -33,7 +38,7 @@ export const bookingService = {
         return res.json();
     },
 
-    createBooking: async (booking: Omit<Booking, 'id' | 'createdAt' | 'status'> & { status?: string, coffeeServers?: number, sacrifices?: number }): Promise<Booking> => {
+    createBooking: async (booking: Omit<Booking, 'id' | 'createdAt' | 'status'> & { status?: string, eventType?: string, discountAmount?: number, vatAmount?: number, coffeeServers?: number, sacrifices?: number, waterCartons?: number, serviceRevenue?: number, servicesBreakdown?: string }): Promise<Booking> => {
         const res = await fetch('/api/bookings', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },

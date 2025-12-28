@@ -34,7 +34,8 @@ import {
     CheckCircle,
     XCircle,
     AlertCircle,
-    ChevronDown
+    ChevronDown,
+    FileText
 } from 'lucide-react'
 
 interface Booking {
@@ -43,6 +44,8 @@ interface Booking {
     customerId: string
     customerName: string
     customerPhone: string
+    customerEmail?: string
+    customerIdNumber?: string
     hallId: string
     hallName: string
     eventType: string
@@ -53,6 +56,7 @@ interface Booking {
     status: string
     totalAmount: number
     discountAmount: number
+    downPayment: number
     vatAmount: number
     finalAmount: number
     notes: string | null
@@ -399,7 +403,6 @@ export default function BookingsPage() {
                                     <th>العميل</th>
                                     <th>القاعة</th>
                                     <th>التاريخ</th>
-                                    <th>الوقت</th>
                                     <th>الحالة</th>
                                     <th>المبلغ</th>
                                     <th>الإجراءات</th>
@@ -419,12 +422,6 @@ export default function BookingsPage() {
                                         </td>
                                         <td>{booking.hallName}</td>
                                         <td>{new Date(booking.date).toLocaleDateString('ar-SA')}</td>
-                                        <td>
-                                            <div className="flex items-center gap-1 text-sm">
-                                                <Clock size={14} />
-                                                {booking.startTime} - {booking.endTime}
-                                            </div>
-                                        </td>
                                         <td>
                                             <div className="relative">
                                                 <button
@@ -480,6 +477,13 @@ export default function BookingsPage() {
                                                 >
                                                     <Eye size={16} className="text-gray-500" />
                                                 </button>
+                                                <Link
+                                                    href={`/dashboard/bookings/${booking.id}/contract`}
+                                                    className="p-2 hover:bg-blue-50 rounded-md"
+                                                    title="طباعة العقد"
+                                                >
+                                                    <FileText size={16} className="text-blue-600" />
+                                                </Link>
                                                 <button
                                                     onClick={() => openEditModal(booking)}
                                                     className="p-2 hover:bg-gray-100 rounded-md"
@@ -766,6 +770,26 @@ export default function BookingsPage() {
                                         <p className="font-medium">{viewingBooking.hallName}</p>
                                     </div>
                                 </div>
+                            </div>
+
+                            {/* Customer Details */}
+                            <div className="bg-blue-50 p-3 rounded-lg">
+                                <p className="text-xs text-blue-600 font-medium mb-2">بيانات العميل</p>
+                                <div className="grid grid-cols-2 gap-2 text-sm">
+                                    <div>
+                                        <span className="text-[var(--text-muted)]">رقم الجوال: </span>
+                                        <span className="font-medium">{viewingBooking.customerPhone}</span>
+                                    </div>
+                                    {viewingBooking.customerIdNumber && (
+                                        <div>
+                                            <span className="text-[var(--text-muted)]">رقم الهوية: </span>
+                                            <span className="font-medium">{viewingBooking.customerIdNumber}</span>
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+
+                            <div className="grid grid-cols-2 gap-4">
                                 <div className="flex items-center gap-2">
                                     <Calendar className="text-[var(--text-muted)]" size={18} />
                                     <div>
@@ -773,38 +797,34 @@ export default function BookingsPage() {
                                         <p className="font-medium">{new Date(viewingBooking.date).toLocaleDateString('ar-SA')}</p>
                                     </div>
                                 </div>
-                                <div className="flex items-center gap-2">
-                                    <Clock className="text-[var(--text-muted)]" size={18} />
-                                    <div>
-                                        <p className="text-xs text-[var(--text-muted)]">الوقت</p>
-                                        <p className="font-medium">{viewingBooking.startTime} - {viewingBooking.endTime}</p>
-                                    </div>
+                                <div>
+                                    <p className="text-xs text-[var(--text-muted)]">نوع المناسبة</p>
+                                    <p className="font-medium">{EVENT_TYPES[viewingBooking.eventType] || viewingBooking.eventType}</p>
                                 </div>
                             </div>
 
-                            <div className="border-t border-[var(--border-color)] pt-4">
-                                <p className="text-sm text-[var(--text-muted)] mb-2">نوع المناسبة</p>
-                                <p className="font-medium">{EVENT_TYPES[viewingBooking.eventType] || viewingBooking.eventType}</p>
-                            </div>
-
                             <div className="bg-gray-50 p-4 rounded-lg">
-                                <div className="grid grid-cols-2 gap-4">
+                                <div className="grid grid-cols-3 gap-3 text-sm">
                                     <div>
-                                        <p className="text-sm text-[var(--text-muted)]">المبلغ</p>
+                                        <p className="text-[var(--text-muted)]">المبلغ</p>
                                         <p className="font-bold">{viewingBooking.totalAmount.toLocaleString()} ر.س</p>
                                     </div>
                                     <div>
-                                        <p className="text-sm text-[var(--text-muted)]">الخصم</p>
+                                        <p className="text-[var(--text-muted)]">الخصم</p>
                                         <p className="font-bold text-red-600">-{viewingBooking.discountAmount.toLocaleString()} ر.س</p>
                                     </div>
                                     <div>
-                                        <p className="text-sm text-[var(--text-muted)]">الضريبة</p>
+                                        <p className="text-[var(--text-muted)]">ض.ق.م (15%)</p>
                                         <p className="font-bold">{viewingBooking.vatAmount.toLocaleString()} ر.س</p>
                                     </div>
                                     <div>
-                                        <p className="text-sm text-[var(--text-muted)]">الإجمالي النهائي</p>
+                                        <p className="text-[var(--text-muted)]">العربون</p>
+                                        <p className="font-bold text-green-600">{(viewingBooking.downPayment || 0).toLocaleString()} ر.س</p>
+                                    </div>
+                                    <div className="col-span-2">
+                                        <p className="text-[var(--text-muted)]">المتبقي</p>
                                         <p className="font-bold text-lg text-[var(--primary-700)]">
-                                            {viewingBooking.finalAmount.toLocaleString()} ر.س
+                                            {(viewingBooking.finalAmount - (viewingBooking.downPayment || 0)).toLocaleString()} ر.س
                                         </p>
                                     </div>
                                 </div>

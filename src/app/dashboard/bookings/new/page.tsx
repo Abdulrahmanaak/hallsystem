@@ -39,8 +39,10 @@ interface Hall {
     createdAt: string
     defaultCoffeeServers: number
     defaultSacrifices: number
+    defaultWaterCartons: number
     coffeeServerPrice: number
     sacrificePrice: number
+    waterCartonPrice: number
     extraSectionPrice: number
     defaultGuestCount: number
     defaultSectionType: 'men' | 'women' | 'both'
@@ -63,8 +65,10 @@ const DEFAULT_HALLS: Hall[] = [
         createdAt: new Date().toISOString(),
         defaultCoffeeServers: 10,
         defaultSacrifices: 5,
+        defaultWaterCartons: 10,
         coffeeServerPrice: 100,
         sacrificePrice: 1500,
+        waterCartonPrice: 50,
         extraSectionPrice: 1000,
         defaultGuestCount: 500,
         defaultSectionType: 'both' as const,
@@ -84,8 +88,10 @@ const DEFAULT_HALLS: Hall[] = [
         createdAt: new Date().toISOString(),
         defaultCoffeeServers: 6,
         defaultSacrifices: 3,
+        defaultWaterCartons: 8,
         coffeeServerPrice: 100,
         sacrificePrice: 1500,
+        waterCartonPrice: 50,
         extraSectionPrice: 1000,
         defaultGuestCount: 300,
         defaultSectionType: 'both' as const,
@@ -105,8 +111,10 @@ const DEFAULT_HALLS: Hall[] = [
         createdAt: new Date().toISOString(),
         defaultCoffeeServers: 2,
         defaultSacrifices: 0,
+        defaultWaterCartons: 4,
         coffeeServerPrice: 100,
         sacrificePrice: 1500,
+        waterCartonPrice: 50,
         extraSectionPrice: 1000,
         defaultGuestCount: 100,
         defaultSectionType: 'men' as const,
@@ -226,6 +234,7 @@ export default function NewBookingPage() {
     // New Fields - These will be set from Hall Config and are READ ONLY
     const [coffeeServers, setCoffeeServers] = useState<number>(0)
     const [sacrifices, setSacrifices] = useState<number>(0)
+    const [waterCartons, setWaterCartons] = useState<number>(0)
 
     // Financial
     const [discountPercent, setDiscountPercent] = useState<string>('')
@@ -233,14 +242,64 @@ export default function NewBookingPage() {
 
     // --- Effects & Logic ---
 
-    // Load Halls from localStorage
+    // Load Halls from API (not localStorage mock data)
     useEffect(() => {
-        const loaded = loadHallsFromStorage()
-        setHalls(loaded.filter(h => h.status === 'ACTIVE')) // Only show active halls
-        if (loaded.length > 0) {
-            setSelectedHallId(loaded[0].id)
+        const fetchHalls = async () => {
+            try {
+                const res = await fetch('/api/halls')
+                if (res.ok) {
+                    const apiHalls = await res.json()
+                    // Map API response to Hall type, adding default values for missing fields
+                    const mappedHalls: Hall[] = apiHalls.map((h: any) => ({
+                        id: h.id,
+                        name: h.name,
+                        capacity: h.capacity,
+                        basePrice: h.basePrice || h.price,
+                        hourlyRate: h.hourlyRate,
+                        amenities: h.amenities,
+                        location: h.location,
+                        description: h.description,
+                        status: h.status || 'ACTIVE',
+                        bookingsCount: h.bookingsCount || 0,
+                        createdAt: h.createdAt,
+                        // Use defaults from localStorage if available, otherwise fallback
+                        defaultCoffeeServers: h.defaultCoffeeServers || 0,
+                        defaultSacrifices: h.defaultSacrifices || 0,
+                        defaultWaterCartons: h.defaultWaterCartons || 0,
+                        coffeeServerPrice: h.coffeeServerPrice || 100,
+                        sacrificePrice: h.sacrificePrice || 1500,
+                        waterCartonPrice: h.waterCartonPrice || 50,
+                        extraSectionPrice: h.extraSectionPrice || 0,
+                        defaultGuestCount: h.defaultGuestCount || h.capacity,
+                        defaultSectionType: h.defaultSectionType || 'both',
+                        mealPrices: h.mealPrices || { dinner: 150, lunch: 100, breakfast: 50, snacks: 30 }
+                    }))
+                    const activeHalls = mappedHalls.filter(h => h.status === 'ACTIVE')
+                    setHalls(activeHalls)
+                    if (activeHalls.length > 0) {
+                        setSelectedHallId(activeHalls[0].id)
+                    }
+                } else {
+                    // Fallback to localStorage if API fails
+                    const loaded = loadHallsFromStorage()
+                    setHalls(loaded.filter(h => h.status === 'ACTIVE'))
+                    if (loaded.length > 0) {
+                        setSelectedHallId(loaded[0].id)
+                    }
+                }
+            } catch (error) {
+                console.error('Error fetching halls:', error)
+                // Fallback to localStorage
+                const loaded = loadHallsFromStorage()
+                setHalls(loaded.filter(h => h.status === 'ACTIVE'))
+                if (loaded.length > 0) {
+                    setSelectedHallId(loaded[0].id)
+                }
+            } finally {
+                setLoadingHalls(false)
+            }
         }
-        setLoadingHalls(false)
+        fetchHalls()
     }, [])
 
     const selectedHall = useMemo(() => halls.find(h => h.id === selectedHallId) || (halls[0] || null), [halls, selectedHallId])
@@ -252,9 +311,10 @@ export default function NewBookingPage() {
             setGuestCount(selectedHall.defaultGuestCount || selectedHall.capacity || 0)
             // Set section type from hall config (READ ONLY)
             setSectionType(selectedHall.defaultSectionType || 'both')
-            // Set coffee servers and sacrifices from hall config (READ ONLY)
+            // Set coffee servers, sacrifices, and water cartons from hall config (READ ONLY)
             setCoffeeServers(selectedHall.defaultCoffeeServers || 0)
             setSacrifices(selectedHall.defaultSacrifices || 0)
+            setWaterCartons(selectedHall.defaultWaterCartons || 0)
         }
     }, [selectedHallId, selectedHall])
 
@@ -333,11 +393,23 @@ export default function NewBookingPage() {
     // Extra Services Calculation - Use prices from Hall Config
     const coffeeServersPrice = coffeeServers * (selectedHall?.coffeeServerPrice || 100)
     const sacrificesPrice = sacrifices * (selectedHall?.sacrificePrice || 1500)
+    const waterCartonsPrice = waterCartons * (selectedHall?.waterCartonPrice || 50)
 
-    const subTotal = basePrice + servicesPrice + sectionSurcharge + mealTotalPrice + coffeeServersPrice + sacrificesPrice
+    // Internal Service Revenue (for Qoyod accounting - NOT shown to customer)
+    const serviceRevenue = coffeeServersPrice + sacrificesPrice + waterCartonsPrice
+    const servicesBreakdown = JSON.stringify({
+        coffee: coffeeServersPrice,
+        sacrifice: sacrificesPrice,
+        water: waterCartonsPrice
+    })
+
+    const subTotal = basePrice + servicesPrice + sectionSurcharge + mealTotalPrice + coffeeServersPrice + sacrificesPrice + waterCartonsPrice
     // Use basePrice for discount and remaining calculations (as per user request)
     const discountAmount = Math.round(basePrice * ((Number(discountPercent) || 0) / 100))
-    const totalAmount = basePrice - discountAmount
+    const afterDiscount = basePrice - discountAmount
+    // VAT is INCLUDED in the price (not added on top). Extract VAT from inclusive price.
+    const vatAmount = Math.round(afterDiscount / 1.15 * 0.15) // VAT already included
+    const totalAmount = afterDiscount // Total stays the same (VAT inclusive)
     const remainingAmount = totalAmount - (Number(downPayment) || 0)
 
     const handleSubmit = async (e: React.FormEvent) => {
@@ -353,18 +425,26 @@ export default function NewBookingPage() {
                 startTime,
                 endTime,
                 hallId: selectedHallId,
-                status: "TENTATIVE",
-                totalAmount: totalAmount,
+                eventType: 'WEDDING', // Default event type
+                status: "PENDING",
+                totalAmount: basePrice, // Original price before discount
+                discountAmount: discountAmount,
+                vatAmount: vatAmount, // VAT 15%
+                downPayment: Number(downPayment) || 0,
                 guestCount,
                 sectionType,
                 mealType,
                 services: selectedServices,
-                coffeeServers, // Pass new fields
+                coffeeServers,
                 sacrifices,
+                waterCartons,
+                serviceRevenue,
+                servicesBreakdown,
             })
             router.push("/dashboard/bookings")
-        } catch (error) {
-            console.error("Failed to create booking", error)
+        } catch (error: any) {
+            console.error("Failed to create booking", error?.message || error)
+            alert("فشل في إنشاء الحجز: " + (error?.message || "خطأ غير معروف"))
         } finally {
             setLoading(false)
         }
@@ -609,23 +689,25 @@ export default function NewBookingPage() {
                                 </div>
                             </div>
 
-                            {/* Summary Display - Only show if values exist */}
-                            {(discountAmount > 0 || (Number(downPayment) || 0) > 0) && (
-                                <div className="space-y-1 py-2 border-t border-dashed border-slate-300 text-sm">
-                                    {discountAmount > 0 && (
-                                        <div className="flex justify-between text-red-600">
-                                            <span>الخصم ({discountPercent}%)</span>
-                                            <span>-{discountAmount.toLocaleString()} ر.س</span>
-                                        </div>
-                                    )}
-                                    {(Number(downPayment) || 0) > 0 && (
-                                        <div className="flex justify-between text-blue-600">
-                                            <span>العربون</span>
-                                            <span>-{(Number(downPayment) || 0).toLocaleString()} ر.س</span>
-                                        </div>
-                                    )}
+                            {/* Summary Display */}
+                            <div className="space-y-1 py-2 border-t border-dashed border-slate-300 text-sm">
+                                {discountAmount > 0 && (
+                                    <div className="flex justify-between text-red-600">
+                                        <span>الخصم ({discountPercent}%)</span>
+                                        <span>-{discountAmount.toLocaleString()} ر.س</span>
+                                    </div>
+                                )}
+                                <div className="flex justify-between text-slate-600">
+                                    <span>ض.ق.م (15%)</span>
+                                    <span>+{vatAmount.toLocaleString()} ر.س</span>
                                 </div>
-                            )}
+                                {(Number(downPayment) || 0) > 0 && (
+                                    <div className="flex justify-between text-green-600">
+                                        <span>العربون</span>
+                                        <span>-{(Number(downPayment) || 0).toLocaleString()} ر.س</span>
+                                    </div>
+                                )}
+                            </div>
 
                             {/* Total Final */}
                             <div className="bg-[var(--primary-700)] text-white p-4 rounded-lg space-y-1">

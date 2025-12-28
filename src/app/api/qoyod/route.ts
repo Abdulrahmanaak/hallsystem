@@ -289,31 +289,71 @@ export async function POST(request: Request) {
             // 2. Get Service Product ID
             const productId = await getOrCreateServiceProduct(config)
 
-            // 3. Create Invoice in Qoyod
-            // Note: Qoyod expects 'invoice' root key
+            // 3. Calculate Revenue Split
+            const totalAmount = Number(invoice.subtotal)
+            const serviceRevenueRaw = Number(invoice.booking.serviceRevenue) || 0
+
+            // Edge case: If services cost more than total (heavy discount), cap it
+            let actualServiceRevenue = serviceRevenueRaw
+            let hallRevenue = totalAmount - serviceRevenueRaw
+
+            if (hallRevenue < 0) {
+                hallRevenue = 0
+                actualServiceRevenue = totalAmount
+            }
+
+            // 4. Build Line Items
+            const lineItems = []
+
+            // Hall Rental Line Item (if there's hall revenue)
+            if (hallRevenue > 0) {
+                lineItems.push({
+                    product_id: productId,
+                    description: `تأجير قاعة: ${invoice.booking.hall.nameAr} (${invoice.booking.bookingNumber})`,
+                    quantity: 1,
+                    unit_price: hallRevenue,
+                    tax_percent: 15 // 15% VAT
+                })
+            }
+
+            // Services Line Item (if there's service revenue)
+            if (actualServiceRevenue > 0) {
+                lineItems.push({
+                    product_id: productId,
+                    description: `خدمات إضافية: صبابين، ذبائح، كراتين ماء (${invoice.booking.bookingNumber})`,
+                    quantity: 1,
+                    unit_price: actualServiceRevenue,
+                    tax_percent: 15 // 15% VAT
+                })
+            }
+
+            // Fallback: If no line items (shouldn't happen), add the total
+            if (lineItems.length === 0) {
+                lineItems.push({
+                    product_id: productId,
+                    description: `حجز قاعة: ${invoice.booking.hall.nameAr} (${invoice.booking.bookingNumber})`,
+                    quantity: 1,
+                    unit_price: totalAmount,
+                    tax_percent: 15
+                })
+            }
+
+            // 5. Create Invoice in Qoyod
             const invoicePayload = {
                 invoice: {
                     contact_id: contactId,
                     issue_date: invoice.issueDate.toISOString().split('T')[0],
                     due_date: invoice.dueDate.toISOString().split('T')[0],
                     reference: invoice.invoiceNumber,
-                    status: 'Approved', // Or 'Draft'
-                    line_items: [
-                        {
-                            product_id: productId,
-                            description: `Booking: ${invoice.booking.hall.nameAr} (${invoice.booking.bookingNumber})`,
-                            quantity: 1,
-                            unit_price: Number(invoice.subtotal),
-                            tax_percent: 15 // Assuming 15% VAT
-                        }
-                    ]
+                    status: 'Approved',
+                    line_items: lineItems
                 }
             }
 
             const qoyodRes = await qoyodRequest('/invoices', 'POST', invoicePayload, config)
             const qoyodInvoiceId = qoyodRes.invoice.id
 
-            // 4. Update Local DB
+            // 6. Update Local DB
             await prisma.invoice.update({
                 where: { id },
                 data: {
