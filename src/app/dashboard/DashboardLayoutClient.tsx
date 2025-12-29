@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 import Sidebar from '@/components/layout/Sidebar'
 import Header from '@/components/layout/Header'
 import type { UserRole } from '@/types/enums'
-import { Database, CloudOff } from 'lucide-react'
+import { Database } from 'lucide-react'
 
 interface DashboardLayoutClientProps {
     children: React.ReactNode
@@ -19,14 +19,11 @@ export default function DashboardLayoutClient({ children, user }: DashboardLayou
     const [isDbConnected, setIsDbConnected] = useState<boolean | null>(null)
     const [isChecking, setIsChecking] = useState(true)
 
-    // Check database connection status periodically
+    // Check database connection status on mount
     useEffect(() => {
         const checkDbStatus = async () => {
             try {
-                // Try to fetch halls as a health check
                 const response = await fetch('/api/halls', { method: 'HEAD' })
-                // If we get any response, API is working
-                // The actual DB status is determined by the API route
                 setIsDbConnected(response.ok)
             } catch (error) {
                 console.error('Health check failed:', error)
@@ -36,13 +33,7 @@ export default function DashboardLayoutClient({ children, user }: DashboardLayou
             }
         }
 
-        // Check on mount
         checkDbStatus()
-
-        // Check every 60 seconds
-        const interval = setInterval(checkDbStatus, 60000)
-
-        return () => clearInterval(interval)
     }, [])
 
     return (
@@ -77,31 +68,25 @@ export default function DashboardLayoutClient({ children, user }: DashboardLayou
                 </main>
             </div>
 
-            {/* Connection Status Indicator */}
+            {/* Connection Status Indicator - Simplified */}
             <div className={`
-                fixed bottom-0 left-0 right-0 h-10 border-t flex items-center justify-center text-sm z-50
+                fixed bottom-0 left-0 right-0 h-8 border-t flex items-center justify-center text-xs z-50
                 ${isChecking
                     ? 'bg-gray-100 border-gray-200 text-gray-600'
                     : isDbConnected
                         ? 'bg-green-50 border-green-200 text-green-700'
-                        : 'bg-yellow-100 border-yellow-200 text-yellow-800'
+                        : 'bg-red-50 border-red-200 text-red-700'
                 }
             `}>
                 {isChecking ? (
-                    <>
-                        <span className="animate-pulse">جاري فحص الاتصال...</span>
-                    </>
+                    <span className="animate-pulse">جاري فحص الاتصال...</span>
                 ) : isDbConnected ? (
                     <>
-                        <Database size={16} className="ml-2 text-green-600" />
+                        <Database size={14} className="ml-2 text-green-600" />
                         <span>متصل بقاعدة البيانات</span>
                     </>
                 ) : (
-                    <>
-                        <CloudOff size={16} className="ml-2 text-yellow-600" />
-                        <span className="font-bold ml-1">وضع العمل المحلي:</span>
-                        <span>البيانات محفوظة في المتصفح (localStorage)</span>
-                    </>
+                    <span>خطأ في الاتصال بقاعدة البيانات</span>
                 )}
             </div>
         </div>

@@ -23,8 +23,7 @@ import {
 import { Label } from '@/components/ui/label'
 import { Input } from '@/components/ui/input'
 
-// LocalStorage Key
-const HALLS_STORAGE_KEY = 'hallsystem_halls_data'
+
 
 export interface MealPrices {
     dinner: number
@@ -145,29 +144,7 @@ const STATUS_CONFIG: Record<string, { label: string; color: string; icon: React.
     'MAINTENANCE': { label: 'صيانة', color: 'bg-yellow-100 text-yellow-800', icon: <Wrench size={14} /> }
 }
 
-// Helper to load halls from localStorage
-const loadHallsFromStorage = (): Hall[] => {
-    if (typeof window === 'undefined') return MOCK_HALLS
-    try {
-        const stored = localStorage.getItem(HALLS_STORAGE_KEY)
-        if (stored) {
-            return JSON.parse(stored)
-        }
-    } catch (e) {
-        console.error('Error loading halls from localStorage:', e)
-    }
-    return MOCK_HALLS
-}
 
-// Helper to save halls to localStorage
-const saveHallsToStorage = (halls: Hall[]) => {
-    if (typeof window === 'undefined') return
-    try {
-        localStorage.setItem(HALLS_STORAGE_KEY, JSON.stringify(halls))
-    } catch (e) {
-        console.error('Error saving halls to localStorage:', e)
-    }
-}
 
 export default function HallsPage() {
     const [halls, setHalls] = useState<Hall[]>([])
@@ -212,14 +189,12 @@ export default function HallsPage() {
                     const data = await res.json()
                     setHalls(data)
                 } else {
-                    // Fallback to localStorage if API fails
-                    const loaded = loadHallsFromStorage()
-                    setHalls(loaded)
+                    console.error('Failed to fetch halls')
+                    setHalls(MOCK_HALLS)
                 }
             } catch (error) {
                 console.error('Failed to fetch halls:', error)
-                const loaded = loadHallsFromStorage()
-                setHalls(loaded)
+                setHalls(MOCK_HALLS)
             } finally {
                 setIsLoaded(true)
             }
@@ -227,12 +202,7 @@ export default function HallsPage() {
         fetchHalls()
     }, [])
 
-    // Also save to localStorage as backup when halls change
-    useEffect(() => {
-        if (isLoaded && halls.length > 0) {
-            saveHallsToStorage(halls)
-        }
-    }, [halls, isLoaded])
+
 
     const filteredHalls = halls.filter(h =>
         h.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
