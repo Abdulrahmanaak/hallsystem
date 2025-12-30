@@ -3,7 +3,7 @@ import { prisma } from '@/lib/prisma'
 
 // Configuration
 const QOYOD_API_BASE = 'https://www.qoyod.com/api/2.0'
-const FALLBACK_API_KEY = '07ef494508aefabed688ff444' // Temporary fallback during setup
+const FALLBACK_API_KEY = process.env.QOYOD_API_KEY || '' // Use environment variable
 
 // Types
 interface QoyodConfig {
