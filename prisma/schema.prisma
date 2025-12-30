@@ -370,6 +370,7 @@ model Settings {
   companyPhone      String?
   companyEmail      String?
   companyAddress    String?
+  companyAddressLine2 String?  // السطر الثاني للعنوان
   commercialRegNo   String?  // رقم السجل التجاري
   vatRegNo          String?  // رقم التسجيل الضريبي
   

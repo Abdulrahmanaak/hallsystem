@@ -26,6 +26,7 @@ export async function GET() {
             companyPhone: settings.companyPhone,
             companyEmail: settings.companyEmail,
             companyAddress: settings.companyAddress,
+            companyAddressLine2: settings.companyAddressLine2,
             commercialRegNo: settings.commercialRegNo,
             vatRegNo: settings.vatRegNo,
             vatPercentage: Number(settings.vatPercentage),
@@ -53,6 +54,7 @@ export async function PUT(request: Request) {
         if (body.companyPhone !== undefined) updateData.companyPhone = body.companyPhone
         if (body.companyEmail !== undefined) updateData.companyEmail = body.companyEmail
         if (body.companyAddress !== undefined) updateData.companyAddress = body.companyAddress
+        if (body.companyAddressLine2 !== undefined) updateData.companyAddressLine2 = body.companyAddressLine2
         if (body.commercialRegNo !== undefined) updateData.commercialRegNo = body.commercialRegNo
         if (body.vatRegNo !== undefined) updateData.vatRegNo = body.vatRegNo
         if (body.vatPercentage !== undefined) updateData.vatPercentage = body.vatPercentage

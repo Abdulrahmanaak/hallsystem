@@ -41,6 +41,7 @@ export type SettingsMinAggregateOutputType = {
   companyPhone: string | null
   companyEmail: string | null
   companyAddress: string | null
+  companyAddressLine2: string | null
   commercialRegNo: string | null
   vatRegNo: string | null
   vatPercentage: runtime.Decimal | null
@@ -57,6 +58,7 @@ export type SettingsMaxAggregateOutputType = {
   companyPhone: string | null
   companyEmail: string | null
   companyAddress: string | null
+  companyAddressLine2: string | null
   commercialRegNo: string | null
   vatRegNo: string | null
   vatPercentage: runtime.Decimal | null
@@ -73,6 +75,7 @@ export type SettingsCountAggregateOutputType = {
   companyPhone: number
   companyEmail: number
   companyAddress: number
+  companyAddressLine2: number
   commercialRegNo: number
   vatRegNo: number
   vatPercentage: number
@@ -99,6 +102,7 @@ export type SettingsMinAggregateInputType = {
   companyPhone?: true
   companyEmail?: true
   companyAddress?: true
+  companyAddressLine2?: true
   commercialRegNo?: true
   vatRegNo?: true
   vatPercentage?: true
@@ -115,6 +119,7 @@ export type SettingsMaxAggregateInputType = {
   companyPhone?: true
   companyEmail?: true
   companyAddress?: true
+  companyAddressLine2?: true
   commercialRegNo?: true
   vatRegNo?: true
   vatPercentage?: true
@@ -131,6 +136,7 @@ export type SettingsCountAggregateInputType = {
   companyPhone?: true
   companyEmail?: true
   companyAddress?: true
+  companyAddressLine2?: true
   commercialRegNo?: true
   vatRegNo?: true
   vatPercentage?: true
@@ -234,6 +240,7 @@ export type SettingsGroupByOutputType = {
   companyPhone: string | null
   companyEmail: string | null
   companyAddress: string | null
+  companyAddressLine2: string | null
   commercialRegNo: string | null
   vatRegNo: string | null
   vatPercentage: runtime.Decimal
@@ -273,6 +280,7 @@ export type SettingsWhereInput = {
   companyPhone?: Prisma.StringNullableFilter<"Settings"> | string | null
   companyEmail?: Prisma.StringNullableFilter<"Settings"> | string | null
   companyAddress?: Prisma.StringNullableFilter<"Settings"> | string | null
+  companyAddressLine2?: Prisma.StringNullableFilter<"Settings"> | string | null
   commercialRegNo?: Prisma.StringNullableFilter<"Settings"> | string | null
   vatRegNo?: Prisma.StringNullableFilter<"Settings"> | string | null
   vatPercentage?: Prisma.DecimalFilter<"Settings"> | runtime.Decimal | runtime.DecimalJsLike | number | string
@@ -289,6 +297,7 @@ export type SettingsOrderByWithRelationInput = {
   companyPhone?: Prisma.SortOrderInput | Prisma.SortOrder
   companyEmail?: Prisma.SortOrderInput | Prisma.SortOrder
   companyAddress?: Prisma.SortOrderInput | Prisma.SortOrder
+  companyAddressLine2?: Prisma.SortOrderInput | Prisma.SortOrder
   commercialRegNo?: Prisma.SortOrderInput | Prisma.SortOrder
   vatRegNo?: Prisma.SortOrderInput | Prisma.SortOrder
   vatPercentage?: Prisma.SortOrder
@@ -308,6 +317,7 @@ export type SettingsWhereUniqueInput = Prisma.AtLeast<{
   companyPhone?: Prisma.StringNullableFilter<"Settings"> | string | null
   companyEmail?: Prisma.StringNullableFilter<"Settings"> | string | null
   companyAddress?: Prisma.StringNullableFilter<"Settings"> | string | null
+  companyAddressLine2?: Prisma.StringNullableFilter<"Settings"> | string | null
   commercialRegNo?: Prisma.StringNullableFilter<"Settings"> | string | null
   vatRegNo?: Prisma.StringNullableFilter<"Settings"> | string | null
   vatPercentage?: Prisma.DecimalFilter<"Settings"> | runtime.Decimal | runtime.DecimalJsLike | number | string
@@ -324,6 +334,7 @@ export type SettingsOrderByWithAggregationInput = {
   companyPhone?: Prisma.SortOrderInput | Prisma.SortOrder
   companyEmail?: Prisma.SortOrderInput | Prisma.SortOrder
   companyAddress?: Prisma.SortOrderInput | Prisma.SortOrder
+  companyAddressLine2?: Prisma.SortOrderInput | Prisma.SortOrder
   commercialRegNo?: Prisma.SortOrderInput | Prisma.SortOrder
   vatRegNo?: Prisma.SortOrderInput | Prisma.SortOrder
   vatPercentage?: Prisma.SortOrder
@@ -348,6 +359,7 @@ export type SettingsScalarWhereWithAggregatesInput = {
   companyPhone?: Prisma.StringNullableWithAggregatesFilter<"Settings"> | string | null
   companyEmail?: Prisma.StringNullableWithAggregatesFilter<"Settings"> | string | null
   companyAddress?: Prisma.StringNullableWithAggregatesFilter<"Settings"> | string | null
+  companyAddressLine2?: Prisma.StringNullableWithAggregatesFilter<"Settings"> | string | null
   commercialRegNo?: Prisma.StringNullableWithAggregatesFilter<"Settings"> | string | null
   vatRegNo?: Prisma.StringNullableWithAggregatesFilter<"Settings"> | string | null
   vatPercentage?: Prisma.DecimalWithAggregatesFilter<"Settings"> | runtime.Decimal | runtime.DecimalJsLike | number | string
@@ -364,6 +376,7 @@ export type SettingsCreateInput = {
   companyPhone?: string | null
   companyEmail?: string | null
   companyAddress?: string | null
+  companyAddressLine2?: string | null
   commercialRegNo?: string | null
   vatRegNo?: string | null
   vatPercentage?: runtime.Decimal | runtime.DecimalJsLike | number | string
@@ -380,6 +393,7 @@ export type SettingsUncheckedCreateInput = {
   companyPhone?: string | null
   companyEmail?: string | null
   companyAddress?: string | null
+  companyAddressLine2?: string | null
   commercialRegNo?: string | null
   vatRegNo?: string | null
   vatPercentage?: runtime.Decimal | runtime.DecimalJsLike | number | string
@@ -396,6 +410,7 @@ export type SettingsUpdateInput = {
   companyPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   companyEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   companyAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  companyAddressLine2?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   commercialRegNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   vatRegNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   vatPercentage?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
@@ -412,6 +427,7 @@ export type SettingsUncheckedUpdateInput = {
   companyPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   companyEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   companyAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  companyAddressLine2?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   commercialRegNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   vatRegNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   vatPercentage?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
@@ -428,6 +444,7 @@ export type SettingsCreateManyInput = {
   companyPhone?: string | null
   companyEmail?: string | null
   companyAddress?: string | null
+  companyAddressLine2?: string | null
   commercialRegNo?: string | null
   vatRegNo?: string | null
   vatPercentage?: runtime.Decimal | runtime.DecimalJsLike | number | string
@@ -444,6 +461,7 @@ export type SettingsUpdateManyMutationInput = {
   companyPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   companyEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   companyAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  companyAddressLine2?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   commercialRegNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   vatRegNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   vatPercentage?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
@@ -460,6 +478,7 @@ export type SettingsUncheckedUpdateManyInput = {
   companyPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   companyEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   companyAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  companyAddressLine2?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   commercialRegNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   vatRegNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   vatPercentage?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
@@ -476,6 +495,7 @@ export type SettingsCountOrderByAggregateInput = {
   companyPhone?: Prisma.SortOrder
   companyEmail?: Prisma.SortOrder
   companyAddress?: Prisma.SortOrder
+  companyAddressLine2?: Prisma.SortOrder
   commercialRegNo?: Prisma.SortOrder
   vatRegNo?: Prisma.SortOrder
   vatPercentage?: Prisma.SortOrder
@@ -496,6 +516,7 @@ export type SettingsMaxOrderByAggregateInput = {
   companyPhone?: Prisma.SortOrder
   companyEmail?: Prisma.SortOrder
   companyAddress?: Prisma.SortOrder
+  companyAddressLine2?: Prisma.SortOrder
   commercialRegNo?: Prisma.SortOrder
   vatRegNo?: Prisma.SortOrder
   vatPercentage?: Prisma.SortOrder
@@ -512,6 +533,7 @@ export type SettingsMinOrderByAggregateInput = {
   companyPhone?: Prisma.SortOrder
   companyEmail?: Prisma.SortOrder
   companyAddress?: Prisma.SortOrder
+  companyAddressLine2?: Prisma.SortOrder
   commercialRegNo?: Prisma.SortOrder
   vatRegNo?: Prisma.SortOrder
   vatPercentage?: Prisma.SortOrder
@@ -534,6 +556,7 @@ export type SettingsSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs
   companyPhone?: boolean
   companyEmail?: boolean
   companyAddress?: boolean
+  companyAddressLine2?: boolean
   commercialRegNo?: boolean
   vatRegNo?: boolean
   vatPercentage?: boolean
@@ -550,6 +573,7 @@ export type SettingsSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exte
   companyPhone?: boolean
   companyEmail?: boolean
   companyAddress?: boolean
+  companyAddressLine2?: boolean
   commercialRegNo?: boolean
   vatRegNo?: boolean
   vatPercentage?: boolean
@@ -566,6 +590,7 @@ export type SettingsSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exte
   companyPhone?: boolean
   companyEmail?: boolean
   companyAddress?: boolean
+  companyAddressLine2?: boolean
   commercialRegNo?: boolean
   vatRegNo?: boolean
   vatPercentage?: boolean
@@ -582,6 +607,7 @@ export type SettingsSelectScalar = {
   companyPhone?: boolean
   companyEmail?: boolean
   companyAddress?: boolean
+  companyAddressLine2?: boolean
   commercialRegNo?: boolean
   vatRegNo?: boolean
   vatPercentage?: boolean
@@ -591,7 +617,7 @@ export type SettingsSelectScalar = {
   updatedAt?: boolean
 }
 
-export type SettingsOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "companyNameAr" | "companyLogo" | "companyPhone" | "companyEmail" | "companyAddress" | "commercialRegNo" | "vatRegNo" | "vatPercentage" | "qoyodApiKey" | "qoyodApiSecret" | "qoyodEnabled" | "updatedAt", ExtArgs["result"]["settings"]>
+export type SettingsOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "companyNameAr" | "companyLogo" | "companyPhone" | "companyEmail" | "companyAddress" | "companyAddressLine2" | "commercialRegNo" | "vatRegNo" | "vatPercentage" | "qoyodApiKey" | "qoyodApiSecret" | "qoyodEnabled" | "updatedAt", ExtArgs["result"]["settings"]>
 
 export type $SettingsPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "Settings"
@@ -603,6 +629,7 @@ export type $SettingsPayload<ExtArgs extends runtime.Types.Extensions.InternalAr
     companyPhone: string | null
     companyEmail: string | null
     companyAddress: string | null
+    companyAddressLine2: string | null
     commercialRegNo: string | null
     vatRegNo: string | null
     vatPercentage: runtime.Decimal
@@ -1039,6 +1066,7 @@ export interface SettingsFieldRefs {
   readonly companyPhone: Prisma.FieldRef<"Settings", 'String'>
   readonly companyEmail: Prisma.FieldRef<"Settings", 'String'>
   readonly companyAddress: Prisma.FieldRef<"Settings", 'String'>
+  readonly companyAddressLine2: Prisma.FieldRef<"Settings", 'String'>
   readonly commercialRegNo: Prisma.FieldRef<"Settings", 'String'>
   readonly vatRegNo: Prisma.FieldRef<"Settings", 'String'>
   readonly vatPercentage: Prisma.FieldRef<"Settings", 'Decimal'>

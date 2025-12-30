@@ -22,12 +22,12 @@ const CONTRACT_TERMS = [
     "يعتبر هذا العقد ملزمًا للطرفين بعد التوقيع عليه ويلتزم كل طرف بما فيه من بنود."
 ]
 
-// Company Info (Hardcoded)
-const COMPANY_INFO = {
-    name: "شركة حفـاوة للأفراح والمناسبات",
-    taxNumber: "310606567300003",
-    address: "القصيم – رياض الخبراء",
-    addressLine2: "طريق الملك عبدالعزيز – مقابل دوار الرس"
+// Company settings will be fetched from API
+interface CompanySettings {
+    companyNameAr: string
+    vatRegNo: string | null
+    companyAddress: string | null
+    companyAddressLine2: string | null
 }
 
 // Helper: Get Hijri date from Gregorian
@@ -80,20 +80,31 @@ export default function ContractPage() {
     const bookingId = params.id as string
 
     const [booking, setBooking] = useState<BookingData | null>(null)
+    const [companySettings, setCompanySettings] = useState<CompanySettings | null>(null)
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState<string | null>(null)
 
     useEffect(() => {
-        const fetchBooking = async () => {
+        const fetchData = async () => {
             try {
-                const res = await fetch('/api/bookings')
-                if (!res.ok) throw new Error('Failed to fetch bookings')
-                const bookings = await res.json()
+                // Fetch booking and settings in parallel
+                const [bookingsRes, settingsRes] = await Promise.all([
+                    fetch('/api/bookings'),
+                    fetch('/api/settings')
+                ])
+
+                if (!bookingsRes.ok) throw new Error('Failed to fetch bookings')
+                if (!settingsRes.ok) throw new Error('Failed to fetch settings')
+
+                const bookings = await bookingsRes.json()
+                const settings = await settingsRes.json()
+
                 const found = bookings.find((b: BookingData) => b.id === bookingId)
                 if (!found) {
                     setError('الحجز غير موجود')
                 } else {
                     setBooking(found)
+                    setCompanySettings(settings)
                 }
             } catch (err) {
                 setError('حدث خطأ في تحميل البيانات')
@@ -101,7 +112,7 @@ export default function ContractPage() {
                 setLoading(false)
             }
         }
-        fetchBooking()
+        fetchData()
     }, [bookingId])
 
     const handlePrint = () => {
@@ -116,7 +127,7 @@ export default function ContractPage() {
         )
     }
 
-    if (error || !booking) {
+    if (error || !booking || !companySettings) {
         return (
             <div className="p-6 flex flex-col items-center justify-center min-h-screen gap-4">
                 <AlertCircle className="h-12 w-12 text-red-500" />
@@ -231,7 +242,7 @@ export default function ContractPage() {
 
                         {/* Title */}
                         <div className="text-center flex-1">
-                            <h1 className="text-lg font-bold text-blue-800 mb-1">{COMPANY_INFO.name}</h1>
+                            <h1 className="text-lg font-bold text-blue-800 mb-1">{companySettings.companyNameAr}</h1>
                             <h2 className="text-base font-bold border-2 border-blue-800 inline-block px-4 py-1 bg-blue-50">
                                 عقد تأجير قاعة
                             </h2>
@@ -240,7 +251,7 @@ export default function ContractPage() {
                         {/* Contract Number */}
                         <div className="text-left text-[11px] space-y-0.5">
                             <div>رقم العقد: <span className="font-bold">{booking.bookingNumber.split('-').pop()}</span></div>
-                            <div>الرقم الضريبي: {COMPANY_INFO.taxNumber}</div>
+                            <div>الرقم الضريبي: {companySettings.vatRegNo || 'غير محدد'}</div>
                         </div>
                     </div>
 
@@ -253,7 +264,7 @@ export default function ContractPage() {
                     <div className="grid grid-cols-2 divide-x divide-x-reverse divide-slate-300">
                         <div className="p-2">
                             <p className="font-bold text-blue-800 mb-1">الطرف الأول:</p>
-                            <p>{COMPANY_INFO.name}</p>
+                            <p>{companySettings.companyNameAr}</p>
                         </div>
                         <div className="p-2">
                             <p className="font-bold text-blue-800 mb-1">الطرف الثاني:</p>
@@ -350,7 +361,7 @@ export default function ContractPage() {
 
                 {/* Footer */}
                 <div className="border-t-2 border-blue-800 pt-2 text-center text-[10px] text-slate-600">
-                    <p className="font-bold">{COMPANY_INFO.address} | {COMPANY_INFO.addressLine2}</p>
+                    <p className="font-bold">{companySettings.companyAddress || ''} {companySettings.companyAddressLine2 ? `| ${companySettings.companyAddressLine2}` : ''}</p>
                 </div>
             </div>
         </>

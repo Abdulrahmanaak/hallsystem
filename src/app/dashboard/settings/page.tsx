@@ -18,6 +18,7 @@ interface SettingsData {
     companyPhone: string | null
     companyEmail: string | null
     companyAddress: string | null
+    companyAddressLine2: string | null
     commercialRegNo: string | null
     vatRegNo: string | null
     vatPercentage: number
@@ -202,12 +203,23 @@ export default function SettingsPage() {
                         </div>
                     </div>
                     <div>
-                        <label className="form-label">العنوان</label>
-                        <textarea
+                        <label className="form-label">العنوان (السطر الأول)</label>
+                        <input
+                            type="text"
                             value={settings.companyAddress || ''}
                             onChange={(e) => setSettings({ ...settings, companyAddress: e.target.value })}
                             className="form-input w-full"
-                            rows={2}
+                            placeholder="مثال: القصيم – رياض الخبراء"
+                        />
+                    </div>
+                    <div>
+                        <label className="form-label">العنوان (السطر الثاني)</label>
+                        <input
+                            type="text"
+                            value={settings.companyAddressLine2 || ''}
+                            onChange={(e) => setSettings({ ...settings, companyAddressLine2: e.target.value })}
+                            className="form-input w-full"
+                            placeholder="مثال: طريق الملك عبدالعزيز – مقابل دوار الرس"
                         />
                     </div>
                 </CardContent>
@@ -281,36 +293,6 @@ export default function SettingsPage() {
                             </div>
                         </div>
                     )}
-                </CardContent>
-            </Card>
-
-            {/* System Info */}
-            <Card className="bg-white border border-[var(--border-color)]">
-                <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                        <SettingsIcon size={20} />
-                        معلومات النظام
-                    </CardTitle>
-                </CardHeader>
-                <CardContent>
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
-                        <div>
-                            <span className="text-[var(--text-muted)]">الإصدار:</span>
-                            <span className="font-medium mr-2">1.0.0 MVP</span>
-                        </div>
-                        <div>
-                            <span className="text-[var(--text-muted)]">قاعدة البيانات:</span>
-                            <span className="font-medium mr-2">SQLite</span>
-                        </div>
-                        <div>
-                            <span className="text-[var(--text-muted)]">الإطار:</span>
-                            <span className="font-medium mr-2">Next.js 16</span>
-                        </div>
-                        <div>
-                            <span className="text-[var(--text-muted)]">ORM:</span>
-                            <span className="font-medium mr-2">Prisma</span>
-                        </div>
-                    </div>
                 </CardContent>
             </Card>
         </div>

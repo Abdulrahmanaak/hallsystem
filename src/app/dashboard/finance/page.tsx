@@ -603,8 +603,8 @@ export default function FinancePage() {
                         </div>
 
                         {filteredInvoices.length === 0 && (
-                            <div className="text-center py-12">
-                                <FileText className="mx-auto text-gray-300 mb-4" size={64} />
+                            <div className="flex flex-col items-center justify-center py-12">
+                                <FileText className="text-gray-300 mb-4" size={64} />
                                 <p className="text-[var(--text-secondary)]">لا توجد فواتير</p>
                             </div>
                         )}
@@ -677,8 +677,8 @@ export default function FinancePage() {
                         </div>
 
                         {filteredPayments.length === 0 && (
-                            <div className="text-center py-12">
-                                <CreditCard className="mx-auto text-gray-300 mb-4" size={64} />
+                            <div className="flex flex-col items-center justify-center py-12">
+                                <CreditCard className="text-gray-300 mb-4" size={64} />
                                 <p className="text-[var(--text-secondary)]">لا توجد مدفوعات</p>
                             </div>
                         )}

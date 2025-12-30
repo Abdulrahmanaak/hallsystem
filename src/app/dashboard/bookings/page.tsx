@@ -507,8 +507,8 @@ export default function BookingsPage() {
                     </div>
 
                     {filteredBookings.length === 0 && (
-                        <div className="text-center py-12">
-                            <Calendar className="mx-auto text-gray-300 mb-4" size={64} />
+                        <div className="flex flex-col items-center justify-center py-12">
+                            <Calendar className="text-gray-300 mb-4" size={64} />
                             <p className="text-[var(--text-secondary)]">
                                 {searchTerm || statusFilter !== 'all' ? 'لا توجد نتائج' : 'لا توجد حجوزات بعد'}
                             </p>

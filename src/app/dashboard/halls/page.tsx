@@ -530,8 +530,8 @@ export default function HallsPage() {
             </div>
 
             {filteredHalls.length === 0 && (
-                <div className="text-center py-12">
-                    <Building2 className="mx-auto text-gray-300 mb-4" size={64} />
+                <div className="flex flex-col items-center justify-center py-12">
+                    <Building2 className="text-gray-300 mb-4" size={64} />
                     <p className="text-[var(--text-secondary)]">
                         {searchTerm ? 'لا توجد نتائج للبحث' : 'لا توجد قاعات بعد'}
                     </p>

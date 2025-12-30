@@ -1287,6 +1287,7 @@ export const SettingsScalarFieldEnum = {
   companyPhone: 'companyPhone',
   companyEmail: 'companyEmail',
   companyAddress: 'companyAddress',
+  companyAddressLine2: 'companyAddressLine2',
   commercialRegNo: 'commercialRegNo',
   vatRegNo: 'vatRegNo',
   vatPercentage: 'vatPercentage',
