@@ -8,7 +8,7 @@ const adapter = new PrismaPg({
 const prisma = new PrismaClient({ adapter })
 
 async function main() {
-    const apiKey = '07ef494508aefabed688ff444'
+    const apiKey = process.env.Qoyod_API_KEY
 
     console.log('Updating Qoyod API Key...')
 
