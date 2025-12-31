@@ -84,20 +84,39 @@ export default function ContractPage() {
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState<string | null>(null)
 
+    const DEFAULT_COMPANY_SETTINGS: CompanySettings = {
+        companyNameAr: 'نظام إدارة القاعات',
+        vatRegNo: null,
+        companyAddress: null,
+        companyAddressLine2: null
+    }
+
     useEffect(() => {
         const fetchData = async () => {
             try {
-                // Fetch booking and settings in parallel
-                const [bookingsRes, settingsRes] = await Promise.all([
-                    fetch('/api/bookings'),
-                    fetch('/api/settings')
-                ])
-
+                // Fetch bookings
+                const bookingsRes = await fetch('/api/bookings')
                 if (!bookingsRes.ok) throw new Error('Failed to fetch bookings')
-                if (!settingsRes.ok) throw new Error('Failed to fetch settings')
-
                 const bookings = await bookingsRes.json()
-                const settings = await settingsRes.json()
+
+                // Fetch settings with fallback
+                let settings = DEFAULT_COMPANY_SETTINGS
+                try {
+                    const settingsRes = await fetch('/api/settings')
+                    if (settingsRes.ok) {
+                        settings = await settingsRes.json()
+                        // Update cache if successful
+                        localStorage.setItem('settings_cache', JSON.stringify(settings))
+                    } else {
+                        throw new Error('Settings API failed')
+                    }
+                } catch (error) {
+                    console.warn('Failed to fetch settings, using fallback/cache')
+                    const cached = localStorage.getItem('settings_cache')
+                    if (cached) {
+                        settings = JSON.parse(cached)
+                    }
+                }
 
                 const found = bookings.find((b: BookingData) => b.id === bookingId)
                 if (!found) {
@@ -107,6 +126,7 @@ export default function ContractPage() {
                     setCompanySettings(settings)
                 }
             } catch (err) {
+                console.error(err)
                 setError('حدث خطأ في تحميل البيانات')
             } finally {
                 setLoading(false)

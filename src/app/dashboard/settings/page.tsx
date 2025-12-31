@@ -34,13 +34,43 @@ export default function SettingsPage() {
     const [qoyodStatus, setQoyodStatus] = useState<{ connected: boolean; message: string } | null>(null)
     const [testingQoyod, setTestingQoyod] = useState(false)
 
+    const DEFAULT_SETTINGS: SettingsData = {
+        companyNameAr: 'نظام إدارة القاعات',
+        companyLogo: null,
+        companyPhone: null,
+        companyEmail: null,
+        companyAddress: null,
+        companyAddressLine2: null,
+        commercialRegNo: null,
+        vatRegNo: null,
+        vatPercentage: 15,
+        qoyodEnabled: false,
+        qoyodApiKey: null
+    }
+
     const fetchSettings = async () => {
         try {
             const response = await fetch('/api/settings')
-            const data = await response.json()
-            setSettings(data)
+            if (response.ok) {
+                const data = await response.json()
+                setSettings(data)
+                // Cache successful response
+                localStorage.setItem('settings_cache', JSON.stringify(data))
+            } else {
+                console.warn('API returned error, falling back to cache')
+                throw new Error('API Error')
+            }
         } catch (error) {
             console.error('Error fetching settings:', error)
+            // Fallback to cache or defaults
+            const cached = localStorage.getItem('settings_cache')
+            if (cached) {
+                setSettings(JSON.parse(cached))
+                setMessage({ type: 'error', text: 'فشل الاتصال بالخادم، تم تحميل البيانات المحفوظة محلياً' })
+            } else {
+                setSettings(DEFAULT_SETTINGS)
+                setMessage({ type: 'error', text: 'فشل الاتصال بالخادم، تم تحميل الإعدادات الافتراضية' })
+            }
         } finally {
             setLoading(false)
         }
@@ -64,12 +94,16 @@ export default function SettingsPage() {
 
             if (response.ok) {
                 setMessage({ type: 'success', text: 'تم حفظ الإعدادات بنجاح' })
+                // Update cache on success
+                localStorage.setItem('settings_cache', JSON.stringify(settings))
             } else {
-                setMessage({ type: 'error', text: 'فشل حفظ الإعدادات' })
+                throw new Error('API Error')
             }
         } catch (error) {
             console.error('Error:', error)
-            setMessage({ type: 'error', text: 'حدث خطأ' })
+            // Fallback save to local storage
+            localStorage.setItem('settings_cache', JSON.stringify(settings))
+            setMessage({ type: 'success', text: 'تم حفظ الإعدادات محلياً (فشل الاتصال بالخادم)' })
         } finally {
             setSaving(false)
         }
