@@ -25,6 +25,7 @@ const CONTRACT_TERMS = [
 // Company settings will be fetched from API
 interface CompanySettings {
     companyNameAr: string
+    companyLogo: string | null
     vatRegNo: string | null
     companyAddress: string | null
     companyAddressLine2: string | null
@@ -86,6 +87,7 @@ export default function ContractPage() {
 
     const DEFAULT_COMPANY_SETTINGS: CompanySettings = {
         companyNameAr: 'نظام إدارة القاعات',
+        companyLogo: null,
         vatRegNo: null,
         companyAddress: null,
         companyAddressLine2: null
@@ -254,13 +256,14 @@ export default function ContractPage() {
 
                 {/* Header */}
                 <div className="border-2 border-slate-800 mb-3">
-                    <div className="flex items-start justify-between p-2 border-b border-slate-300">
-                        {/* Logo Placeholder */}
-                        <div className="w-16 h-16 border border-slate-300 flex items-center justify-center text-[10px] text-slate-400">
-                            الشعار
+                    <div className="flex items-center justify-between p-2 border-b border-slate-300">
+                        {/* Contract Number - Right side in RTL */}
+                        <div className="text-[11px] space-y-0.5 w-24">
+                            <div>رقم العقد: <span className="font-bold">{booking.bookingNumber.split('-').pop()}</span></div>
+                            <div>الرقم الضريبي: {companySettings.vatRegNo || 'غير محدد'}</div>
                         </div>
 
-                        {/* Title */}
+                        {/* Company Name - Centered */}
                         <div className="text-center flex-1">
                             <h1 className="text-lg font-bold text-blue-800 mb-1">{companySettings.companyNameAr}</h1>
                             <h2 className="text-base font-bold border-2 border-blue-800 inline-block px-4 py-1 bg-blue-50">
@@ -268,10 +271,19 @@ export default function ContractPage() {
                             </h2>
                         </div>
 
-                        {/* Contract Number */}
-                        <div className="text-left text-[11px] space-y-0.5">
-                            <div>رقم العقد: <span className="font-bold">{booking.bookingNumber.split('-').pop()}</span></div>
-                            <div>الرقم الضريبي: {companySettings.vatRegNo || 'غير محدد'}</div>
+                        {/* Logo - Left side in RTL */}
+                        <div className="w-24 flex justify-end">
+                            {companySettings.companyLogo ? (
+                                <img
+                                    src={companySettings.companyLogo}
+                                    alt="شعار الشركة"
+                                    className="w-16 h-16 object-contain"
+                                />
+                            ) : (
+                                <div className="w-16 h-16 border border-slate-300 flex items-center justify-center text-[10px] text-slate-400">
+                                    الشعار
+                                </div>
+                            )}
                         </div>
                     </div>
 
