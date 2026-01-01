@@ -266,10 +266,10 @@ export default function NewBookingPage() {
                         defaultCoffeeServers: h.defaultCoffeeServers || 0,
                         defaultSacrifices: h.defaultSacrifices || 0,
                         defaultWaterCartons: h.defaultWaterCartons || 0,
-                        coffeeServerPrice: h.coffeeServerPrice || 100,
-                        sacrificePrice: h.sacrificePrice || 1500,
-                        waterCartonPrice: h.waterCartonPrice || 50,
-                        extraSectionPrice: h.extraSectionPrice || 0,
+                        coffeeServerPrice: h.coffeeServerPrice !== undefined && h.coffeeServerPrice !== null ? h.coffeeServerPrice : 100,
+                        sacrificePrice: h.sacrificePrice !== undefined && h.sacrificePrice !== null ? h.sacrificePrice : 1500,
+                        waterCartonPrice: h.waterCartonPrice !== undefined && h.waterCartonPrice !== null ? h.waterCartonPrice : 50,
+                        extraSectionPrice: h.extraSectionPrice !== undefined && h.extraSectionPrice !== null ? h.extraSectionPrice : 0,
                         defaultGuestCount: h.defaultGuestCount || h.capacity,
                         defaultSectionType: h.defaultSectionType || 'both',
                         mealPrices: h.mealPrices || { dinner: 150, lunch: 100, breakfast: 50, snacks: 30 }
@@ -358,8 +358,8 @@ export default function NewBookingPage() {
     const getHallEstimatedTotal = (hall: Hall) => {
         const base = hall.basePrice || 0
         const sectionCharge = hall.defaultSectionType === 'both' ? (hall.extraSectionPrice || 1000) : 0
-        const coffeeCharge = (hall.defaultCoffeeServers || 0) * (hall.coffeeServerPrice || 100)
-        const sacrificeCharge = (hall.defaultSacrifices || 0) * (hall.sacrificePrice || 1500)
+        const coffeeCharge = (hall.defaultCoffeeServers || 0) * (hall.coffeeServerPrice !== undefined ? hall.coffeeServerPrice : 100)
+        const sacrificeCharge = (hall.defaultSacrifices || 0) * (hall.sacrificePrice !== undefined ? hall.sacrificePrice : 1500)
         // Assuming dinner as default meal for estimation
         const mealCharge = (hall.mealPrices?.dinner || 150) * (hall.defaultGuestCount || hall.capacity || 0)
         return base + sectionCharge + coffeeCharge + sacrificeCharge + mealCharge
@@ -391,9 +391,9 @@ export default function NewBookingPage() {
     const mealTotalPrice = mealPricePerPerson * guestCount
 
     // Extra Services Calculation - Use prices from Hall Config
-    const coffeeServersPrice = coffeeServers * (selectedHall?.coffeeServerPrice || 100)
-    const sacrificesPrice = sacrifices * (selectedHall?.sacrificePrice || 1500)
-    const waterCartonsPrice = waterCartons * (selectedHall?.waterCartonPrice || 50)
+    const coffeeServersPrice = coffeeServers * (selectedHall?.coffeeServerPrice !== undefined ? selectedHall.coffeeServerPrice : 100)
+    const sacrificesPrice = sacrifices * (selectedHall?.sacrificePrice !== undefined ? selectedHall.sacrificePrice : 1500)
+    const waterCartonsPrice = waterCartons * (selectedHall?.waterCartonPrice !== undefined ? selectedHall.waterCartonPrice : 50)
 
     // Internal Service Revenue (for Qoyod accounting - NOT shown to customer)
     const serviceRevenue = coffeeServersPrice + sacrificesPrice + waterCartonsPrice

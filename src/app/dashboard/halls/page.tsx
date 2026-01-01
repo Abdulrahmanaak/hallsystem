@@ -251,16 +251,16 @@ export default function HallsPage() {
             defaultCoffeeServers: hall.defaultCoffeeServers.toString(),
             defaultSacrifices: hall.defaultSacrifices.toString(),
             defaultWaterCartons: (hall.defaultWaterCartons || 0).toString(),
-            coffeeServerPrice: hall.coffeeServerPrice.toString(),
-            sacrificePrice: hall.sacrificePrice.toString(),
-            waterCartonPrice: (hall.waterCartonPrice || 50).toString(),
-            extraSectionPrice: hall.extraSectionPrice.toString(),
-            defaultGuestCount: (hall.defaultGuestCount || hall.capacity).toString(),
+            coffeeServerPrice: hall.coffeeServerPrice !== undefined && hall.coffeeServerPrice !== null ? hall.coffeeServerPrice.toString() : '100',
+            sacrificePrice: hall.sacrificePrice !== undefined && hall.sacrificePrice !== null ? hall.sacrificePrice.toString() : '1500',
+            waterCartonPrice: hall.waterCartonPrice !== undefined && hall.waterCartonPrice !== null ? hall.waterCartonPrice.toString() : '50',
+            extraSectionPrice: hall.extraSectionPrice !== undefined && hall.extraSectionPrice !== null ? hall.extraSectionPrice.toString() : '1000',
+            defaultGuestCount: hall.defaultGuestCount !== undefined && hall.defaultGuestCount !== null ? hall.defaultGuestCount.toString() : (hall.capacity || '').toString(),
             defaultSectionType: hall.defaultSectionType || 'both',
-            mealPriceDinner: hall.mealPrices?.dinner?.toString() || '150',
-            mealPriceLunch: hall.mealPrices?.lunch?.toString() || '100',
-            mealPriceBreakfast: hall.mealPrices?.breakfast?.toString() || '50',
-            mealPriceSnacks: hall.mealPrices?.snacks?.toString() || '30'
+            mealPriceDinner: hall.mealPrices?.dinner !== undefined && hall.mealPrices?.dinner !== null ? hall.mealPrices.dinner.toString() : '150',
+            mealPriceLunch: hall.mealPrices?.lunch !== undefined && hall.mealPrices?.lunch !== null ? hall.mealPrices.lunch.toString() : '100',
+            mealPriceBreakfast: hall.mealPrices?.breakfast !== undefined && hall.mealPrices?.breakfast !== null ? hall.mealPrices.breakfast.toString() : '50',
+            mealPriceSnacks: hall.mealPrices?.snacks !== undefined && hall.mealPrices?.snacks !== null ? hall.mealPrices.snacks.toString() : '30'
         })
         setShowModal(true)
     }
@@ -282,10 +282,10 @@ export default function HallsPage() {
             defaultCoffeeServers: parseInt(formData.defaultCoffeeServers) || 0,
             defaultSacrifices: parseInt(formData.defaultSacrifices) || 0,
             defaultWaterCartons: parseInt(formData.defaultWaterCartons) || 0,
-            coffeeServerPrice: parseFloat(formData.coffeeServerPrice) || 100,
-            sacrificePrice: parseFloat(formData.sacrificePrice) || 1500,
-            waterCartonPrice: parseFloat(formData.waterCartonPrice) || 50,
-            extraSectionPrice: parseFloat(formData.extraSectionPrice) || 0,
+            coffeeServerPrice: formData.coffeeServerPrice === '' ? 100 : parseFloat(formData.coffeeServerPrice),
+            sacrificePrice: formData.sacrificePrice === '' ? 1500 : parseFloat(formData.sacrificePrice),
+            waterCartonPrice: formData.waterCartonPrice === '' ? 50 : parseFloat(formData.waterCartonPrice),
+            extraSectionPrice: formData.extraSectionPrice === '' ? 0 : parseFloat(formData.extraSectionPrice),
             // Booking Defaults
             defaultGuestCount: parseInt(formData.defaultGuestCount) || parseInt(formData.capacity) || 0,
             defaultSectionType: formData.defaultSectionType,
@@ -506,15 +506,15 @@ export default function HallsPage() {
                                 <div className="flex gap-2 text-[10px]">
                                     <div className="bg-amber-50 rounded px-2 py-1 text-center flex-1">
                                         <div className="text-amber-700 font-medium">صبابين</div>
-                                        <div>{hall.defaultCoffeeServers || 0} × {hall.coffeeServerPrice || 0}</div>
+                                        <div>{hall.defaultCoffeeServers || 0} × {hall.coffeeServerPrice !== undefined ? hall.coffeeServerPrice : 0}</div>
                                     </div>
                                     <div className="bg-red-50 rounded px-2 py-1 text-center flex-1">
                                         <div className="text-red-700 font-medium">ذبائح</div>
-                                        <div>{hall.defaultSacrifices || 0} × {hall.sacrificePrice || 0}</div>
+                                        <div>{hall.defaultSacrifices || 0} × {hall.sacrificePrice !== undefined ? hall.sacrificePrice : 0}</div>
                                     </div>
                                     <div className="bg-blue-50 rounded px-2 py-1 text-center flex-1">
                                         <div className="text-blue-700 font-medium">ماء</div>
-                                        <div>{hall.defaultWaterCartons || 0} × {hall.waterCartonPrice || 0}</div>
+                                        <div>{hall.defaultWaterCartons || 0} × {hall.waterCartonPrice !== undefined ? hall.waterCartonPrice : 0}</div>
                                     </div>
                                 </div>
                             </div>
