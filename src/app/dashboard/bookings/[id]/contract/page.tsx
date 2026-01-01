@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react"
 import { useParams, useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
-import { ArrowLeft, Printer, AlertCircle } from "lucide-react"
+import { ArrowRight, Printer, AlertCircle } from "lucide-react"
 import Link from "next/link"
 
 // Contract Terms (Hardcoded from official contract)
@@ -51,6 +51,62 @@ const getArabicDayName = (date: Date) => {
 const getNextDayName = (date: Date) => {
     const days = ['الإثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة', 'السبت', 'الأحد']
     return days[date.getDay()]
+}
+
+// Helper: Convert number to Arabic words
+const numberToArabicWords = (num: number): string => {
+    const ones = ['', 'واحد', 'اثنان', 'ثلاثة', 'أربعة', 'خمسة', 'ستة', 'سبعة', 'ثمانية', 'تسعة', 'عشرة', 'أحد عشر', 'اثنا عشر', 'ثلاثة عشر', 'أربعة عشر', 'خمسة عشر', 'ستة عشر', 'سبعة عشر', 'ثمانية عشر', 'تسعة عشر']
+    const tens = ['', '', 'عشرون', 'ثلاثون', 'أربعون', 'خمسون', 'ستون', 'سبعون', 'ثمانون', 'تسعون']
+    const hundreds = ['', 'مائة', 'مائتان', 'ثلاثمائة', 'أربعمائة', 'خمسمائة', 'ستمائة', 'سبعمائة', 'ثمانمائة', 'تسعمائة']
+
+    if (num === 0) return 'صفر'
+    if (num < 0) return 'سالب ' + numberToArabicWords(-num)
+
+    let result = ''
+
+    // Millions
+    if (num >= 1000000) {
+        const millions = Math.floor(num / 1000000)
+        if (millions === 1) result += 'مليون '
+        else if (millions === 2) result += 'مليونان '
+        else if (millions <= 10) result += ones[millions] + ' ملايين '
+        else result += numberToArabicWords(millions) + ' مليون '
+        num %= 1000000
+    }
+
+    // Thousands
+    if (num >= 1000) {
+        const thousands = Math.floor(num / 1000)
+        if (thousands === 1) result += 'ألف '
+        else if (thousands === 2) result += 'ألفان '
+        else if (thousands >= 3 && thousands <= 10) result += ones[thousands] + ' آلاف '
+        else if (thousands > 10) result += numberToArabicWords(thousands) + ' ألف '
+        num %= 1000
+    }
+
+    // Hundreds
+    if (num >= 100) {
+        result += hundreds[Math.floor(num / 100)] + ' '
+        num %= 100
+    }
+
+    // Tens and ones
+    if (num > 0) {
+        if (result !== '') result += 'و'
+        if (num < 20) {
+            result += ones[num]
+        } else {
+            const ten = Math.floor(num / 10)
+            const one = num % 10
+            if (one > 0) {
+                result += ones[one] + ' و' + tens[ten]
+            } else {
+                result += tens[ten]
+            }
+        }
+    }
+
+    return result.trim()
 }
 
 interface BookingData {
@@ -232,7 +288,7 @@ export default function ContractPage() {
                 <div className="flex items-center gap-4">
                     <Link href="/dashboard/bookings">
                         <Button variant="ghost" size="icon">
-                            <ArrowLeft className="h-5 w-5" />
+                            <ArrowRight className="h-5 w-5" />
                         </Button>
                     </Link>
                     <h1 className="text-xl font-bold">عقد تأجير قاعة</h1>
@@ -244,8 +300,8 @@ export default function ContractPage() {
                             لم يتم السداد بالكامل
                         </span>
                     )}
-                    <Button onClick={handlePrint} className="gap-2">
-                        <Printer className="h-4 w-4" />
+                    <Button onClick={handlePrint} className="gap-2 bg-blue-700 text-white hover:bg-blue-800">
+                        <Printer className="h-4 w-4 text-white" />
                         طباعة
                     </Button>
                 </div>
@@ -293,21 +349,26 @@ export default function ContractPage() {
                     </div>
 
                     {/* Parties */}
-                    <div className="grid grid-cols-2 divide-x divide-x-reverse divide-slate-300">
-                        <div className="p-2">
-                            <p className="font-bold text-blue-800 mb-1">الطرف الأول:</p>
-                            <p>{companySettings.companyNameAr}</p>
+                    <div className="divide-y divide-slate-300">
+                        <div className="p-2 flex flex-wrap items-center gap-2">
+                            <span className="font-bold text-blue-800">الطرف الأول:</span>
+                            <span>{companySettings.companyNameAr}</span>
                         </div>
                         <div className="p-2">
-                            <p className="font-bold text-blue-800 mb-1">الطرف الثاني:</p>
-                            <p>{booking.customerName}</p>
-                            <p className="text-[10px] text-slate-600">رقم الهوية: {booking.customerIdNumber} | الجوال: {booking.customerPhone}</p>
+                            <span className="font-bold text-blue-800">الطرف الثاني: </span>
+                            <span>{booking.customerName} رقم الهوية {booking.customerIdNumber} رقم الجوال {booking.customerPhone}</span>
                         </div>
                     </div>
 
                     {/* Rental Details */}
                     <div className="p-2 border-t border-slate-300 bg-slate-50 text-[11px]">
-                        <p>على أن يقوم الطرف الأول بتأجير: <span className="font-bold text-blue-800">{booking.hallName}</span> وذلك يوم <span className="font-bold">{dayName}</span> ليلة <span className="font-bold">{nextDayName}</span> تاريخ المناسبة: <span className="font-bold">{hijriDate}</span> هـ الموافق <span className="font-bold">{gregorianDate}</span> م</p>
+                        <p>على أن يقوم الطرف الأول بتأجير: <span className="font-bold text-blue-800">{booking.hallName}</span> وذلك يوم <span className="font-bold">{dayName}</span> ليلة <span className="font-bold">{nextDayName}</span> تاريخ المناسبة: <span className="font-bold">{hijriDate}</span> الموافق <span className="font-bold">{gregorianDate}</span> م</p>
+                    </div>
+
+                    {/* Amount Row */}
+                    <div className="p-2 border-t border-slate-300 text-[11px]">
+                        <span className="font-bold text-blue-800">وذلك بمبلغ: </span>
+                        <span className="font-bold">{numberToArabicWords(total)} ريال فقط لاغير</span>
                     </div>
                 </div>
 
@@ -317,11 +378,20 @@ export default function ContractPage() {
                         الشروط والأحكام
                     </div>
                     <div className="p-2">
-                        <p className="mb-1 text-[10px]">وبذلك أقر الطرفان وهما بكامل الأهلية المعتبرة شرعًا ونظامًا على الشروط التالية:</p>
-                        <ol className="list-decimal list-inside space-y-0.5 text-[10px] leading-snug">
-                            {CONTRACT_TERMS.map((term, index) => (
-                                <li key={index}>{term}</li>
-                            ))}
+                        <p className="mb-1 text-[10px] font-bold">وقد اتفق الطرفان بموجب أهليتهما المعتبرة شرعاً ونظاماً على إبرام هذا العقد بالشروط التالية:-</p>
+                        <ol className="list-decimal list-inside space-y-1 text-[10px] leading-snug">
+                            <li>يتم تكملة العربون إلى نصف قيمة العقد وذلك خلال شهر من كتابة العقد، ولا يحق للطرف الثاني الحصول على أصل العقد إلا بعد دفع نصف قيمة العقد، وفي حالة عدم السداد يلغى الحجز دون الرجوع للطرف الثاني.</li>
+                            <li>بعد التوقيع على هذا العقد لا يقبل من الطرفين أي عذر في تأخير الحفل أو تقديمه أو إلغائه، بل يلتزم الطرفان بجميع بنود هذا العقد روحاً ونصاً، ويلتزم الطرف الثاني بدفع المبلغ المتبقي من قيمة هذا العقد.</li>
+                            <li>لا يحق للطرف الثاني تحريك أو نقل الأثاث من مكان لآخر إلا بموافقة إدارة القاعة على ذلك وبما يتناسب مع الشكل العام الأساسي للقاعة، ويتحمل الطرف الثاني جميع التلفيات التي قد تحدث على أثاث وفرش وديكورات القاعة.</li>
+                            <li>يمنع منعاً باتاً حمل واستعمال السلاح الناري المرخص وغير المرخص في القاعة، كما يمنع إلقاء المحاضرات والخطب بأنواعها أو توزيع الأشرطة والمنشورات، وفي حالة مخالفة هذا البند للطرف الأول الحق في إبلاغ الجهات الرسمية بذلك.</li>
+                            <li>يتم تسليم القاعة للطرف الثاني الساعة الخامسة عصراً يوم الحفل، على أن يقوم الطرف الثاني بتسليم القاعة للطرف الأول الساعة الثالثة صباحاً، كما تعتبر القاعة غير مسؤولة عن أية مفقودات داخل القاعة مهما كان نوعها أو قيمتها.</li>
+                            <li>يتم حجز البوفيه والضيافة وتنسيقات صالة النساء والكوشة عن طريق إدارة القاعة ويمنع إحضارها من خارج القاعة، ويكون طبخ عشاء الرجال عن طريق طباخ القاعة داخل مطبخ القاعة ويمنع غير ذلك، كما يتحمل الطرف الثاني تكاليف المسلخ ونقل الذبائح للقاعة.</li>
+                            <li>تم تحرير هذا العقد لعريس واحد، وفي حالة إضافة عريس ثاني يدفع مبلغ (5000) ريال.</li>
+                            <li>لا يسمح بدخول الكوافيرة إلا بموافقة الطرف الأول.</li>
+                            <li>حرر هذا العقد من نسختين بيد كل طرف نسخة للعمل بها عند اللزوم، وعند الإخلال بأي من بنود هذا العقد يتم فسخ العقد من قبل الطرف الأول، ولا يحق للطرف الثاني الرجوع على الطرف الأول بأي مطالبات مالية أو غير مالية.</li>
+                            <li>يلتزم الطرف الثاني بأن جميع الطلبات والخدمات الإضافية داخل صالة النساء لا تتم إلا عن طريق الطرف الأول.</li>
+                            <li>يتحمل الطرف الثاني مبلغ ضريبة القيمة المضافة المقررة عن هذا العقد وملحقاته إن وجدت.</li>
+                            <li>يقر الطرف الثاني بأنه قد اطلع ووافق على جميع بنود هذا العقد ويلتزم بكل ما فيه من بنود.</li>
                         </ol>
                     </div>
                 </div>
@@ -352,24 +422,28 @@ export default function ContractPage() {
                             <table className="w-full text-[10px]">
                                 <tbody>
                                     <tr className="border-b border-slate-200">
-                                        <td className="py-1">المبلغ:</td>
-                                        <td className="py-1 text-left font-bold">{subtotal.toLocaleString()} ريال</td>
+                                        <td className="py-1 text-right">إجمالي مبلغ العقد شامل الخدمات</td>
+                                        <td className="py-1 font-bold text-left" dir="ltr">{((total / 1.15) + discount).toLocaleString('en-US', { minimumFractionDigits: 2 })}</td>
                                     </tr>
                                     <tr className="border-b border-slate-200">
-                                        <td className="py-1">الخصم:</td>
-                                        <td className="py-1 text-left text-red-600">-{discount.toLocaleString()} ريال</td>
+                                        <td className="py-1 text-right">إجمالي الخصم على العقد</td>
+                                        <td className="py-1 font-bold text-left" dir="ltr">{discount.toLocaleString('en-US', { minimumFractionDigits: 2 })}</td>
                                     </tr>
                                     <tr className="border-b border-slate-200">
-                                        <td className="py-1">ض.ق.م (15%):</td>
-                                        <td className="py-1 text-left">{vat.toLocaleString()} ريال</td>
+                                        <td className="py-1 text-right">إجمالي مبلغ العقد بعد الخصم</td>
+                                        <td className="py-1 font-bold text-left" dir="ltr">{(total / 1.15).toLocaleString('en-US', { minimumFractionDigits: 2 })}</td>
                                     </tr>
                                     <tr className="border-b border-slate-200">
-                                        <td className="py-1">العربون:</td>
-                                        <td className="py-1 text-left text-green-600">{downPayment.toLocaleString()} ريال</td>
+                                        <td className="py-1 text-right">ضريبة القيمة المضافة بنسبة (15%)</td>
+                                        <td className="py-1 font-bold text-left" dir="ltr">{(total - (total / 1.15)).toLocaleString('en-US', { minimumFractionDigits: 2 })}</td>
+                                    </tr>
+                                    <tr className="border-b border-slate-200">
+                                        <td className="py-1 text-right">سندات صرف لصالح العقد</td>
+                                        <td className="py-1 font-bold text-left" dir="ltr">{downPayment.toLocaleString('en-US', { minimumFractionDigits: 2 })}</td>
                                     </tr>
                                     <tr className="bg-blue-50">
-                                        <td className="py-1 font-bold">المتبقي:</td>
-                                        <td className="py-1 text-left font-bold text-blue-800">{remaining.toLocaleString()} ريال</td>
+                                        <td className="py-1 text-right font-bold text-blue-800">صافي مبلغ العقد بعد الضريبة</td>
+                                        <td className="py-1 font-bold text-left text-blue-800" dir="ltr">{total.toLocaleString('en-US', { minimumFractionDigits: 2 })}</td>
                                     </tr>
                                 </tbody>
                             </table>
@@ -379,12 +453,12 @@ export default function ContractPage() {
 
                 {/* Signatures */}
                 <div className="grid grid-cols-2 gap-3 mb-3">
-                    <div className="border-2 border-slate-800 p-2">
+                    <div className="border-2 border-slate-800 p-2 h-24">
                         <p className="font-bold text-blue-800 mb-2 text-[11px]">الطرف الأول</p>
-                        <p className="text-[10px] mb-1">الاسم: ...........................</p>
+                        <p className="text-[10px] mb-1">الاسم: {companySettings?.companyNameAr}</p>
                         <p className="text-[10px]">التوقيع: ...........................</p>
                     </div>
-                    <div className="border-2 border-slate-800 p-2">
+                    <div className="border-2 border-slate-800 p-2 h-24">
                         <p className="font-bold text-blue-800 mb-2 text-[11px]">الطرف الثاني</p>
                         <p className="text-[10px] mb-1">الاسم: {booking.customerName}</p>
                         <p className="text-[10px]">التوقيع: ...........................</p>
