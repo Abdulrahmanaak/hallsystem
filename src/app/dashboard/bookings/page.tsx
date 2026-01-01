@@ -122,7 +122,7 @@ interface Hall {
 const EVENT_TYPES: Record<string, string> = {
     'WEDDING': 'زفاف',
     'ENGAGEMENT': 'خطوبة',
-    'BIRTHDAY': 'عيد ميلاد',
+
     'CONFERENCE': 'مؤتمر',
     'GRADUATION': 'تخرج',
     'OTHER': 'أخرى'
@@ -605,25 +605,31 @@ export default function BookingsPage() {
                         </div>
 
                         <form onSubmit={handleSubmit} className="p-4 space-y-4">
-                            <div className="grid grid-cols-2 gap-4">
-                                <div>
-                                    <label className="form-label">اسم العميل *</label>
-                                    <div className="relative">
-                                        <input
-                                            required
-                                            type="text"
-                                            placeholder="الاسم الثلاثي"
-                                            value={formData.customerName}
-                                            onChange={(e) => setFormData({ ...formData, customerName: e.target.value })}
-                                            className="form-input w-full pr-10"
-                                        />
-                                        <Users className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
-                                    </div>
+                            {/* Booking Number & Status (for edit mode) */}
+                            {editingBooking && (
+                                <div className="flex items-center justify-between">
+                                    <span className="text-2xl font-bold text-[var(--primary-700)]">
+                                        {editingBooking.bookingNumber}
+                                    </span>
+                                    <span className={`
+                                        inline-flex items-center gap-1 px-3 py-1 rounded-full text-sm font-medium
+                                        ${STATUS_CONFIG[editingBooking.status]?.color}
+                                    `}>
+                                        {STATUS_CONFIG[editingBooking.status]?.icon}
+                                        {STATUS_CONFIG[editingBooking.status]?.label}
+                                    </span>
                                 </div>
+                            )}
 
-                                <div>
-                                    <label className="form-label">رقم الجوال *</label>
-                                    <div className="relative">
+                            {/* Customer Details Section */}
+                            <div className="bg-slate-50 p-4 rounded-lg border border-slate-100">
+                                <div className="flex items-center gap-2 mb-3">
+                                    <Users className="text-[var(--primary-600)]" size={18} />
+                                    <span className="font-medium text-[var(--primary-700)]">بيانات العميل</span>
+                                </div>
+                                <div className="grid grid-cols-3 gap-4 text-sm">
+                                    <div>
+                                        <p className="text-xs text-[var(--text-muted)] mb-1">رقم الجوال *</p>
                                         <input
                                             required
                                             type="tel"
@@ -631,87 +637,105 @@ export default function BookingsPage() {
                                             placeholder="05xxxxxxxx"
                                             value={formData.customerPhone}
                                             onChange={(e) => setFormData({ ...formData, customerPhone: e.target.value })}
-                                            className="form-input w-full pr-10 text-right"
+                                            className="form-input w-full text-right"
                                         />
-                                        <Search className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
+                                    </div>
+                                    <div>
+                                        <p className="text-xs text-[var(--text-muted)] mb-1">رقم الهوية / السجل</p>
+                                        <input
+                                            type="text"
+                                            placeholder="10xxxxxxxx"
+                                            value={formData.customerIdNumber}
+                                            onChange={(e) => setFormData({ ...formData, customerIdNumber: e.target.value })}
+                                            className="form-input w-full"
+                                        />
+                                    </div>
+                                    <div>
+                                        <p className="text-xs text-[var(--text-muted)] mb-1">اسم العميل *</p>
+                                        <input
+                                            required
+                                            type="text"
+                                            placeholder="الاسم الثلاثي"
+                                            value={formData.customerName}
+                                            onChange={(e) => setFormData({ ...formData, customerName: e.target.value })}
+                                            className="form-input w-full"
+                                        />
                                     </div>
                                 </div>
+                            </div>
 
-                                <div>
-                                    <label className="form-label">رقم الهوية</label>
-                                    <input
-                                        type="text"
-                                        placeholder="10xxxxxxxx"
-                                        value={formData.customerIdNumber}
-                                        onChange={(e) => setFormData({ ...formData, customerIdNumber: e.target.value })}
-                                        className="form-input w-full"
-                                    />
-                                </div>
-
-                                <div>
-                                    <label className="form-label">القاعة *</label>
-                                    <select
-                                        required
-                                        value={formData.hallId}
-                                        onChange={(e) => handleHallChange(e.target.value)}
-                                        className="form-input w-full"
-                                    >
-                                        <option value="">اختر القاعة</option>
-                                        {halls.map(h => (
-                                            <option key={h.id} value={h.id}>
-                                                {h.name} (السعة: {h.capacity})
-                                            </option>
-                                        ))}
-                                    </select>
+                            {/* Hall Details Section - 4 column grid */}
+                            <div className="bg-purple-50 p-3 rounded-lg border border-purple-100">
+                                <div className="grid grid-cols-4 gap-3 text-sm text-right">
+                                    <div>
+                                        <div className="flex items-center gap-1 text-xs text-purple-600 mb-1">
+                                            <Building2 size={14} />
+                                            <span>القاعة *</span>
+                                        </div>
+                                        <select
+                                            required
+                                            value={formData.hallId}
+                                            onChange={(e) => handleHallChange(e.target.value)}
+                                            className="form-input w-full text-sm"
+                                        >
+                                            <option value="">اختر</option>
+                                            {halls.map(h => (
+                                                <option key={h.id} value={h.id}>{h.name}</option>
+                                            ))}
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <p className="text-xs text-slate-500 mb-1">السعة</p>
+                                        <p className="font-medium mt-2">{halls.find(h => h.id === formData.hallId)?.capacity || '-'}</p>
+                                    </div>
+                                    <div>
+                                        <p className="text-xs text-slate-500 mb-1">القسم</p>
+                                        <select
+                                            value={formData.sectionType}
+                                            onChange={(e) => setFormData({ ...formData, sectionType: e.target.value })}
+                                            className="form-input w-full text-sm"
+                                        >
+                                            <option value="men">رجال</option>
+                                            <option value="women">نساء</option>
+                                            <option value="both">قسمين</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <p className="text-xs text-slate-500 mb-1">نوع المناسبة *</p>
+                                        <select
+                                            required
+                                            value={formData.eventType}
+                                            onChange={(e) => setFormData({ ...formData, eventType: e.target.value })}
+                                            className="form-input w-full text-sm"
+                                        >
+                                            {Object.entries(EVENT_TYPES).map(([key, label]) => (
+                                                <option key={key} value={key}>{label}</option>
+                                            ))}
+                                        </select>
+                                    </div>
                                 </div>
                             </div>
 
-                            <div className="grid grid-cols-2 gap-4">
-                                <div>
-                                    <label className="form-label">نوع المناسبة *</label>
-                                    <select
-                                        required
-                                        value={formData.eventType}
-                                        onChange={(e) => setFormData({ ...formData, eventType: e.target.value })}
-                                        className="form-input w-full"
-                                    >
-                                        {Object.entries(EVENT_TYPES).map(([key, label]) => (
-                                            <option key={key} value={key}>{label}</option>
-                                        ))}
-                                    </select>
-                                </div>
-
-                                <div>
-                                    <label className="form-label">عدد الضيوف</label>
-                                    <input
-                                        type="number"
-                                        min="1"
-                                        value={formData.guestCount}
-                                        onChange={(e) => setFormData({ ...formData, guestCount: e.target.value })}
-                                        className="form-input w-full"
-                                        placeholder="عدد الضيوف المتوقع"
-                                    />
-                                </div>
-                            </div>
-
-                            {/* Date Selection - Dual Calendar */}
-                            <div className="bg-slate-50 p-4 rounded-lg border border-slate-100">
-                                <label className="form-label mb-3">تاريخ المناسبة *</label>
-                                <div className="grid grid-cols-2 gap-4">
-                                    {/* Gregorian */}
-                                    <div className="space-y-2">
-                                        <label className="text-xs text-slate-500">ميلادي</label>
+                            {/* Date Section - single row layout */}
+                            <div className="bg-slate-50 p-3 rounded-lg border border-slate-100">
+                                <div className="flex items-center gap-4 text-sm flex-wrap">
+                                    <div className="flex items-center gap-2">
+                                        <Calendar className="text-[var(--primary-600)]" size={16} />
+                                        <span className="font-medium text-[var(--primary-700)]">تاريخ المناسبة *</span>
+                                    </div>
+                                    <div className="flex items-center gap-2">
+                                        <span className="text-xs text-slate-500">ميلادي</span>
                                         <Popover>
                                             <PopoverTrigger asChild>
                                                 <Button
                                                     variant={"outline"}
                                                     className={cn(
-                                                        "w-full justify-start text-left font-normal bg-white h-10 px-3",
+                                                        "justify-start text-left font-normal bg-white h-8 px-3",
                                                         !formData.eventDate && "text-muted-foreground"
                                                     )}
                                                 >
                                                     <CalendarIcon className="mr-2 h-4 w-4" />
-                                                    {formData.eventDate ? new Date(formData.eventDate).toLocaleDateString('en-GB') : <span>اختر التاريخ</span>}
+                                                    {formData.eventDate ? new Date(formData.eventDate).toLocaleDateString('en-GB') : <span>اختر</span>}
                                                 </Button>
                                             </PopoverTrigger>
                                             <PopoverContent className="w-auto p-0" align="start">
@@ -729,23 +753,21 @@ export default function BookingsPage() {
                                             </PopoverContent>
                                         </Popover>
                                     </div>
-
-                                    {/* Hijri */}
-                                    <div className="space-y-2">
-                                        <label className="text-xs text-slate-500">هجري</label>
+                                    <div className="flex items-center gap-2">
+                                        <span className="text-xs text-slate-500">هجري</span>
                                         <Popover>
                                             <PopoverTrigger asChild>
                                                 <Button
                                                     variant={"outline"}
                                                     className={cn(
-                                                        "w-full justify-start text-left font-normal bg-white h-10 px-3",
+                                                        "justify-start text-left font-normal bg-white h-8 px-3",
                                                         (!hijriDate.day) && "text-muted-foreground"
                                                     )}
                                                 >
                                                     <CalendarIcon className="mr-2 h-4 w-4" />
                                                     {hijriDate.day && hijriDate.month && hijriDate.year
                                                         ? `${hijriDate.day} / ${hijriDate.month} / ${hijriDate.year}`
-                                                        : <span>اختر التاريخ الهجري</span>}
+                                                        : <span>اختر</span>}
                                                 </Button>
                                             </PopoverTrigger>
                                             <PopoverContent className="w-auto p-0" align="start">
@@ -766,9 +788,41 @@ export default function BookingsPage() {
                                 </div>
                             </div>
 
-                            <div className="grid grid-cols-2 gap-4">
-                                <div>
-                                    <label className="form-label">المبلغ الإجمالي (ر.س) *</label>
+
+                            {/* Services Section - display only */}
+                            {(formData.coffeeServers || formData.sacrifices || formData.waterCartons) && (
+                                <div className="bg-purple-50 p-3 rounded-lg">
+                                    <p className="text-xs text-purple-600 font-medium mb-2">الخدمات الإضافية</p>
+                                    <div className="grid grid-cols-3 gap-2 text-sm">
+                                        {(parseInt(formData.coffeeServers) || 0) > 0 && (
+                                            <div>
+                                                <span className="text-[var(--text-muted)]">صبابين: </span>
+                                                <span className="font-medium">{formData.coffeeServers}</span>
+                                            </div>
+                                        )}
+                                        {(parseInt(formData.sacrifices) || 0) > 0 && (
+                                            <div>
+                                                <span className="text-[var(--text-muted)]">ذبائح: </span>
+                                                <span className="font-medium">{formData.sacrifices}</span>
+                                            </div>
+                                        )}
+                                        {(parseInt(formData.waterCartons) || 0) > 0 && (
+                                            <div>
+                                                <span className="text-[var(--text-muted)]">كراتين ماء: </span>
+                                                <span className="font-medium">{formData.waterCartons}</span>
+                                            </div>
+                                        )}
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* Cost Summary Section - compact */}
+                            <div className="border border-[var(--primary-200)] bg-[var(--primary-50)/30] p-3 rounded-lg">
+                                <p className="text-xs font-medium text-[var(--primary-700)] mb-2">ملخص التكاليف</p>
+
+                                {/* Price Row */}
+                                <div className="flex justify-between items-center font-semibold text-sm pb-2 border-b border-slate-200">
+                                    <span>السعر *</span>
                                     <input
                                         type="number"
                                         required
@@ -776,122 +830,50 @@ export default function BookingsPage() {
                                         step="0.01"
                                         value={formData.totalAmount}
                                         onChange={(e) => setFormData({ ...formData, totalAmount: e.target.value })}
-                                        className="form-input w-full"
+                                        className="form-input w-32 text-left"
+                                        placeholder="0"
                                     />
                                 </div>
 
-                                <div>
-                                    <label className="form-label">الخصم (ر.س)</label>
-                                    <input
-                                        type="number"
-                                        min="0"
-                                        step="0.01"
-                                        value={formData.discountAmount}
-                                        onChange={(e) => setFormData({ ...formData, discountAmount: e.target.value })}
-                                        className="form-input w-full"
-                                    />
-                                </div>
-
-                                <div>
-                                    <label className="form-label">العربون (ر.س)</label>
-                                    <input
-                                        type="number"
-                                        min="0"
-                                        step="0.01"
-                                        value={formData.downPayment}
-                                        onChange={(e) => setFormData({ ...formData, downPayment: e.target.value })}
-                                        className="form-input w-full"
-                                    />
-                                </div>
-
-                                <div>
-                                    <label className="form-label">نوع القسم</label>
-                                    <select
-                                        value={formData.sectionType}
-                                        onChange={(e) => setFormData({ ...formData, sectionType: e.target.value })}
-                                        className="form-input w-full"
-                                    >
-                                        <option value="men">رجال</option>
-                                        <option value="women">نساء</option>
-                                        <option value="both">قسمين</option>
-                                    </select>
-                                </div>
-                            </div>
-
-                            {/* Services Section */}
-                            <div className="bg-blue-50 p-4 rounded-lg">
-                                <label className="form-label mb-3">الخدمات الإضافية</label>
-                                <div className="grid grid-cols-3 gap-4">
-                                    <div>
-                                        <label className="text-xs text-gray-600">عدد الصبابين</label>
+                                {/* Details */}
+                                <div className="space-y-1 py-2 border-b border-dashed border-slate-300 text-xs">
+                                    <div className="flex justify-between items-center text-red-600">
+                                        <span>الخصم</span>
                                         <input
                                             type="number"
                                             min="0"
-                                            value={formData.coffeeServers}
-                                            onChange={(e) => setFormData({ ...formData, coffeeServers: e.target.value })}
-                                            className="form-input w-full"
+                                            step="0.01"
+                                            value={formData.discountAmount}
+                                            onChange={(e) => setFormData({ ...formData, discountAmount: e.target.value })}
+                                            className="form-input w-28 text-left text-red-600"
+                                            placeholder="0"
                                         />
                                     </div>
-                                    <div>
-                                        <label className="text-xs text-gray-600">عدد الذبائح</label>
+                                    <div className="flex justify-between text-slate-600">
+                                        <span>ض.ق.م (15%)</span>
+                                        <span>{Math.round((parseFloat(formData.totalAmount || '0') - parseFloat(formData.discountAmount || '0')) * (15 / 115)).toLocaleString()} ر.س</span>
+                                    </div>
+                                    <div className="flex justify-between items-center text-green-600">
+                                        <span>العربون</span>
                                         <input
                                             type="number"
                                             min="0"
-                                            value={formData.sacrifices}
-                                            onChange={(e) => setFormData({ ...formData, sacrifices: e.target.value })}
-                                            className="form-input w-full"
-                                        />
-                                    </div>
-                                    <div>
-                                        <label className="text-xs text-gray-600">كراتين الماء</label>
-                                        <input
-                                            type="number"
-                                            min="0"
-                                            value={formData.waterCartons}
-                                            onChange={(e) => setFormData({ ...formData, waterCartons: e.target.value })}
-                                            className="form-input w-full"
+                                            step="0.01"
+                                            value={formData.downPayment}
+                                            onChange={(e) => setFormData({ ...formData, downPayment: e.target.value })}
+                                            className="form-input w-28 text-left text-green-600"
+                                            placeholder="0"
                                         />
                                     </div>
                                 </div>
-                            </div>
 
-                            {/* Amount Summary */}
-                            {formData.totalAmount && (
-                                <div className="bg-gray-50 p-4 rounded-lg">
-                                    <div className="grid grid-cols-4 gap-4 text-sm">
-                                        <div>
-                                            <span className="text-[var(--text-secondary)]">المبلغ:</span>
-                                            <span className="font-bold mr-2">{parseFloat(formData.totalAmount || '0').toLocaleString()}</span>
-                                        </div>
-                                        <div>
-                                            <span className="text-[var(--text-secondary)]">الخصم:</span>
-                                            <span className="font-bold mr-2 text-red-600">-{parseFloat(formData.discountAmount || '0').toLocaleString()}</span>
-                                        </div>
-                                        <div>
-                                            <span className="text-[var(--text-secondary)]">الضريبة (15%):</span>
-                                            <span className="font-bold mr-2">
-                                                {Math.round((parseFloat(formData.totalAmount || '0') - parseFloat(formData.discountAmount || '0')) * (15 / 115)).toLocaleString()}
-                                            </span>
-                                        </div>
-                                        <div>
-                                            <span className="text-[var(--text-secondary)]">المتبقي:</span>
-                                            <span className="font-bold mr-2 text-[var(--primary-700)]">
-                                                {(parseFloat(formData.totalAmount || '0') - parseFloat(formData.discountAmount || '0') - parseFloat(formData.downPayment || '0')).toLocaleString()} ر.س
-                                            </span>
-                                        </div>
+                                {/* Remaining Amount - Highlighted */}
+                                <div className="bg-[var(--primary-700)] text-white p-2 rounded-lg mt-2">
+                                    <div className="flex justify-between text-base font-bold">
+                                        <span>المتبقي</span>
+                                        <span>{(parseFloat(formData.totalAmount || '0') - parseFloat(formData.discountAmount || '0') - parseFloat(formData.downPayment || '0')).toLocaleString()} ر.س</span>
                                     </div>
                                 </div>
-                            )}
-
-                            <div>
-                                <label className="form-label">ملاحظات</label>
-                                <textarea
-                                    value={formData.notes}
-                                    onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
-                                    className="form-input w-full"
-                                    rows={3}
-                                    placeholder="ملاحظات إضافية..."
-                                />
                             </div>
 
                             <div className="flex gap-3 pt-4">
@@ -918,7 +900,7 @@ export default function BookingsPage() {
             {/* View Modal */}
             {showViewModal && viewingBooking && (
                 <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-                    <div className="bg-white rounded-lg shadow-xl w-full max-w-lg mx-4">
+                    <div className="bg-white rounded-lg shadow-xl w-full max-w-lg mx-4 max-h-[90vh] overflow-y-auto">
                         <div className="flex items-center justify-between p-4 border-b border-[var(--border-color)]">
                             <h3 className="text-lg font-bold">
                                 تفاصيل الحجز
