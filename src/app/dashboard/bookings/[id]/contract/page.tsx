@@ -257,22 +257,8 @@ export default function ContractPage() {
                 {/* Header */}
                 <div className="border-2 border-slate-800 mb-3">
                     <div className="flex items-center justify-between p-2 border-b border-slate-300">
-                        {/* Contract Number - Right side in RTL */}
-                        <div className="text-[11px] space-y-0.5 w-24">
-                            <div>رقم العقد: <span className="font-bold">{booking.bookingNumber.split('-').pop()}</span></div>
-                            <div>الرقم الضريبي: {companySettings.vatRegNo || 'غير محدد'}</div>
-                        </div>
-
-                        {/* Company Name - Centered */}
-                        <div className="text-center flex-1">
-                            <h1 className="text-lg font-bold text-blue-800 mb-1">{companySettings.companyNameAr}</h1>
-                            <h2 className="text-base font-bold border-2 border-blue-800 inline-block px-4 py-1 bg-blue-50">
-                                عقد تأجير قاعة
-                            </h2>
-                        </div>
-
-                        {/* Logo - Left side in RTL */}
-                        <div className="w-24 flex justify-end">
+                        {/* Logo - Right side in RTL (displayed first) */}
+                        <div className="w-24 flex justify-start">
                             {companySettings.companyLogo ? (
                                 <img
                                     src={companySettings.companyLogo}
@@ -285,11 +271,25 @@ export default function ContractPage() {
                                 </div>
                             )}
                         </div>
+
+                        {/* Company Name - Centered */}
+                        <div className="text-center flex-1">
+                            <h1 className="text-lg font-bold text-blue-800 mb-1">{companySettings.companyNameAr}</h1>
+                            <h2 className="text-base font-bold border-2 border-blue-800 inline-block px-4 py-1 bg-blue-50">
+                                عقد تأجير قاعة
+                            </h2>
+                        </div>
+
+                        {/* Contract Number - Left side in RTL (displayed last) */}
+                        <div className="text-[11px] space-y-0.5 w-24 text-left">
+                            <div>رقم العقد: <span className="font-bold">{booking.bookingNumber.split('-').pop()}</span></div>
+                            <div>الرقم الضريبي: {companySettings.vatRegNo || 'غير محدد'}</div>
+                        </div>
                     </div>
 
                     {/* Agreement Date */}
                     <div className="p-2 text-center bg-slate-50 border-b border-slate-300 text-[11px]">
-                        <p>بعون الله تعالى في يوم <span className="font-bold">{todayHijri}</span> هـ الموافق <span className="font-bold">{todayGregorian}</span> م تم الاتفاق بين كلٍ من:</p>
+                        <p>بعون الله تعالى في يوم <span className="font-bold">{todayHijri}</span> الموافق <span className="font-bold">{todayGregorian}</span> م تم الاتفاق بين كلٍ من:</p>
                     </div>
 
                     {/* Parties */}

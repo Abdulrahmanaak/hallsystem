@@ -9,9 +9,7 @@ import {
     RefreshCw,
     CheckCircle,
     XCircle,
-    Link2,
-    Upload,
-    Loader2
+    Link2
 } from 'lucide-react'
 
 interface SettingsData {
@@ -35,7 +33,6 @@ export default function SettingsPage() {
     const [message, setMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null)
     const [qoyodStatus, setQoyodStatus] = useState<{ connected: boolean; message: string } | null>(null)
     const [testingQoyod, setTestingQoyod] = useState(false)
-    const [uploadingLogo, setUploadingLogo] = useState(false)
 
     const DEFAULT_SETTINGS: SettingsData = {
         companyNameAr: 'نظام إدارة القاعات',
@@ -128,39 +125,6 @@ export default function SettingsPage() {
         }
     }
 
-    const handleLogoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-        const file = e.target.files?.[0]
-        if (!file || !settings) return
-
-        setUploadingLogo(true)
-        setMessage(null)
-
-        try {
-            const formData = new FormData()
-            formData.append('file', file)
-            formData.append('folder', 'logos')
-
-            const response = await fetch('/api/upload', {
-                method: 'POST',
-                body: formData
-            })
-
-            const data = await response.json()
-
-            if (response.ok && data.url) {
-                setSettings({ ...settings, companyLogo: data.url })
-                setMessage({ type: 'success', text: 'تم رفع الشعار بنجاح' })
-            } else {
-                setMessage({ type: 'error', text: data.error || 'فشل رفع الشعار' })
-            }
-        } catch (error) {
-            console.error('Upload error:', error)
-            setMessage({ type: 'error', text: 'حدث خطأ أثناء رفع الشعار' })
-        } finally {
-            setUploadingLogo(false)
-        }
-    }
-
     if (loading || !settings) {
         return (
             <div className="flex items-center justify-center h-64">
@@ -210,62 +174,6 @@ export default function SettingsPage() {
                     </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                    {/* Logo Upload Section */}
-                    <div className="p-4 bg-gray-50 rounded-lg border border-dashed border-gray-300">
-                        <label className="form-label mb-2 block">شعار الشركة</label>
-                        <div className="flex items-center gap-4">
-                            {/* Logo Preview */}
-                            <div className="w-20 h-20 border border-gray-300 rounded-lg flex items-center justify-center bg-white overflow-hidden">
-                                {settings.companyLogo ? (
-                                    <img
-                                        src={settings.companyLogo}
-                                        alt="شعار الشركة"
-                                        className="w-full h-full object-contain"
-                                    />
-                                ) : (
-                                    <span className="text-gray-400 text-xs">لا يوجد شعار</span>
-                                )}
-                            </div>
-                            {/* Upload Controls */}
-                            <div className="flex-1 space-y-2">
-                                <div className="flex items-center gap-2">
-                                    <label className="btn-secondary flex items-center gap-2 cursor-pointer">
-                                        {uploadingLogo ? (
-                                            <>
-                                                <Loader2 size={16} className="animate-spin" />
-                                                جاري الرفع...
-                                            </>
-                                        ) : (
-                                            <>
-                                                <Upload size={16} />
-                                                اختر صورة
-                                            </>
-                                        )}
-                                        <input
-                                            type="file"
-                                            accept="image/jpeg,image/png,image/webp,image/svg+xml"
-                                            onChange={handleLogoUpload}
-                                            disabled={uploadingLogo}
-                                            className="hidden"
-                                        />
-                                    </label>
-                                    {settings.companyLogo && (
-                                        <button
-                                            type="button"
-                                            onClick={() => setSettings({ ...settings, companyLogo: null })}
-                                            className="text-red-500 text-sm hover:text-red-700"
-                                        >
-                                            حذف الشعار
-                                        </button>
-                                    )}
-                                </div>
-                                <p className="text-xs text-gray-500">
-                                    JPG, PNG, WebP أو SVG - حد أقصى 2 ميجابايت
-                                </p>
-                            </div>
-                        </div>
-                    </div>
-
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
                             <label className="form-label">اسم الشركة</label>

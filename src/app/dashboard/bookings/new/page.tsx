@@ -699,7 +699,7 @@ export default function NewBookingPage() {
                                 )}
                                 <div className="flex justify-between text-slate-600">
                                     <span>ض.ق.م (15%)</span>
-                                    <span>+{vatAmount.toLocaleString()} ر.س</span>
+                                    <span>{vatAmount.toLocaleString()} ر.س</span>
                                 </div>
                                 {(Number(downPayment) || 0) > 0 && (
                                     <div className="flex justify-between text-green-600">

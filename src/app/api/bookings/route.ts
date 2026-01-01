@@ -7,7 +7,7 @@ export async function GET() {
         const bookings = await prisma.booking.findMany({
             where: { isDeleted: false },
             include: {
-                customer: { select: { id: true, nameAr: true, phone: true } },
+                customer: { select: { id: true, nameAr: true, phone: true, idNumber: true } },
                 hall: { select: { id: true, nameAr: true } }
             },
             orderBy: { createdAt: 'desc' }
@@ -20,6 +20,7 @@ export async function GET() {
             customerId: b.customerId,
             customerName: b.customer.nameAr,
             customerPhone: b.customer.phone,
+            customerIdNumber: b.customer.idNumber,
             hallId: b.hallId,
             hallName: b.hall.nameAr,
             eventType: b.eventType,

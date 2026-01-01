@@ -14,10 +14,47 @@ const formatHijri = (dateString: string) => {
     }
 }
 
+// Format a Date object to YYYY-MM-DD
+const toGregorianString = (date: Date) => date.toISOString().split('T')[0]
+
+// Get Hijri components from a Date object
+const getHijriDate = (date: Date) => {
+    const formatter = new Intl.DateTimeFormat('en-u-ca-islamic-umalqura', {
+        day: 'numeric',
+        month: 'numeric',
+        year: 'numeric'
+    })
+    const parts = formatter.formatToParts(date)
+    const day = parts.find(p => p.type === 'day')?.value || ''
+    const month = parts.find(p => p.type === 'month')?.value || ''
+    const year = parts.find(p => p.type === 'year')?.value || ''
+    return { day, month, year }
+}
+
+// Approximate Gregorian from Hijri (Brute-force search around a pivot year)
+const findGregorianFromHijri = (hYear: string, hMonth: string, hDay: string) => {
+    if (!hYear || !hMonth || !hDay) return null;
+    const targetYear = parseInt(hYear);
+    const approxGregYear = Math.floor(targetYear * 0.97 + 622);
+    const startDate = new Date(approxGregYear - 1, 0, 1);
+    const endDate = new Date(approxGregYear + 1, 11, 31);
+    for (let d = startDate; d <= endDate; d.setDate(d.getDate() + 1)) {
+        const h = getHijriDate(d);
+        if (h.year === hYear && h.month === hMonth && h.day === hDay) {
+            return new Date(d);
+        }
+    }
+    return null;
+}
+
 
 import Link from 'next/link'
 import { useEffect, useState } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
+import { Calendar as CalendarComponent } from '@/components/ui/calendar'
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
+import { cn } from '@/lib/utils'
 import {
     Calendar,
     Plus,
@@ -35,7 +72,8 @@ import {
     XCircle,
     AlertCircle,
     ChevronDown,
-    FileText
+    FileText,
+    CalendarIcon
 } from 'lucide-react'
 
 interface Booking {
@@ -61,6 +99,11 @@ interface Booking {
     finalAmount: number
     notes: string | null
     createdAt: string
+    coffeeServers?: number
+    sacrifices?: number
+    waterCartons?: number
+    sectionType?: string
+    mealType?: string
 }
 
 interface Customer {
@@ -106,16 +149,23 @@ export default function BookingsPage() {
     const [formData, setFormData] = useState({
         customerName: '',
         customerPhone: '',
+        customerIdNumber: '',
         hallId: '',
         eventType: 'WEDDING',
         eventDate: '',
         guestCount: '',
+        sectionType: 'both',
+        coffeeServers: '0',
+        sacrifices: '0',
+        waterCartons: '0',
         totalAmount: '',
         discountAmount: '0',
+        downPayment: '0',
         notes: ''
     })
     const [saving, setSaving] = useState(false)
     const [openStatusDropdown, setOpenStatusDropdown] = useState<string | null>(null)
+    const [hijriDate, setHijriDate] = useState({ day: '', month: '', year: '' })
 
     const fetchData = async () => {
         try {
@@ -161,14 +211,21 @@ export default function BookingsPage() {
         setFormData({
             customerName: '',
             customerPhone: '',
+            customerIdNumber: '',
             hallId: '',
             eventType: 'WEDDING',
             eventDate: new Date().toISOString().split('T')[0],
             guestCount: '',
+            sectionType: 'both',
+            coffeeServers: '0',
+            sacrifices: '0',
+            waterCartons: '0',
             totalAmount: '',
             discountAmount: '0',
+            downPayment: '0',
             notes: ''
         })
+        setHijriDate(getHijriDate(new Date()))
         setShowModal(true)
     }
 
@@ -177,14 +234,23 @@ export default function BookingsPage() {
         setFormData({
             customerName: booking.customerName || '',
             customerPhone: booking.customerPhone || '',
+            customerIdNumber: booking.customerIdNumber || '',
             hallId: booking.hallId,
             eventType: booking.eventType,
             eventDate: booking.date,
             guestCount: booking.guestCount?.toString() || '',
+            sectionType: booking.sectionType || 'both',
+            coffeeServers: booking.coffeeServers?.toString() || '0',
+            sacrifices: booking.sacrifices?.toString() || '0',
+            waterCartons: booking.waterCartons?.toString() || '0',
             totalAmount: booking.totalAmount.toString(),
             discountAmount: booking.discountAmount.toString(),
+            downPayment: booking.downPayment?.toString() || '0',
             notes: booking.notes || ''
         })
+        if (booking.date) {
+            setHijriDate(getHijriDate(new Date(booking.date)))
+        }
         setShowModal(true)
     }
 
@@ -466,7 +532,7 @@ export default function BookingsPage() {
                                             </div>
                                         </td>
                                         <td className="font-bold">
-                                            {booking.finalAmount.toLocaleString()} ر.س
+                                            {(booking.totalAmount - booking.discountAmount).toLocaleString()} ر.س
                                         </td>
                                         <td>
                                             <div className="flex gap-1">
@@ -572,6 +638,17 @@ export default function BookingsPage() {
                                 </div>
 
                                 <div>
+                                    <label className="form-label">رقم الهوية</label>
+                                    <input
+                                        type="text"
+                                        placeholder="10xxxxxxxx"
+                                        value={formData.customerIdNumber}
+                                        onChange={(e) => setFormData({ ...formData, customerIdNumber: e.target.value })}
+                                        className="form-input w-full"
+                                    />
+                                </div>
+
+                                <div>
                                     <label className="form-label">القاعة *</label>
                                     <select
                                         required
@@ -617,23 +694,74 @@ export default function BookingsPage() {
                                 </div>
                             </div>
 
-                            <div className="grid grid-cols-3 gap-4">
-                                <div>
-                                    <label className="form-label">تاريخ المناسبة (ميلادي) *</label>
-                                    <input
-                                        type="date"
-                                        required
-                                        value={formData.eventDate}
-                                        onChange={(e) => setFormData({ ...formData, eventDate: e.target.value })}
-                                        className="form-input w-full"
-                                    />
-                                </div>
+                            {/* Date Selection - Dual Calendar */}
+                            <div className="bg-slate-50 p-4 rounded-lg border border-slate-100">
+                                <label className="form-label mb-3">تاريخ المناسبة *</label>
+                                <div className="grid grid-cols-2 gap-4">
+                                    {/* Gregorian */}
+                                    <div className="space-y-2">
+                                        <label className="text-xs text-slate-500">ميلادي</label>
+                                        <Popover>
+                                            <PopoverTrigger asChild>
+                                                <Button
+                                                    variant={"outline"}
+                                                    className={cn(
+                                                        "w-full justify-start text-left font-normal bg-white h-10 px-3",
+                                                        !formData.eventDate && "text-muted-foreground"
+                                                    )}
+                                                >
+                                                    <CalendarIcon className="mr-2 h-4 w-4" />
+                                                    {formData.eventDate ? new Date(formData.eventDate).toLocaleDateString('en-GB') : <span>اختر التاريخ</span>}
+                                                </Button>
+                                            </PopoverTrigger>
+                                            <PopoverContent className="w-auto p-0" align="start">
+                                                <CalendarComponent
+                                                    mode="gregorian"
+                                                    selected={formData.eventDate ? new Date(formData.eventDate) : undefined}
+                                                    onSelect={(date) => {
+                                                        if (date) {
+                                                            const val = toGregorianString(date);
+                                                            setFormData({ ...formData, eventDate: val });
+                                                            setHijriDate(getHijriDate(date));
+                                                        }
+                                                    }}
+                                                />
+                                            </PopoverContent>
+                                        </Popover>
+                                    </div>
 
-                                <div className="col-span-2">
-                                    <label className="form-label">التاريخ الهجري (تقريبي)</label>
-                                    <div className="form-input w-full bg-gray-50 text-gray-700 flex items-center">
-                                        <Calendar className="ml-2 text-gray-400" size={18} />
-                                        {formData.eventDate ? formatHijri(formData.eventDate) : 'حدد التاريخ الميلادي أولاً'}
+                                    {/* Hijri */}
+                                    <div className="space-y-2">
+                                        <label className="text-xs text-slate-500">هجري</label>
+                                        <Popover>
+                                            <PopoverTrigger asChild>
+                                                <Button
+                                                    variant={"outline"}
+                                                    className={cn(
+                                                        "w-full justify-start text-left font-normal bg-white h-10 px-3",
+                                                        (!hijriDate.day) && "text-muted-foreground"
+                                                    )}
+                                                >
+                                                    <CalendarIcon className="mr-2 h-4 w-4" />
+                                                    {hijriDate.day && hijriDate.month && hijriDate.year
+                                                        ? `${hijriDate.day} / ${hijriDate.month} / ${hijriDate.year}`
+                                                        : <span>اختر التاريخ الهجري</span>}
+                                                </Button>
+                                            </PopoverTrigger>
+                                            <PopoverContent className="w-auto p-0" align="start">
+                                                <CalendarComponent
+                                                    mode="hijri"
+                                                    selected={formData.eventDate ? new Date(formData.eventDate) : undefined}
+                                                    onSelect={(date) => {
+                                                        if (date) {
+                                                            const val = toGregorianString(date);
+                                                            setFormData({ ...formData, eventDate: val });
+                                                            setHijriDate(getHijriDate(date));
+                                                        }
+                                                    }}
+                                                />
+                                            </PopoverContent>
+                                        </Popover>
                                     </div>
                                 </div>
                             </div>
@@ -663,6 +791,68 @@ export default function BookingsPage() {
                                         className="form-input w-full"
                                     />
                                 </div>
+
+                                <div>
+                                    <label className="form-label">العربون (ر.س)</label>
+                                    <input
+                                        type="number"
+                                        min="0"
+                                        step="0.01"
+                                        value={formData.downPayment}
+                                        onChange={(e) => setFormData({ ...formData, downPayment: e.target.value })}
+                                        className="form-input w-full"
+                                    />
+                                </div>
+
+                                <div>
+                                    <label className="form-label">نوع القسم</label>
+                                    <select
+                                        value={formData.sectionType}
+                                        onChange={(e) => setFormData({ ...formData, sectionType: e.target.value })}
+                                        className="form-input w-full"
+                                    >
+                                        <option value="men">رجال</option>
+                                        <option value="women">نساء</option>
+                                        <option value="both">قسمين</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            {/* Services Section */}
+                            <div className="bg-blue-50 p-4 rounded-lg">
+                                <label className="form-label mb-3">الخدمات الإضافية</label>
+                                <div className="grid grid-cols-3 gap-4">
+                                    <div>
+                                        <label className="text-xs text-gray-600">عدد الصبابين</label>
+                                        <input
+                                            type="number"
+                                            min="0"
+                                            value={formData.coffeeServers}
+                                            onChange={(e) => setFormData({ ...formData, coffeeServers: e.target.value })}
+                                            className="form-input w-full"
+                                        />
+                                    </div>
+                                    <div>
+                                        <label className="text-xs text-gray-600">عدد الذبائح</label>
+                                        <input
+                                            type="number"
+                                            min="0"
+                                            value={formData.sacrifices}
+                                            onChange={(e) => setFormData({ ...formData, sacrifices: e.target.value })}
+                                            className="form-input w-full"
+                                        />
+                                    </div>
+                                    <div>
+                                        <label className="text-xs text-gray-600">كراتين الماء</label>
+                                        <input
+                                            type="number"
+                                            min="0"
+                                            value={formData.waterCartons}
+                                            onChange={(e) => setFormData({ ...formData, waterCartons: e.target.value })}
+                                            className="form-input w-full"
+                                        />
+                                    </div>
+                                </div>
                             </div>
 
                             {/* Amount Summary */}
@@ -680,13 +870,13 @@ export default function BookingsPage() {
                                         <div>
                                             <span className="text-[var(--text-secondary)]">الضريبة (15%):</span>
                                             <span className="font-bold mr-2">
-                                                {((parseFloat(formData.totalAmount || '0') - parseFloat(formData.discountAmount || '0')) * 0.15).toLocaleString()}
+                                                {Math.round((parseFloat(formData.totalAmount || '0') - parseFloat(formData.discountAmount || '0')) * (15 / 115)).toLocaleString()}
                                             </span>
                                         </div>
                                         <div>
-                                            <span className="text-[var(--text-secondary)]">الإجمالي:</span>
+                                            <span className="text-[var(--text-secondary)]">المتبقي:</span>
                                             <span className="font-bold mr-2 text-[var(--primary-700)]">
-                                                {((parseFloat(formData.totalAmount || '0') - parseFloat(formData.discountAmount || '0')) * 1.15).toLocaleString()} ر.س
+                                                {(parseFloat(formData.totalAmount || '0') - parseFloat(formData.discountAmount || '0') - parseFloat(formData.downPayment || '0')).toLocaleString()} ر.س
                                             </span>
                                         </div>
                                     </div>
@@ -755,77 +945,141 @@ export default function BookingsPage() {
                                 </span>
                             </div>
 
-                            <div className="grid grid-cols-2 gap-4">
-                                <div className="flex items-center gap-2">
-                                    <Users className="text-[var(--text-muted)]" size={18} />
+                            {/* Customer Details Section - matches new booking form layout */}
+                            <div className="bg-slate-50 p-4 rounded-lg border border-slate-100">
+                                <div className="flex items-center gap-2 mb-3">
+                                    <Users className="text-[var(--primary-600)]" size={18} />
+                                    <span className="font-medium text-[var(--primary-700)]">بيانات العميل</span>
+                                </div>
+                                <div className="grid grid-cols-3 gap-4 text-sm">
                                     <div>
-                                        <p className="text-xs text-[var(--text-muted)]">العميل</p>
+                                        <p className="text-xs text-[var(--text-muted)]">رقم الجوال</p>
+                                        <p className="font-medium" dir="ltr">{viewingBooking.customerPhone}</p>
+                                    </div>
+                                    <div>
+                                        <p className="text-xs text-[var(--text-muted)]">رقم الهوية / السجل</p>
+                                        <p className="font-medium">{viewingBooking.customerIdNumber || '-'}</p>
+                                    </div>
+                                    <div>
+                                        <p className="text-xs text-[var(--text-muted)]">اسم العميل</p>
                                         <p className="font-medium">{viewingBooking.customerName}</p>
                                     </div>
                                 </div>
-                                <div className="flex items-center gap-2">
-                                    <Building2 className="text-[var(--text-muted)]" size={18} />
+                            </div>
+
+                            {/* Hall Details Section - 4 column grid */}
+                            <div className="bg-purple-50 p-3 rounded-lg border border-purple-100">
+                                <div className="grid grid-cols-4 gap-3 text-sm text-right">
                                     <div>
-                                        <p className="text-xs text-[var(--text-muted)]">القاعة</p>
-                                        <p className="font-medium">{viewingBooking.hallName}</p>
+                                        <div className="flex items-center gap-1 text-xs text-purple-600">
+                                            <Building2 size={14} />
+                                            <span>القاعة</span>
+                                        </div>
+                                        <p className="font-semibold text-purple-800 mt-1">{viewingBooking.hallName}</p>
+                                    </div>
+                                    <div>
+                                        <p className="text-xs text-slate-500">السعة</p>
+                                        <p className="font-medium mt-1">{halls.find(h => h.id === viewingBooking.hallId)?.capacity || viewingBooking.guestCount || '-'}</p>
+                                    </div>
+                                    <div>
+                                        <p className="text-xs text-slate-500">القسم</p>
+                                        <p className="font-medium mt-1">
+                                            {viewingBooking.sectionType === 'men' ? 'رجال' :
+                                                viewingBooking.sectionType === 'women' ? 'نساء' :
+                                                    viewingBooking.sectionType === 'both' ? 'قسمين' : '-'}
+                                        </p>
+                                    </div>
+                                    <div>
+                                        <p className="text-xs text-slate-500">نوع المناسبة</p>
+                                        <p className="font-medium mt-1">{EVENT_TYPES[viewingBooking.eventType] || viewingBooking.eventType}</p>
                                     </div>
                                 </div>
                             </div>
 
-                            {/* Customer Details */}
-                            <div className="bg-blue-50 p-3 rounded-lg">
-                                <p className="text-xs text-blue-600 font-medium mb-2">بيانات العميل</p>
-                                <div className="grid grid-cols-2 gap-2 text-sm">
-                                    <div>
-                                        <span className="text-[var(--text-muted)]">رقم الجوال: </span>
-                                        <span className="font-medium">{viewingBooking.customerPhone}</span>
+                            {/* Date Section - single row layout */}
+                            <div className="bg-slate-50 p-3 rounded-lg border border-slate-100">
+                                <div className="flex items-center gap-4 text-sm">
+                                    <div className="flex items-center gap-2">
+                                        <Calendar className="text-[var(--primary-600)]" size={16} />
+                                        <span className="font-medium text-[var(--primary-700)]">تاريخ المناسبة</span>
                                     </div>
-                                    {viewingBooking.customerIdNumber && (
-                                        <div>
-                                            <span className="text-[var(--text-muted)]">رقم الهوية: </span>
-                                            <span className="font-medium">{viewingBooking.customerIdNumber}</span>
+                                    <div className="flex items-center gap-2">
+                                        <span className="text-xs text-slate-500">ميلادي</span>
+                                        <span className="font-medium bg-white px-3 py-1 rounded border border-slate-200">
+                                            {new Date(viewingBooking.date).toLocaleDateString('en-GB')}
+                                        </span>
+                                    </div>
+                                    <div className="flex items-center gap-2">
+                                        <span className="text-xs text-slate-500">هجري</span>
+                                        <span className="font-medium bg-white px-3 py-1 rounded border border-slate-200">
+                                            {formatHijri(viewingBooking.date)}
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Services Section */}
+                            {(viewingBooking.coffeeServers || viewingBooking.sacrifices || viewingBooking.waterCartons) && (
+                                <div className="bg-purple-50 p-3 rounded-lg">
+                                    <p className="text-xs text-purple-600 font-medium mb-2">الخدمات الإضافية</p>
+                                    <div className="grid grid-cols-3 gap-2 text-sm">
+                                        {(viewingBooking.coffeeServers || 0) > 0 && (
+                                            <div>
+                                                <span className="text-[var(--text-muted)]">صبابين: </span>
+                                                <span className="font-medium">{viewingBooking.coffeeServers}</span>
+                                            </div>
+                                        )}
+                                        {(viewingBooking.sacrifices || 0) > 0 && (
+                                            <div>
+                                                <span className="text-[var(--text-muted)]">ذبائح: </span>
+                                                <span className="font-medium">{viewingBooking.sacrifices}</span>
+                                            </div>
+                                        )}
+                                        {(viewingBooking.waterCartons || 0) > 0 && (
+                                            <div>
+                                                <span className="text-[var(--text-muted)]">كراتين ماء: </span>
+                                                <span className="font-medium">{viewingBooking.waterCartons}</span>
+                                            </div>
+                                        )}
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* Cost Summary Section - compact */}
+                            <div className="border border-[var(--primary-200)] bg-[var(--primary-50)/30] p-3 rounded-lg">
+                                <p className="text-xs font-medium text-[var(--primary-700)] mb-2">ملخص التكاليف</p>
+
+                                {/* Price Row */}
+                                <div className="flex justify-between font-semibold text-sm pb-2 border-b border-slate-200">
+                                    <span>السعر</span>
+                                    <span>{viewingBooking.totalAmount.toLocaleString()} ر.س</span>
+                                </div>
+
+                                {/* Details */}
+                                <div className="space-y-1 py-2 border-b border-dashed border-slate-300 text-xs">
+                                    {viewingBooking.discountAmount > 0 && (
+                                        <div className="flex justify-between text-red-600">
+                                            <span>الخصم</span>
+                                            <span>-{viewingBooking.discountAmount.toLocaleString()} ر.س</span>
+                                        </div>
+                                    )}
+                                    <div className="flex justify-between text-slate-600">
+                                        <span>ض.ق.م (15%)</span>
+                                        <span>{viewingBooking.vatAmount.toLocaleString()} ر.س</span>
+                                    </div>
+                                    {(viewingBooking.downPayment || 0) > 0 && (
+                                        <div className="flex justify-between text-green-600">
+                                            <span>العربون</span>
+                                            <span>-{(viewingBooking.downPayment || 0).toLocaleString()} ر.س</span>
                                         </div>
                                     )}
                                 </div>
-                            </div>
 
-                            <div className="grid grid-cols-2 gap-4">
-                                <div className="flex items-center gap-2">
-                                    <Calendar className="text-[var(--text-muted)]" size={18} />
-                                    <div>
-                                        <p className="text-xs text-[var(--text-muted)]">التاريخ</p>
-                                        <p className="font-medium">{new Date(viewingBooking.date).toLocaleDateString('ar-SA')}</p>
-                                    </div>
-                                </div>
-                                <div>
-                                    <p className="text-xs text-[var(--text-muted)]">نوع المناسبة</p>
-                                    <p className="font-medium">{EVENT_TYPES[viewingBooking.eventType] || viewingBooking.eventType}</p>
-                                </div>
-                            </div>
-
-                            <div className="bg-gray-50 p-4 rounded-lg">
-                                <div className="grid grid-cols-3 gap-3 text-sm">
-                                    <div>
-                                        <p className="text-[var(--text-muted)]">المبلغ</p>
-                                        <p className="font-bold">{viewingBooking.totalAmount.toLocaleString()} ر.س</p>
-                                    </div>
-                                    <div>
-                                        <p className="text-[var(--text-muted)]">الخصم</p>
-                                        <p className="font-bold text-red-600">-{viewingBooking.discountAmount.toLocaleString()} ر.س</p>
-                                    </div>
-                                    <div>
-                                        <p className="text-[var(--text-muted)]">ض.ق.م (15%)</p>
-                                        <p className="font-bold">{viewingBooking.vatAmount.toLocaleString()} ر.س</p>
-                                    </div>
-                                    <div>
-                                        <p className="text-[var(--text-muted)]">العربون</p>
-                                        <p className="font-bold text-green-600">{(viewingBooking.downPayment || 0).toLocaleString()} ر.س</p>
-                                    </div>
-                                    <div className="col-span-2">
-                                        <p className="text-[var(--text-muted)]">المتبقي</p>
-                                        <p className="font-bold text-lg text-[var(--primary-700)]">
-                                            {(viewingBooking.finalAmount - (viewingBooking.downPayment || 0)).toLocaleString()} ر.س
-                                        </p>
+                                {/* Remaining Amount - Highlighted */}
+                                <div className="bg-[var(--primary-700)] text-white p-2 rounded-lg mt-2">
+                                    <div className="flex justify-between text-base font-bold">
+                                        <span>المتبقي</span>
+                                        <span>{(viewingBooking.totalAmount - viewingBooking.discountAmount - (viewingBooking.downPayment || 0)).toLocaleString()} ر.س</span>
                                     </div>
                                 </div>
                             </div>
