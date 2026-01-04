@@ -8,7 +8,7 @@ const MOCK_USERS: any[] = [
         nameAr: 'Admin User',
         email: 'admin@hall.com',
         phone: '1234567890',
-        role: 'ADMIN',
+        role: 'HALL_OWNER',
         status: 'ACTIVE',
         createdAt: new Date(),
         updatedAt: new Date(),

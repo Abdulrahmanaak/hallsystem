@@ -33,6 +33,9 @@ export type UserMinAggregateOutputType = {
   phone: string | null
   role: string | null
   status: string | null
+  ownerId: string | null
+  commercialRegNo: string | null
+  vatRegNo: string | null
   createdAt: Date | null
   updatedAt: Date | null
   lastLogin: Date | null
@@ -47,6 +50,9 @@ export type UserMaxAggregateOutputType = {
   phone: string | null
   role: string | null
   status: string | null
+  ownerId: string | null
+  commercialRegNo: string | null
+  vatRegNo: string | null
   createdAt: Date | null
   updatedAt: Date | null
   lastLogin: Date | null
@@ -61,6 +67,9 @@ export type UserCountAggregateOutputType = {
   phone: number
   role: number
   status: number
+  ownerId: number
+  commercialRegNo: number
+  vatRegNo: number
   createdAt: number
   updatedAt: number
   lastLogin: number
@@ -77,6 +86,9 @@ export type UserMinAggregateInputType = {
   phone?: true
   role?: true
   status?: true
+  ownerId?: true
+  commercialRegNo?: true
+  vatRegNo?: true
   createdAt?: true
   updatedAt?: true
   lastLogin?: true
@@ -91,6 +103,9 @@ export type UserMaxAggregateInputType = {
   phone?: true
   role?: true
   status?: true
+  ownerId?: true
+  commercialRegNo?: true
+  vatRegNo?: true
   createdAt?: true
   updatedAt?: true
   lastLogin?: true
@@ -105,6 +120,9 @@ export type UserCountAggregateInputType = {
   phone?: true
   role?: true
   status?: true
+  ownerId?: true
+  commercialRegNo?: true
+  vatRegNo?: true
   createdAt?: true
   updatedAt?: true
   lastLogin?: true
@@ -192,6 +210,9 @@ export type UserGroupByOutputType = {
   phone: string | null
   role: string
   status: string
+  ownerId: string | null
+  commercialRegNo: string | null
+  vatRegNo: string | null
   createdAt: Date
   updatedAt: Date
   lastLogin: Date | null
@@ -227,14 +248,25 @@ export type UserWhereInput = {
   phone?: Prisma.StringNullableFilter<"User"> | string | null
   role?: Prisma.StringFilter<"User"> | string
   status?: Prisma.StringFilter<"User"> | string
+  ownerId?: Prisma.StringNullableFilter<"User"> | string | null
+  commercialRegNo?: Prisma.StringNullableFilter<"User"> | string | null
+  vatRegNo?: Prisma.StringNullableFilter<"User"> | string | null
   createdAt?: Prisma.DateTimeFilter<"User"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"User"> | Date | string
   lastLogin?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
+  owner?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
+  teamMembers?: Prisma.UserListRelationFilter
   createdBookings?: Prisma.BookingListRelationFilter
   updatedBookings?: Prisma.BookingListRelationFilter
   createdCustomers?: Prisma.CustomerListRelationFilter
   createdInvoices?: Prisma.InvoiceListRelationFilter
   createdPayments?: Prisma.PaymentListRelationFilter
+  ownedHalls?: Prisma.HallListRelationFilter
+  ownedBookings?: Prisma.BookingListRelationFilter
+  ownedCustomers?: Prisma.CustomerListRelationFilter
+  ownedInvoices?: Prisma.InvoiceListRelationFilter
+  ownedPayments?: Prisma.PaymentListRelationFilter
+  ownedSettings?: Prisma.XOR<Prisma.SettingsNullableScalarRelationFilter, Prisma.SettingsWhereInput> | null
 }
 
 export type UserOrderByWithRelationInput = {
@@ -246,14 +278,25 @@ export type UserOrderByWithRelationInput = {
   phone?: Prisma.SortOrderInput | Prisma.SortOrder
   role?: Prisma.SortOrder
   status?: Prisma.SortOrder
+  ownerId?: Prisma.SortOrderInput | Prisma.SortOrder
+  commercialRegNo?: Prisma.SortOrderInput | Prisma.SortOrder
+  vatRegNo?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   lastLogin?: Prisma.SortOrderInput | Prisma.SortOrder
+  owner?: Prisma.UserOrderByWithRelationInput
+  teamMembers?: Prisma.UserOrderByRelationAggregateInput
   createdBookings?: Prisma.BookingOrderByRelationAggregateInput
   updatedBookings?: Prisma.BookingOrderByRelationAggregateInput
   createdCustomers?: Prisma.CustomerOrderByRelationAggregateInput
   createdInvoices?: Prisma.InvoiceOrderByRelationAggregateInput
   createdPayments?: Prisma.PaymentOrderByRelationAggregateInput
+  ownedHalls?: Prisma.HallOrderByRelationAggregateInput
+  ownedBookings?: Prisma.BookingOrderByRelationAggregateInput
+  ownedCustomers?: Prisma.CustomerOrderByRelationAggregateInput
+  ownedInvoices?: Prisma.InvoiceOrderByRelationAggregateInput
+  ownedPayments?: Prisma.PaymentOrderByRelationAggregateInput
+  ownedSettings?: Prisma.SettingsOrderByWithRelationInput
 }
 
 export type UserWhereUniqueInput = Prisma.AtLeast<{
@@ -268,14 +311,25 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   phone?: Prisma.StringNullableFilter<"User"> | string | null
   role?: Prisma.StringFilter<"User"> | string
   status?: Prisma.StringFilter<"User"> | string
+  ownerId?: Prisma.StringNullableFilter<"User"> | string | null
+  commercialRegNo?: Prisma.StringNullableFilter<"User"> | string | null
+  vatRegNo?: Prisma.StringNullableFilter<"User"> | string | null
   createdAt?: Prisma.DateTimeFilter<"User"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"User"> | Date | string
   lastLogin?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
+  owner?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
+  teamMembers?: Prisma.UserListRelationFilter
   createdBookings?: Prisma.BookingListRelationFilter
   updatedBookings?: Prisma.BookingListRelationFilter
   createdCustomers?: Prisma.CustomerListRelationFilter
   createdInvoices?: Prisma.InvoiceListRelationFilter
   createdPayments?: Prisma.PaymentListRelationFilter
+  ownedHalls?: Prisma.HallListRelationFilter
+  ownedBookings?: Prisma.BookingListRelationFilter
+  ownedCustomers?: Prisma.CustomerListRelationFilter
+  ownedInvoices?: Prisma.InvoiceListRelationFilter
+  ownedPayments?: Prisma.PaymentListRelationFilter
+  ownedSettings?: Prisma.XOR<Prisma.SettingsNullableScalarRelationFilter, Prisma.SettingsWhereInput> | null
 }, "id" | "username" | "email">
 
 export type UserOrderByWithAggregationInput = {
@@ -287,6 +341,9 @@ export type UserOrderByWithAggregationInput = {
   phone?: Prisma.SortOrderInput | Prisma.SortOrder
   role?: Prisma.SortOrder
   status?: Prisma.SortOrder
+  ownerId?: Prisma.SortOrderInput | Prisma.SortOrder
+  commercialRegNo?: Prisma.SortOrderInput | Prisma.SortOrder
+  vatRegNo?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   lastLogin?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -307,6 +364,9 @@ export type UserScalarWhereWithAggregatesInput = {
   phone?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
   role?: Prisma.StringWithAggregatesFilter<"User"> | string
   status?: Prisma.StringWithAggregatesFilter<"User"> | string
+  ownerId?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
+  commercialRegNo?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
+  vatRegNo?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"User"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"User"> | Date | string
   lastLogin?: Prisma.DateTimeNullableWithAggregatesFilter<"User"> | Date | string | null
@@ -321,14 +381,24 @@ export type UserCreateInput = {
   phone?: string | null
   role: string
   status?: string
+  commercialRegNo?: string | null
+  vatRegNo?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   lastLogin?: Date | string | null
+  owner?: Prisma.UserCreateNestedOneWithoutTeamMembersInput
+  teamMembers?: Prisma.UserCreateNestedManyWithoutOwnerInput
   createdBookings?: Prisma.BookingCreateNestedManyWithoutCreatedByInput
   updatedBookings?: Prisma.BookingCreateNestedManyWithoutUpdatedByInput
   createdCustomers?: Prisma.CustomerCreateNestedManyWithoutCreatedByInput
   createdInvoices?: Prisma.InvoiceCreateNestedManyWithoutCreatedByInput
   createdPayments?: Prisma.PaymentCreateNestedManyWithoutCreatedByInput
+  ownedHalls?: Prisma.HallCreateNestedManyWithoutOwnerInput
+  ownedBookings?: Prisma.BookingCreateNestedManyWithoutOwnerInput
+  ownedCustomers?: Prisma.CustomerCreateNestedManyWithoutOwnerInput
+  ownedInvoices?: Prisma.InvoiceCreateNestedManyWithoutOwnerInput
+  ownedPayments?: Prisma.PaymentCreateNestedManyWithoutOwnerInput
+  ownedSettings?: Prisma.SettingsCreateNestedOneWithoutOwnerInput
 }
 
 export type UserUncheckedCreateInput = {
@@ -340,14 +410,24 @@ export type UserUncheckedCreateInput = {
   phone?: string | null
   role: string
   status?: string
+  ownerId?: string | null
+  commercialRegNo?: string | null
+  vatRegNo?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   lastLogin?: Date | string | null
+  teamMembers?: Prisma.UserUncheckedCreateNestedManyWithoutOwnerInput
   createdBookings?: Prisma.BookingUncheckedCreateNestedManyWithoutCreatedByInput
   updatedBookings?: Prisma.BookingUncheckedCreateNestedManyWithoutUpdatedByInput
   createdCustomers?: Prisma.CustomerUncheckedCreateNestedManyWithoutCreatedByInput
   createdInvoices?: Prisma.InvoiceUncheckedCreateNestedManyWithoutCreatedByInput
   createdPayments?: Prisma.PaymentUncheckedCreateNestedManyWithoutCreatedByInput
+  ownedHalls?: Prisma.HallUncheckedCreateNestedManyWithoutOwnerInput
+  ownedBookings?: Prisma.BookingUncheckedCreateNestedManyWithoutOwnerInput
+  ownedCustomers?: Prisma.CustomerUncheckedCreateNestedManyWithoutOwnerInput
+  ownedInvoices?: Prisma.InvoiceUncheckedCreateNestedManyWithoutOwnerInput
+  ownedPayments?: Prisma.PaymentUncheckedCreateNestedManyWithoutOwnerInput
+  ownedSettings?: Prisma.SettingsUncheckedCreateNestedOneWithoutOwnerInput
 }
 
 export type UserUpdateInput = {
@@ -359,14 +439,24 @@ export type UserUpdateInput = {
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   role?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
+  commercialRegNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  vatRegNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   lastLogin?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  owner?: Prisma.UserUpdateOneWithoutTeamMembersNestedInput
+  teamMembers?: Prisma.UserUpdateManyWithoutOwnerNestedInput
   createdBookings?: Prisma.BookingUpdateManyWithoutCreatedByNestedInput
   updatedBookings?: Prisma.BookingUpdateManyWithoutUpdatedByNestedInput
   createdCustomers?: Prisma.CustomerUpdateManyWithoutCreatedByNestedInput
   createdInvoices?: Prisma.InvoiceUpdateManyWithoutCreatedByNestedInput
   createdPayments?: Prisma.PaymentUpdateManyWithoutCreatedByNestedInput
+  ownedHalls?: Prisma.HallUpdateManyWithoutOwnerNestedInput
+  ownedBookings?: Prisma.BookingUpdateManyWithoutOwnerNestedInput
+  ownedCustomers?: Prisma.CustomerUpdateManyWithoutOwnerNestedInput
+  ownedInvoices?: Prisma.InvoiceUpdateManyWithoutOwnerNestedInput
+  ownedPayments?: Prisma.PaymentUpdateManyWithoutOwnerNestedInput
+  ownedSettings?: Prisma.SettingsUpdateOneWithoutOwnerNestedInput
 }
 
 export type UserUncheckedUpdateInput = {
@@ -378,14 +468,24 @@ export type UserUncheckedUpdateInput = {
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   role?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
+  ownerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  commercialRegNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  vatRegNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   lastLogin?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  teamMembers?: Prisma.UserUncheckedUpdateManyWithoutOwnerNestedInput
   createdBookings?: Prisma.BookingUncheckedUpdateManyWithoutCreatedByNestedInput
   updatedBookings?: Prisma.BookingUncheckedUpdateManyWithoutUpdatedByNestedInput
   createdCustomers?: Prisma.CustomerUncheckedUpdateManyWithoutCreatedByNestedInput
   createdInvoices?: Prisma.InvoiceUncheckedUpdateManyWithoutCreatedByNestedInput
   createdPayments?: Prisma.PaymentUncheckedUpdateManyWithoutCreatedByNestedInput
+  ownedHalls?: Prisma.HallUncheckedUpdateManyWithoutOwnerNestedInput
+  ownedBookings?: Prisma.BookingUncheckedUpdateManyWithoutOwnerNestedInput
+  ownedCustomers?: Prisma.CustomerUncheckedUpdateManyWithoutOwnerNestedInput
+  ownedInvoices?: Prisma.InvoiceUncheckedUpdateManyWithoutOwnerNestedInput
+  ownedPayments?: Prisma.PaymentUncheckedUpdateManyWithoutOwnerNestedInput
+  ownedSettings?: Prisma.SettingsUncheckedUpdateOneWithoutOwnerNestedInput
 }
 
 export type UserCreateManyInput = {
@@ -397,6 +497,9 @@ export type UserCreateManyInput = {
   phone?: string | null
   role: string
   status?: string
+  ownerId?: string | null
+  commercialRegNo?: string | null
+  vatRegNo?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   lastLogin?: Date | string | null
@@ -411,6 +514,8 @@ export type UserUpdateManyMutationInput = {
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   role?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
+  commercialRegNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  vatRegNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   lastLogin?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -425,9 +530,27 @@ export type UserUncheckedUpdateManyInput = {
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   role?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
+  ownerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  commercialRegNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  vatRegNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   lastLogin?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+}
+
+export type UserNullableScalarRelationFilter = {
+  is?: Prisma.UserWhereInput | null
+  isNot?: Prisma.UserWhereInput | null
+}
+
+export type UserListRelationFilter = {
+  every?: Prisma.UserWhereInput
+  some?: Prisma.UserWhereInput
+  none?: Prisma.UserWhereInput
+}
+
+export type UserOrderByRelationAggregateInput = {
+  _count?: Prisma.SortOrder
 }
 
 export type UserCountOrderByAggregateInput = {
@@ -439,6 +562,9 @@ export type UserCountOrderByAggregateInput = {
   phone?: Prisma.SortOrder
   role?: Prisma.SortOrder
   status?: Prisma.SortOrder
+  ownerId?: Prisma.SortOrder
+  commercialRegNo?: Prisma.SortOrder
+  vatRegNo?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   lastLogin?: Prisma.SortOrder
@@ -453,6 +579,9 @@ export type UserMaxOrderByAggregateInput = {
   phone?: Prisma.SortOrder
   role?: Prisma.SortOrder
   status?: Prisma.SortOrder
+  ownerId?: Prisma.SortOrder
+  commercialRegNo?: Prisma.SortOrder
+  vatRegNo?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   lastLogin?: Prisma.SortOrder
@@ -467,6 +596,9 @@ export type UserMinOrderByAggregateInput = {
   phone?: Prisma.SortOrder
   role?: Prisma.SortOrder
   status?: Prisma.SortOrder
+  ownerId?: Prisma.SortOrder
+  commercialRegNo?: Prisma.SortOrder
+  vatRegNo?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   lastLogin?: Prisma.SortOrder
@@ -477,9 +609,24 @@ export type UserScalarRelationFilter = {
   isNot?: Prisma.UserWhereInput
 }
 
-export type UserNullableScalarRelationFilter = {
-  is?: Prisma.UserWhereInput | null
-  isNot?: Prisma.UserWhereInput | null
+export type UserCreateNestedOneWithoutTeamMembersInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutTeamMembersInput, Prisma.UserUncheckedCreateWithoutTeamMembersInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutTeamMembersInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserCreateNestedManyWithoutOwnerInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutOwnerInput, Prisma.UserUncheckedCreateWithoutOwnerInput> | Prisma.UserCreateWithoutOwnerInput[] | Prisma.UserUncheckedCreateWithoutOwnerInput[]
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutOwnerInput | Prisma.UserCreateOrConnectWithoutOwnerInput[]
+  createMany?: Prisma.UserCreateManyOwnerInputEnvelope
+  connect?: Prisma.UserWhereUniqueInput | Prisma.UserWhereUniqueInput[]
+}
+
+export type UserUncheckedCreateNestedManyWithoutOwnerInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutOwnerInput, Prisma.UserUncheckedCreateWithoutOwnerInput> | Prisma.UserCreateWithoutOwnerInput[] | Prisma.UserUncheckedCreateWithoutOwnerInput[]
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutOwnerInput | Prisma.UserCreateOrConnectWithoutOwnerInput[]
+  createMany?: Prisma.UserCreateManyOwnerInputEnvelope
+  connect?: Prisma.UserWhereUniqueInput | Prisma.UserWhereUniqueInput[]
 }
 
 export type StringFieldUpdateOperationsInput = {
@@ -498,10 +645,62 @@ export type NullableDateTimeFieldUpdateOperationsInput = {
   set?: Date | string | null
 }
 
+export type UserUpdateOneWithoutTeamMembersNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutTeamMembersInput, Prisma.UserUncheckedCreateWithoutTeamMembersInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutTeamMembersInput
+  upsert?: Prisma.UserUpsertWithoutTeamMembersInput
+  disconnect?: Prisma.UserWhereInput | boolean
+  delete?: Prisma.UserWhereInput | boolean
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutTeamMembersInput, Prisma.UserUpdateWithoutTeamMembersInput>, Prisma.UserUncheckedUpdateWithoutTeamMembersInput>
+}
+
+export type UserUpdateManyWithoutOwnerNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutOwnerInput, Prisma.UserUncheckedCreateWithoutOwnerInput> | Prisma.UserCreateWithoutOwnerInput[] | Prisma.UserUncheckedCreateWithoutOwnerInput[]
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutOwnerInput | Prisma.UserCreateOrConnectWithoutOwnerInput[]
+  upsert?: Prisma.UserUpsertWithWhereUniqueWithoutOwnerInput | Prisma.UserUpsertWithWhereUniqueWithoutOwnerInput[]
+  createMany?: Prisma.UserCreateManyOwnerInputEnvelope
+  set?: Prisma.UserWhereUniqueInput | Prisma.UserWhereUniqueInput[]
+  disconnect?: Prisma.UserWhereUniqueInput | Prisma.UserWhereUniqueInput[]
+  delete?: Prisma.UserWhereUniqueInput | Prisma.UserWhereUniqueInput[]
+  connect?: Prisma.UserWhereUniqueInput | Prisma.UserWhereUniqueInput[]
+  update?: Prisma.UserUpdateWithWhereUniqueWithoutOwnerInput | Prisma.UserUpdateWithWhereUniqueWithoutOwnerInput[]
+  updateMany?: Prisma.UserUpdateManyWithWhereWithoutOwnerInput | Prisma.UserUpdateManyWithWhereWithoutOwnerInput[]
+  deleteMany?: Prisma.UserScalarWhereInput | Prisma.UserScalarWhereInput[]
+}
+
+export type UserUncheckedUpdateManyWithoutOwnerNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutOwnerInput, Prisma.UserUncheckedCreateWithoutOwnerInput> | Prisma.UserCreateWithoutOwnerInput[] | Prisma.UserUncheckedCreateWithoutOwnerInput[]
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutOwnerInput | Prisma.UserCreateOrConnectWithoutOwnerInput[]
+  upsert?: Prisma.UserUpsertWithWhereUniqueWithoutOwnerInput | Prisma.UserUpsertWithWhereUniqueWithoutOwnerInput[]
+  createMany?: Prisma.UserCreateManyOwnerInputEnvelope
+  set?: Prisma.UserWhereUniqueInput | Prisma.UserWhereUniqueInput[]
+  disconnect?: Prisma.UserWhereUniqueInput | Prisma.UserWhereUniqueInput[]
+  delete?: Prisma.UserWhereUniqueInput | Prisma.UserWhereUniqueInput[]
+  connect?: Prisma.UserWhereUniqueInput | Prisma.UserWhereUniqueInput[]
+  update?: Prisma.UserUpdateWithWhereUniqueWithoutOwnerInput | Prisma.UserUpdateWithWhereUniqueWithoutOwnerInput[]
+  updateMany?: Prisma.UserUpdateManyWithWhereWithoutOwnerInput | Prisma.UserUpdateManyWithWhereWithoutOwnerInput[]
+  deleteMany?: Prisma.UserScalarWhereInput | Prisma.UserScalarWhereInput[]
+}
+
+export type UserCreateNestedOneWithoutOwnedCustomersInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutOwnedCustomersInput, Prisma.UserUncheckedCreateWithoutOwnedCustomersInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutOwnedCustomersInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
 export type UserCreateNestedOneWithoutCreatedCustomersInput = {
   create?: Prisma.XOR<Prisma.UserCreateWithoutCreatedCustomersInput, Prisma.UserUncheckedCreateWithoutCreatedCustomersInput>
   connectOrCreate?: Prisma.UserCreateOrConnectWithoutCreatedCustomersInput
   connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserUpdateOneRequiredWithoutOwnedCustomersNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutOwnedCustomersInput, Prisma.UserUncheckedCreateWithoutOwnedCustomersInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutOwnedCustomersInput
+  upsert?: Prisma.UserUpsertWithoutOwnedCustomersInput
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutOwnedCustomersInput, Prisma.UserUpdateWithoutOwnedCustomersInput>, Prisma.UserUncheckedUpdateWithoutOwnedCustomersInput>
 }
 
 export type UserUpdateOneRequiredWithoutCreatedCustomersNestedInput = {
@@ -510,6 +709,26 @@ export type UserUpdateOneRequiredWithoutCreatedCustomersNestedInput = {
   upsert?: Prisma.UserUpsertWithoutCreatedCustomersInput
   connect?: Prisma.UserWhereUniqueInput
   update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutCreatedCustomersInput, Prisma.UserUpdateWithoutCreatedCustomersInput>, Prisma.UserUncheckedUpdateWithoutCreatedCustomersInput>
+}
+
+export type UserCreateNestedOneWithoutOwnedHallsInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutOwnedHallsInput, Prisma.UserUncheckedCreateWithoutOwnedHallsInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutOwnedHallsInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserUpdateOneRequiredWithoutOwnedHallsNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutOwnedHallsInput, Prisma.UserUncheckedCreateWithoutOwnedHallsInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutOwnedHallsInput
+  upsert?: Prisma.UserUpsertWithoutOwnedHallsInput
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutOwnedHallsInput, Prisma.UserUpdateWithoutOwnedHallsInput>, Prisma.UserUncheckedUpdateWithoutOwnedHallsInput>
+}
+
+export type UserCreateNestedOneWithoutOwnedBookingsInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutOwnedBookingsInput, Prisma.UserUncheckedCreateWithoutOwnedBookingsInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutOwnedBookingsInput
+  connect?: Prisma.UserWhereUniqueInput
 }
 
 export type UserCreateNestedOneWithoutCreatedBookingsInput = {
@@ -522,6 +741,14 @@ export type UserCreateNestedOneWithoutUpdatedBookingsInput = {
   create?: Prisma.XOR<Prisma.UserCreateWithoutUpdatedBookingsInput, Prisma.UserUncheckedCreateWithoutUpdatedBookingsInput>
   connectOrCreate?: Prisma.UserCreateOrConnectWithoutUpdatedBookingsInput
   connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserUpdateOneRequiredWithoutOwnedBookingsNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutOwnedBookingsInput, Prisma.UserUncheckedCreateWithoutOwnedBookingsInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutOwnedBookingsInput
+  upsert?: Prisma.UserUpsertWithoutOwnedBookingsInput
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutOwnedBookingsInput, Prisma.UserUpdateWithoutOwnedBookingsInput>, Prisma.UserUncheckedUpdateWithoutOwnedBookingsInput>
 }
 
 export type UserUpdateOneRequiredWithoutCreatedBookingsNestedInput = {
@@ -542,10 +769,24 @@ export type UserUpdateOneWithoutUpdatedBookingsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutUpdatedBookingsInput, Prisma.UserUpdateWithoutUpdatedBookingsInput>, Prisma.UserUncheckedUpdateWithoutUpdatedBookingsInput>
 }
 
+export type UserCreateNestedOneWithoutOwnedInvoicesInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutOwnedInvoicesInput, Prisma.UserUncheckedCreateWithoutOwnedInvoicesInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutOwnedInvoicesInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
 export type UserCreateNestedOneWithoutCreatedInvoicesInput = {
   create?: Prisma.XOR<Prisma.UserCreateWithoutCreatedInvoicesInput, Prisma.UserUncheckedCreateWithoutCreatedInvoicesInput>
   connectOrCreate?: Prisma.UserCreateOrConnectWithoutCreatedInvoicesInput
   connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserUpdateOneRequiredWithoutOwnedInvoicesNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutOwnedInvoicesInput, Prisma.UserUncheckedCreateWithoutOwnedInvoicesInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutOwnedInvoicesInput
+  upsert?: Prisma.UserUpsertWithoutOwnedInvoicesInput
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutOwnedInvoicesInput, Prisma.UserUpdateWithoutOwnedInvoicesInput>, Prisma.UserUncheckedUpdateWithoutOwnedInvoicesInput>
 }
 
 export type UserUpdateOneRequiredWithoutCreatedInvoicesNestedInput = {
@@ -556,10 +797,24 @@ export type UserUpdateOneRequiredWithoutCreatedInvoicesNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutCreatedInvoicesInput, Prisma.UserUpdateWithoutCreatedInvoicesInput>, Prisma.UserUncheckedUpdateWithoutCreatedInvoicesInput>
 }
 
+export type UserCreateNestedOneWithoutOwnedPaymentsInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutOwnedPaymentsInput, Prisma.UserUncheckedCreateWithoutOwnedPaymentsInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutOwnedPaymentsInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
 export type UserCreateNestedOneWithoutCreatedPaymentsInput = {
   create?: Prisma.XOR<Prisma.UserCreateWithoutCreatedPaymentsInput, Prisma.UserUncheckedCreateWithoutCreatedPaymentsInput>
   connectOrCreate?: Prisma.UserCreateOrConnectWithoutCreatedPaymentsInput
   connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserUpdateOneRequiredWithoutOwnedPaymentsNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutOwnedPaymentsInput, Prisma.UserUncheckedCreateWithoutOwnedPaymentsInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutOwnedPaymentsInput
+  upsert?: Prisma.UserUpsertWithoutOwnedPaymentsInput
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutOwnedPaymentsInput, Prisma.UserUpdateWithoutOwnedPaymentsInput>, Prisma.UserUncheckedUpdateWithoutOwnedPaymentsInput>
 }
 
 export type UserUpdateOneRequiredWithoutCreatedPaymentsNestedInput = {
@@ -568,6 +823,311 @@ export type UserUpdateOneRequiredWithoutCreatedPaymentsNestedInput = {
   upsert?: Prisma.UserUpsertWithoutCreatedPaymentsInput
   connect?: Prisma.UserWhereUniqueInput
   update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutCreatedPaymentsInput, Prisma.UserUpdateWithoutCreatedPaymentsInput>, Prisma.UserUncheckedUpdateWithoutCreatedPaymentsInput>
+}
+
+export type UserCreateNestedOneWithoutOwnedSettingsInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutOwnedSettingsInput, Prisma.UserUncheckedCreateWithoutOwnedSettingsInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutOwnedSettingsInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserUpdateOneRequiredWithoutOwnedSettingsNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutOwnedSettingsInput, Prisma.UserUncheckedCreateWithoutOwnedSettingsInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutOwnedSettingsInput
+  upsert?: Prisma.UserUpsertWithoutOwnedSettingsInput
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutOwnedSettingsInput, Prisma.UserUpdateWithoutOwnedSettingsInput>, Prisma.UserUncheckedUpdateWithoutOwnedSettingsInput>
+}
+
+export type UserCreateWithoutTeamMembersInput = {
+  id?: string
+  username: string
+  password: string
+  nameAr: string
+  email?: string | null
+  phone?: string | null
+  role: string
+  status?: string
+  commercialRegNo?: string | null
+  vatRegNo?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  lastLogin?: Date | string | null
+  owner?: Prisma.UserCreateNestedOneWithoutTeamMembersInput
+  createdBookings?: Prisma.BookingCreateNestedManyWithoutCreatedByInput
+  updatedBookings?: Prisma.BookingCreateNestedManyWithoutUpdatedByInput
+  createdCustomers?: Prisma.CustomerCreateNestedManyWithoutCreatedByInput
+  createdInvoices?: Prisma.InvoiceCreateNestedManyWithoutCreatedByInput
+  createdPayments?: Prisma.PaymentCreateNestedManyWithoutCreatedByInput
+  ownedHalls?: Prisma.HallCreateNestedManyWithoutOwnerInput
+  ownedBookings?: Prisma.BookingCreateNestedManyWithoutOwnerInput
+  ownedCustomers?: Prisma.CustomerCreateNestedManyWithoutOwnerInput
+  ownedInvoices?: Prisma.InvoiceCreateNestedManyWithoutOwnerInput
+  ownedPayments?: Prisma.PaymentCreateNestedManyWithoutOwnerInput
+  ownedSettings?: Prisma.SettingsCreateNestedOneWithoutOwnerInput
+}
+
+export type UserUncheckedCreateWithoutTeamMembersInput = {
+  id?: string
+  username: string
+  password: string
+  nameAr: string
+  email?: string | null
+  phone?: string | null
+  role: string
+  status?: string
+  ownerId?: string | null
+  commercialRegNo?: string | null
+  vatRegNo?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  lastLogin?: Date | string | null
+  createdBookings?: Prisma.BookingUncheckedCreateNestedManyWithoutCreatedByInput
+  updatedBookings?: Prisma.BookingUncheckedCreateNestedManyWithoutUpdatedByInput
+  createdCustomers?: Prisma.CustomerUncheckedCreateNestedManyWithoutCreatedByInput
+  createdInvoices?: Prisma.InvoiceUncheckedCreateNestedManyWithoutCreatedByInput
+  createdPayments?: Prisma.PaymentUncheckedCreateNestedManyWithoutCreatedByInput
+  ownedHalls?: Prisma.HallUncheckedCreateNestedManyWithoutOwnerInput
+  ownedBookings?: Prisma.BookingUncheckedCreateNestedManyWithoutOwnerInput
+  ownedCustomers?: Prisma.CustomerUncheckedCreateNestedManyWithoutOwnerInput
+  ownedInvoices?: Prisma.InvoiceUncheckedCreateNestedManyWithoutOwnerInput
+  ownedPayments?: Prisma.PaymentUncheckedCreateNestedManyWithoutOwnerInput
+  ownedSettings?: Prisma.SettingsUncheckedCreateNestedOneWithoutOwnerInput
+}
+
+export type UserCreateOrConnectWithoutTeamMembersInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutTeamMembersInput, Prisma.UserUncheckedCreateWithoutTeamMembersInput>
+}
+
+export type UserCreateWithoutOwnerInput = {
+  id?: string
+  username: string
+  password: string
+  nameAr: string
+  email?: string | null
+  phone?: string | null
+  role: string
+  status?: string
+  commercialRegNo?: string | null
+  vatRegNo?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  lastLogin?: Date | string | null
+  teamMembers?: Prisma.UserCreateNestedManyWithoutOwnerInput
+  createdBookings?: Prisma.BookingCreateNestedManyWithoutCreatedByInput
+  updatedBookings?: Prisma.BookingCreateNestedManyWithoutUpdatedByInput
+  createdCustomers?: Prisma.CustomerCreateNestedManyWithoutCreatedByInput
+  createdInvoices?: Prisma.InvoiceCreateNestedManyWithoutCreatedByInput
+  createdPayments?: Prisma.PaymentCreateNestedManyWithoutCreatedByInput
+  ownedHalls?: Prisma.HallCreateNestedManyWithoutOwnerInput
+  ownedBookings?: Prisma.BookingCreateNestedManyWithoutOwnerInput
+  ownedCustomers?: Prisma.CustomerCreateNestedManyWithoutOwnerInput
+  ownedInvoices?: Prisma.InvoiceCreateNestedManyWithoutOwnerInput
+  ownedPayments?: Prisma.PaymentCreateNestedManyWithoutOwnerInput
+  ownedSettings?: Prisma.SettingsCreateNestedOneWithoutOwnerInput
+}
+
+export type UserUncheckedCreateWithoutOwnerInput = {
+  id?: string
+  username: string
+  password: string
+  nameAr: string
+  email?: string | null
+  phone?: string | null
+  role: string
+  status?: string
+  commercialRegNo?: string | null
+  vatRegNo?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  lastLogin?: Date | string | null
+  teamMembers?: Prisma.UserUncheckedCreateNestedManyWithoutOwnerInput
+  createdBookings?: Prisma.BookingUncheckedCreateNestedManyWithoutCreatedByInput
+  updatedBookings?: Prisma.BookingUncheckedCreateNestedManyWithoutUpdatedByInput
+  createdCustomers?: Prisma.CustomerUncheckedCreateNestedManyWithoutCreatedByInput
+  createdInvoices?: Prisma.InvoiceUncheckedCreateNestedManyWithoutCreatedByInput
+  createdPayments?: Prisma.PaymentUncheckedCreateNestedManyWithoutCreatedByInput
+  ownedHalls?: Prisma.HallUncheckedCreateNestedManyWithoutOwnerInput
+  ownedBookings?: Prisma.BookingUncheckedCreateNestedManyWithoutOwnerInput
+  ownedCustomers?: Prisma.CustomerUncheckedCreateNestedManyWithoutOwnerInput
+  ownedInvoices?: Prisma.InvoiceUncheckedCreateNestedManyWithoutOwnerInput
+  ownedPayments?: Prisma.PaymentUncheckedCreateNestedManyWithoutOwnerInput
+  ownedSettings?: Prisma.SettingsUncheckedCreateNestedOneWithoutOwnerInput
+}
+
+export type UserCreateOrConnectWithoutOwnerInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutOwnerInput, Prisma.UserUncheckedCreateWithoutOwnerInput>
+}
+
+export type UserCreateManyOwnerInputEnvelope = {
+  data: Prisma.UserCreateManyOwnerInput | Prisma.UserCreateManyOwnerInput[]
+  skipDuplicates?: boolean
+}
+
+export type UserUpsertWithoutTeamMembersInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutTeamMembersInput, Prisma.UserUncheckedUpdateWithoutTeamMembersInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutTeamMembersInput, Prisma.UserUncheckedCreateWithoutTeamMembersInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutTeamMembersInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutTeamMembersInput, Prisma.UserUncheckedUpdateWithoutTeamMembersInput>
+}
+
+export type UserUpdateWithoutTeamMembersInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  username?: Prisma.StringFieldUpdateOperationsInput | string
+  password?: Prisma.StringFieldUpdateOperationsInput | string
+  nameAr?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  role?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  commercialRegNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  vatRegNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  lastLogin?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  owner?: Prisma.UserUpdateOneWithoutTeamMembersNestedInput
+  createdBookings?: Prisma.BookingUpdateManyWithoutCreatedByNestedInput
+  updatedBookings?: Prisma.BookingUpdateManyWithoutUpdatedByNestedInput
+  createdCustomers?: Prisma.CustomerUpdateManyWithoutCreatedByNestedInput
+  createdInvoices?: Prisma.InvoiceUpdateManyWithoutCreatedByNestedInput
+  createdPayments?: Prisma.PaymentUpdateManyWithoutCreatedByNestedInput
+  ownedHalls?: Prisma.HallUpdateManyWithoutOwnerNestedInput
+  ownedBookings?: Prisma.BookingUpdateManyWithoutOwnerNestedInput
+  ownedCustomers?: Prisma.CustomerUpdateManyWithoutOwnerNestedInput
+  ownedInvoices?: Prisma.InvoiceUpdateManyWithoutOwnerNestedInput
+  ownedPayments?: Prisma.PaymentUpdateManyWithoutOwnerNestedInput
+  ownedSettings?: Prisma.SettingsUpdateOneWithoutOwnerNestedInput
+}
+
+export type UserUncheckedUpdateWithoutTeamMembersInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  username?: Prisma.StringFieldUpdateOperationsInput | string
+  password?: Prisma.StringFieldUpdateOperationsInput | string
+  nameAr?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  role?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  ownerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  commercialRegNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  vatRegNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  lastLogin?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdBookings?: Prisma.BookingUncheckedUpdateManyWithoutCreatedByNestedInput
+  updatedBookings?: Prisma.BookingUncheckedUpdateManyWithoutUpdatedByNestedInput
+  createdCustomers?: Prisma.CustomerUncheckedUpdateManyWithoutCreatedByNestedInput
+  createdInvoices?: Prisma.InvoiceUncheckedUpdateManyWithoutCreatedByNestedInput
+  createdPayments?: Prisma.PaymentUncheckedUpdateManyWithoutCreatedByNestedInput
+  ownedHalls?: Prisma.HallUncheckedUpdateManyWithoutOwnerNestedInput
+  ownedBookings?: Prisma.BookingUncheckedUpdateManyWithoutOwnerNestedInput
+  ownedCustomers?: Prisma.CustomerUncheckedUpdateManyWithoutOwnerNestedInput
+  ownedInvoices?: Prisma.InvoiceUncheckedUpdateManyWithoutOwnerNestedInput
+  ownedPayments?: Prisma.PaymentUncheckedUpdateManyWithoutOwnerNestedInput
+  ownedSettings?: Prisma.SettingsUncheckedUpdateOneWithoutOwnerNestedInput
+}
+
+export type UserUpsertWithWhereUniqueWithoutOwnerInput = {
+  where: Prisma.UserWhereUniqueInput
+  update: Prisma.XOR<Prisma.UserUpdateWithoutOwnerInput, Prisma.UserUncheckedUpdateWithoutOwnerInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutOwnerInput, Prisma.UserUncheckedCreateWithoutOwnerInput>
+}
+
+export type UserUpdateWithWhereUniqueWithoutOwnerInput = {
+  where: Prisma.UserWhereUniqueInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutOwnerInput, Prisma.UserUncheckedUpdateWithoutOwnerInput>
+}
+
+export type UserUpdateManyWithWhereWithoutOwnerInput = {
+  where: Prisma.UserScalarWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateManyMutationInput, Prisma.UserUncheckedUpdateManyWithoutOwnerInput>
+}
+
+export type UserScalarWhereInput = {
+  AND?: Prisma.UserScalarWhereInput | Prisma.UserScalarWhereInput[]
+  OR?: Prisma.UserScalarWhereInput[]
+  NOT?: Prisma.UserScalarWhereInput | Prisma.UserScalarWhereInput[]
+  id?: Prisma.StringFilter<"User"> | string
+  username?: Prisma.StringFilter<"User"> | string
+  password?: Prisma.StringFilter<"User"> | string
+  nameAr?: Prisma.StringFilter<"User"> | string
+  email?: Prisma.StringNullableFilter<"User"> | string | null
+  phone?: Prisma.StringNullableFilter<"User"> | string | null
+  role?: Prisma.StringFilter<"User"> | string
+  status?: Prisma.StringFilter<"User"> | string
+  ownerId?: Prisma.StringNullableFilter<"User"> | string | null
+  commercialRegNo?: Prisma.StringNullableFilter<"User"> | string | null
+  vatRegNo?: Prisma.StringNullableFilter<"User"> | string | null
+  createdAt?: Prisma.DateTimeFilter<"User"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"User"> | Date | string
+  lastLogin?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
+}
+
+export type UserCreateWithoutOwnedCustomersInput = {
+  id?: string
+  username: string
+  password: string
+  nameAr: string
+  email?: string | null
+  phone?: string | null
+  role: string
+  status?: string
+  commercialRegNo?: string | null
+  vatRegNo?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  lastLogin?: Date | string | null
+  owner?: Prisma.UserCreateNestedOneWithoutTeamMembersInput
+  teamMembers?: Prisma.UserCreateNestedManyWithoutOwnerInput
+  createdBookings?: Prisma.BookingCreateNestedManyWithoutCreatedByInput
+  updatedBookings?: Prisma.BookingCreateNestedManyWithoutUpdatedByInput
+  createdCustomers?: Prisma.CustomerCreateNestedManyWithoutCreatedByInput
+  createdInvoices?: Prisma.InvoiceCreateNestedManyWithoutCreatedByInput
+  createdPayments?: Prisma.PaymentCreateNestedManyWithoutCreatedByInput
+  ownedHalls?: Prisma.HallCreateNestedManyWithoutOwnerInput
+  ownedBookings?: Prisma.BookingCreateNestedManyWithoutOwnerInput
+  ownedInvoices?: Prisma.InvoiceCreateNestedManyWithoutOwnerInput
+  ownedPayments?: Prisma.PaymentCreateNestedManyWithoutOwnerInput
+  ownedSettings?: Prisma.SettingsCreateNestedOneWithoutOwnerInput
+}
+
+export type UserUncheckedCreateWithoutOwnedCustomersInput = {
+  id?: string
+  username: string
+  password: string
+  nameAr: string
+  email?: string | null
+  phone?: string | null
+  role: string
+  status?: string
+  ownerId?: string | null
+  commercialRegNo?: string | null
+  vatRegNo?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  lastLogin?: Date | string | null
+  teamMembers?: Prisma.UserUncheckedCreateNestedManyWithoutOwnerInput
+  createdBookings?: Prisma.BookingUncheckedCreateNestedManyWithoutCreatedByInput
+  updatedBookings?: Prisma.BookingUncheckedCreateNestedManyWithoutUpdatedByInput
+  createdCustomers?: Prisma.CustomerUncheckedCreateNestedManyWithoutCreatedByInput
+  createdInvoices?: Prisma.InvoiceUncheckedCreateNestedManyWithoutCreatedByInput
+  createdPayments?: Prisma.PaymentUncheckedCreateNestedManyWithoutCreatedByInput
+  ownedHalls?: Prisma.HallUncheckedCreateNestedManyWithoutOwnerInput
+  ownedBookings?: Prisma.BookingUncheckedCreateNestedManyWithoutOwnerInput
+  ownedInvoices?: Prisma.InvoiceUncheckedCreateNestedManyWithoutOwnerInput
+  ownedPayments?: Prisma.PaymentUncheckedCreateNestedManyWithoutOwnerInput
+  ownedSettings?: Prisma.SettingsUncheckedCreateNestedOneWithoutOwnerInput
+}
+
+export type UserCreateOrConnectWithoutOwnedCustomersInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutOwnedCustomersInput, Prisma.UserUncheckedCreateWithoutOwnedCustomersInput>
 }
 
 export type UserCreateWithoutCreatedCustomersInput = {
@@ -579,13 +1139,23 @@ export type UserCreateWithoutCreatedCustomersInput = {
   phone?: string | null
   role: string
   status?: string
+  commercialRegNo?: string | null
+  vatRegNo?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   lastLogin?: Date | string | null
+  owner?: Prisma.UserCreateNestedOneWithoutTeamMembersInput
+  teamMembers?: Prisma.UserCreateNestedManyWithoutOwnerInput
   createdBookings?: Prisma.BookingCreateNestedManyWithoutCreatedByInput
   updatedBookings?: Prisma.BookingCreateNestedManyWithoutUpdatedByInput
   createdInvoices?: Prisma.InvoiceCreateNestedManyWithoutCreatedByInput
   createdPayments?: Prisma.PaymentCreateNestedManyWithoutCreatedByInput
+  ownedHalls?: Prisma.HallCreateNestedManyWithoutOwnerInput
+  ownedBookings?: Prisma.BookingCreateNestedManyWithoutOwnerInput
+  ownedCustomers?: Prisma.CustomerCreateNestedManyWithoutOwnerInput
+  ownedInvoices?: Prisma.InvoiceCreateNestedManyWithoutOwnerInput
+  ownedPayments?: Prisma.PaymentCreateNestedManyWithoutOwnerInput
+  ownedSettings?: Prisma.SettingsCreateNestedOneWithoutOwnerInput
 }
 
 export type UserUncheckedCreateWithoutCreatedCustomersInput = {
@@ -597,18 +1167,95 @@ export type UserUncheckedCreateWithoutCreatedCustomersInput = {
   phone?: string | null
   role: string
   status?: string
+  ownerId?: string | null
+  commercialRegNo?: string | null
+  vatRegNo?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   lastLogin?: Date | string | null
+  teamMembers?: Prisma.UserUncheckedCreateNestedManyWithoutOwnerInput
   createdBookings?: Prisma.BookingUncheckedCreateNestedManyWithoutCreatedByInput
   updatedBookings?: Prisma.BookingUncheckedCreateNestedManyWithoutUpdatedByInput
   createdInvoices?: Prisma.InvoiceUncheckedCreateNestedManyWithoutCreatedByInput
   createdPayments?: Prisma.PaymentUncheckedCreateNestedManyWithoutCreatedByInput
+  ownedHalls?: Prisma.HallUncheckedCreateNestedManyWithoutOwnerInput
+  ownedBookings?: Prisma.BookingUncheckedCreateNestedManyWithoutOwnerInput
+  ownedCustomers?: Prisma.CustomerUncheckedCreateNestedManyWithoutOwnerInput
+  ownedInvoices?: Prisma.InvoiceUncheckedCreateNestedManyWithoutOwnerInput
+  ownedPayments?: Prisma.PaymentUncheckedCreateNestedManyWithoutOwnerInput
+  ownedSettings?: Prisma.SettingsUncheckedCreateNestedOneWithoutOwnerInput
 }
 
 export type UserCreateOrConnectWithoutCreatedCustomersInput = {
   where: Prisma.UserWhereUniqueInput
   create: Prisma.XOR<Prisma.UserCreateWithoutCreatedCustomersInput, Prisma.UserUncheckedCreateWithoutCreatedCustomersInput>
+}
+
+export type UserUpsertWithoutOwnedCustomersInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutOwnedCustomersInput, Prisma.UserUncheckedUpdateWithoutOwnedCustomersInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutOwnedCustomersInput, Prisma.UserUncheckedCreateWithoutOwnedCustomersInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutOwnedCustomersInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutOwnedCustomersInput, Prisma.UserUncheckedUpdateWithoutOwnedCustomersInput>
+}
+
+export type UserUpdateWithoutOwnedCustomersInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  username?: Prisma.StringFieldUpdateOperationsInput | string
+  password?: Prisma.StringFieldUpdateOperationsInput | string
+  nameAr?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  role?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  commercialRegNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  vatRegNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  lastLogin?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  owner?: Prisma.UserUpdateOneWithoutTeamMembersNestedInput
+  teamMembers?: Prisma.UserUpdateManyWithoutOwnerNestedInput
+  createdBookings?: Prisma.BookingUpdateManyWithoutCreatedByNestedInput
+  updatedBookings?: Prisma.BookingUpdateManyWithoutUpdatedByNestedInput
+  createdCustomers?: Prisma.CustomerUpdateManyWithoutCreatedByNestedInput
+  createdInvoices?: Prisma.InvoiceUpdateManyWithoutCreatedByNestedInput
+  createdPayments?: Prisma.PaymentUpdateManyWithoutCreatedByNestedInput
+  ownedHalls?: Prisma.HallUpdateManyWithoutOwnerNestedInput
+  ownedBookings?: Prisma.BookingUpdateManyWithoutOwnerNestedInput
+  ownedInvoices?: Prisma.InvoiceUpdateManyWithoutOwnerNestedInput
+  ownedPayments?: Prisma.PaymentUpdateManyWithoutOwnerNestedInput
+  ownedSettings?: Prisma.SettingsUpdateOneWithoutOwnerNestedInput
+}
+
+export type UserUncheckedUpdateWithoutOwnedCustomersInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  username?: Prisma.StringFieldUpdateOperationsInput | string
+  password?: Prisma.StringFieldUpdateOperationsInput | string
+  nameAr?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  role?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  ownerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  commercialRegNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  vatRegNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  lastLogin?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  teamMembers?: Prisma.UserUncheckedUpdateManyWithoutOwnerNestedInput
+  createdBookings?: Prisma.BookingUncheckedUpdateManyWithoutCreatedByNestedInput
+  updatedBookings?: Prisma.BookingUncheckedUpdateManyWithoutUpdatedByNestedInput
+  createdCustomers?: Prisma.CustomerUncheckedUpdateManyWithoutCreatedByNestedInput
+  createdInvoices?: Prisma.InvoiceUncheckedUpdateManyWithoutCreatedByNestedInput
+  createdPayments?: Prisma.PaymentUncheckedUpdateManyWithoutCreatedByNestedInput
+  ownedHalls?: Prisma.HallUncheckedUpdateManyWithoutOwnerNestedInput
+  ownedBookings?: Prisma.BookingUncheckedUpdateManyWithoutOwnerNestedInput
+  ownedInvoices?: Prisma.InvoiceUncheckedUpdateManyWithoutOwnerNestedInput
+  ownedPayments?: Prisma.PaymentUncheckedUpdateManyWithoutOwnerNestedInput
+  ownedSettings?: Prisma.SettingsUncheckedUpdateOneWithoutOwnerNestedInput
 }
 
 export type UserUpsertWithoutCreatedCustomersInput = {
@@ -631,13 +1278,23 @@ export type UserUpdateWithoutCreatedCustomersInput = {
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   role?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
+  commercialRegNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  vatRegNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   lastLogin?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  owner?: Prisma.UserUpdateOneWithoutTeamMembersNestedInput
+  teamMembers?: Prisma.UserUpdateManyWithoutOwnerNestedInput
   createdBookings?: Prisma.BookingUpdateManyWithoutCreatedByNestedInput
   updatedBookings?: Prisma.BookingUpdateManyWithoutUpdatedByNestedInput
   createdInvoices?: Prisma.InvoiceUpdateManyWithoutCreatedByNestedInput
   createdPayments?: Prisma.PaymentUpdateManyWithoutCreatedByNestedInput
+  ownedHalls?: Prisma.HallUpdateManyWithoutOwnerNestedInput
+  ownedBookings?: Prisma.BookingUpdateManyWithoutOwnerNestedInput
+  ownedCustomers?: Prisma.CustomerUpdateManyWithoutOwnerNestedInput
+  ownedInvoices?: Prisma.InvoiceUpdateManyWithoutOwnerNestedInput
+  ownedPayments?: Prisma.PaymentUpdateManyWithoutOwnerNestedInput
+  ownedSettings?: Prisma.SettingsUpdateOneWithoutOwnerNestedInput
 }
 
 export type UserUncheckedUpdateWithoutCreatedCustomersInput = {
@@ -649,13 +1306,212 @@ export type UserUncheckedUpdateWithoutCreatedCustomersInput = {
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   role?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
+  ownerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  commercialRegNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  vatRegNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   lastLogin?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  teamMembers?: Prisma.UserUncheckedUpdateManyWithoutOwnerNestedInput
   createdBookings?: Prisma.BookingUncheckedUpdateManyWithoutCreatedByNestedInput
   updatedBookings?: Prisma.BookingUncheckedUpdateManyWithoutUpdatedByNestedInput
   createdInvoices?: Prisma.InvoiceUncheckedUpdateManyWithoutCreatedByNestedInput
   createdPayments?: Prisma.PaymentUncheckedUpdateManyWithoutCreatedByNestedInput
+  ownedHalls?: Prisma.HallUncheckedUpdateManyWithoutOwnerNestedInput
+  ownedBookings?: Prisma.BookingUncheckedUpdateManyWithoutOwnerNestedInput
+  ownedCustomers?: Prisma.CustomerUncheckedUpdateManyWithoutOwnerNestedInput
+  ownedInvoices?: Prisma.InvoiceUncheckedUpdateManyWithoutOwnerNestedInput
+  ownedPayments?: Prisma.PaymentUncheckedUpdateManyWithoutOwnerNestedInput
+  ownedSettings?: Prisma.SettingsUncheckedUpdateOneWithoutOwnerNestedInput
+}
+
+export type UserCreateWithoutOwnedHallsInput = {
+  id?: string
+  username: string
+  password: string
+  nameAr: string
+  email?: string | null
+  phone?: string | null
+  role: string
+  status?: string
+  commercialRegNo?: string | null
+  vatRegNo?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  lastLogin?: Date | string | null
+  owner?: Prisma.UserCreateNestedOneWithoutTeamMembersInput
+  teamMembers?: Prisma.UserCreateNestedManyWithoutOwnerInput
+  createdBookings?: Prisma.BookingCreateNestedManyWithoutCreatedByInput
+  updatedBookings?: Prisma.BookingCreateNestedManyWithoutUpdatedByInput
+  createdCustomers?: Prisma.CustomerCreateNestedManyWithoutCreatedByInput
+  createdInvoices?: Prisma.InvoiceCreateNestedManyWithoutCreatedByInput
+  createdPayments?: Prisma.PaymentCreateNestedManyWithoutCreatedByInput
+  ownedBookings?: Prisma.BookingCreateNestedManyWithoutOwnerInput
+  ownedCustomers?: Prisma.CustomerCreateNestedManyWithoutOwnerInput
+  ownedInvoices?: Prisma.InvoiceCreateNestedManyWithoutOwnerInput
+  ownedPayments?: Prisma.PaymentCreateNestedManyWithoutOwnerInput
+  ownedSettings?: Prisma.SettingsCreateNestedOneWithoutOwnerInput
+}
+
+export type UserUncheckedCreateWithoutOwnedHallsInput = {
+  id?: string
+  username: string
+  password: string
+  nameAr: string
+  email?: string | null
+  phone?: string | null
+  role: string
+  status?: string
+  ownerId?: string | null
+  commercialRegNo?: string | null
+  vatRegNo?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  lastLogin?: Date | string | null
+  teamMembers?: Prisma.UserUncheckedCreateNestedManyWithoutOwnerInput
+  createdBookings?: Prisma.BookingUncheckedCreateNestedManyWithoutCreatedByInput
+  updatedBookings?: Prisma.BookingUncheckedCreateNestedManyWithoutUpdatedByInput
+  createdCustomers?: Prisma.CustomerUncheckedCreateNestedManyWithoutCreatedByInput
+  createdInvoices?: Prisma.InvoiceUncheckedCreateNestedManyWithoutCreatedByInput
+  createdPayments?: Prisma.PaymentUncheckedCreateNestedManyWithoutCreatedByInput
+  ownedBookings?: Prisma.BookingUncheckedCreateNestedManyWithoutOwnerInput
+  ownedCustomers?: Prisma.CustomerUncheckedCreateNestedManyWithoutOwnerInput
+  ownedInvoices?: Prisma.InvoiceUncheckedCreateNestedManyWithoutOwnerInput
+  ownedPayments?: Prisma.PaymentUncheckedCreateNestedManyWithoutOwnerInput
+  ownedSettings?: Prisma.SettingsUncheckedCreateNestedOneWithoutOwnerInput
+}
+
+export type UserCreateOrConnectWithoutOwnedHallsInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutOwnedHallsInput, Prisma.UserUncheckedCreateWithoutOwnedHallsInput>
+}
+
+export type UserUpsertWithoutOwnedHallsInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutOwnedHallsInput, Prisma.UserUncheckedUpdateWithoutOwnedHallsInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutOwnedHallsInput, Prisma.UserUncheckedCreateWithoutOwnedHallsInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutOwnedHallsInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutOwnedHallsInput, Prisma.UserUncheckedUpdateWithoutOwnedHallsInput>
+}
+
+export type UserUpdateWithoutOwnedHallsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  username?: Prisma.StringFieldUpdateOperationsInput | string
+  password?: Prisma.StringFieldUpdateOperationsInput | string
+  nameAr?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  role?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  commercialRegNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  vatRegNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  lastLogin?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  owner?: Prisma.UserUpdateOneWithoutTeamMembersNestedInput
+  teamMembers?: Prisma.UserUpdateManyWithoutOwnerNestedInput
+  createdBookings?: Prisma.BookingUpdateManyWithoutCreatedByNestedInput
+  updatedBookings?: Prisma.BookingUpdateManyWithoutUpdatedByNestedInput
+  createdCustomers?: Prisma.CustomerUpdateManyWithoutCreatedByNestedInput
+  createdInvoices?: Prisma.InvoiceUpdateManyWithoutCreatedByNestedInput
+  createdPayments?: Prisma.PaymentUpdateManyWithoutCreatedByNestedInput
+  ownedBookings?: Prisma.BookingUpdateManyWithoutOwnerNestedInput
+  ownedCustomers?: Prisma.CustomerUpdateManyWithoutOwnerNestedInput
+  ownedInvoices?: Prisma.InvoiceUpdateManyWithoutOwnerNestedInput
+  ownedPayments?: Prisma.PaymentUpdateManyWithoutOwnerNestedInput
+  ownedSettings?: Prisma.SettingsUpdateOneWithoutOwnerNestedInput
+}
+
+export type UserUncheckedUpdateWithoutOwnedHallsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  username?: Prisma.StringFieldUpdateOperationsInput | string
+  password?: Prisma.StringFieldUpdateOperationsInput | string
+  nameAr?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  role?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  ownerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  commercialRegNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  vatRegNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  lastLogin?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  teamMembers?: Prisma.UserUncheckedUpdateManyWithoutOwnerNestedInput
+  createdBookings?: Prisma.BookingUncheckedUpdateManyWithoutCreatedByNestedInput
+  updatedBookings?: Prisma.BookingUncheckedUpdateManyWithoutUpdatedByNestedInput
+  createdCustomers?: Prisma.CustomerUncheckedUpdateManyWithoutCreatedByNestedInput
+  createdInvoices?: Prisma.InvoiceUncheckedUpdateManyWithoutCreatedByNestedInput
+  createdPayments?: Prisma.PaymentUncheckedUpdateManyWithoutCreatedByNestedInput
+  ownedBookings?: Prisma.BookingUncheckedUpdateManyWithoutOwnerNestedInput
+  ownedCustomers?: Prisma.CustomerUncheckedUpdateManyWithoutOwnerNestedInput
+  ownedInvoices?: Prisma.InvoiceUncheckedUpdateManyWithoutOwnerNestedInput
+  ownedPayments?: Prisma.PaymentUncheckedUpdateManyWithoutOwnerNestedInput
+  ownedSettings?: Prisma.SettingsUncheckedUpdateOneWithoutOwnerNestedInput
+}
+
+export type UserCreateWithoutOwnedBookingsInput = {
+  id?: string
+  username: string
+  password: string
+  nameAr: string
+  email?: string | null
+  phone?: string | null
+  role: string
+  status?: string
+  commercialRegNo?: string | null
+  vatRegNo?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  lastLogin?: Date | string | null
+  owner?: Prisma.UserCreateNestedOneWithoutTeamMembersInput
+  teamMembers?: Prisma.UserCreateNestedManyWithoutOwnerInput
+  createdBookings?: Prisma.BookingCreateNestedManyWithoutCreatedByInput
+  updatedBookings?: Prisma.BookingCreateNestedManyWithoutUpdatedByInput
+  createdCustomers?: Prisma.CustomerCreateNestedManyWithoutCreatedByInput
+  createdInvoices?: Prisma.InvoiceCreateNestedManyWithoutCreatedByInput
+  createdPayments?: Prisma.PaymentCreateNestedManyWithoutCreatedByInput
+  ownedHalls?: Prisma.HallCreateNestedManyWithoutOwnerInput
+  ownedCustomers?: Prisma.CustomerCreateNestedManyWithoutOwnerInput
+  ownedInvoices?: Prisma.InvoiceCreateNestedManyWithoutOwnerInput
+  ownedPayments?: Prisma.PaymentCreateNestedManyWithoutOwnerInput
+  ownedSettings?: Prisma.SettingsCreateNestedOneWithoutOwnerInput
+}
+
+export type UserUncheckedCreateWithoutOwnedBookingsInput = {
+  id?: string
+  username: string
+  password: string
+  nameAr: string
+  email?: string | null
+  phone?: string | null
+  role: string
+  status?: string
+  ownerId?: string | null
+  commercialRegNo?: string | null
+  vatRegNo?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  lastLogin?: Date | string | null
+  teamMembers?: Prisma.UserUncheckedCreateNestedManyWithoutOwnerInput
+  createdBookings?: Prisma.BookingUncheckedCreateNestedManyWithoutCreatedByInput
+  updatedBookings?: Prisma.BookingUncheckedCreateNestedManyWithoutUpdatedByInput
+  createdCustomers?: Prisma.CustomerUncheckedCreateNestedManyWithoutCreatedByInput
+  createdInvoices?: Prisma.InvoiceUncheckedCreateNestedManyWithoutCreatedByInput
+  createdPayments?: Prisma.PaymentUncheckedCreateNestedManyWithoutCreatedByInput
+  ownedHalls?: Prisma.HallUncheckedCreateNestedManyWithoutOwnerInput
+  ownedCustomers?: Prisma.CustomerUncheckedCreateNestedManyWithoutOwnerInput
+  ownedInvoices?: Prisma.InvoiceUncheckedCreateNestedManyWithoutOwnerInput
+  ownedPayments?: Prisma.PaymentUncheckedCreateNestedManyWithoutOwnerInput
+  ownedSettings?: Prisma.SettingsUncheckedCreateNestedOneWithoutOwnerInput
+}
+
+export type UserCreateOrConnectWithoutOwnedBookingsInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutOwnedBookingsInput, Prisma.UserUncheckedCreateWithoutOwnedBookingsInput>
 }
 
 export type UserCreateWithoutCreatedBookingsInput = {
@@ -667,13 +1523,23 @@ export type UserCreateWithoutCreatedBookingsInput = {
   phone?: string | null
   role: string
   status?: string
+  commercialRegNo?: string | null
+  vatRegNo?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   lastLogin?: Date | string | null
+  owner?: Prisma.UserCreateNestedOneWithoutTeamMembersInput
+  teamMembers?: Prisma.UserCreateNestedManyWithoutOwnerInput
   updatedBookings?: Prisma.BookingCreateNestedManyWithoutUpdatedByInput
   createdCustomers?: Prisma.CustomerCreateNestedManyWithoutCreatedByInput
   createdInvoices?: Prisma.InvoiceCreateNestedManyWithoutCreatedByInput
   createdPayments?: Prisma.PaymentCreateNestedManyWithoutCreatedByInput
+  ownedHalls?: Prisma.HallCreateNestedManyWithoutOwnerInput
+  ownedBookings?: Prisma.BookingCreateNestedManyWithoutOwnerInput
+  ownedCustomers?: Prisma.CustomerCreateNestedManyWithoutOwnerInput
+  ownedInvoices?: Prisma.InvoiceCreateNestedManyWithoutOwnerInput
+  ownedPayments?: Prisma.PaymentCreateNestedManyWithoutOwnerInput
+  ownedSettings?: Prisma.SettingsCreateNestedOneWithoutOwnerInput
 }
 
 export type UserUncheckedCreateWithoutCreatedBookingsInput = {
@@ -685,13 +1551,23 @@ export type UserUncheckedCreateWithoutCreatedBookingsInput = {
   phone?: string | null
   role: string
   status?: string
+  ownerId?: string | null
+  commercialRegNo?: string | null
+  vatRegNo?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   lastLogin?: Date | string | null
+  teamMembers?: Prisma.UserUncheckedCreateNestedManyWithoutOwnerInput
   updatedBookings?: Prisma.BookingUncheckedCreateNestedManyWithoutUpdatedByInput
   createdCustomers?: Prisma.CustomerUncheckedCreateNestedManyWithoutCreatedByInput
   createdInvoices?: Prisma.InvoiceUncheckedCreateNestedManyWithoutCreatedByInput
   createdPayments?: Prisma.PaymentUncheckedCreateNestedManyWithoutCreatedByInput
+  ownedHalls?: Prisma.HallUncheckedCreateNestedManyWithoutOwnerInput
+  ownedBookings?: Prisma.BookingUncheckedCreateNestedManyWithoutOwnerInput
+  ownedCustomers?: Prisma.CustomerUncheckedCreateNestedManyWithoutOwnerInput
+  ownedInvoices?: Prisma.InvoiceUncheckedCreateNestedManyWithoutOwnerInput
+  ownedPayments?: Prisma.PaymentUncheckedCreateNestedManyWithoutOwnerInput
+  ownedSettings?: Prisma.SettingsUncheckedCreateNestedOneWithoutOwnerInput
 }
 
 export type UserCreateOrConnectWithoutCreatedBookingsInput = {
@@ -708,13 +1584,23 @@ export type UserCreateWithoutUpdatedBookingsInput = {
   phone?: string | null
   role: string
   status?: string
+  commercialRegNo?: string | null
+  vatRegNo?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   lastLogin?: Date | string | null
+  owner?: Prisma.UserCreateNestedOneWithoutTeamMembersInput
+  teamMembers?: Prisma.UserCreateNestedManyWithoutOwnerInput
   createdBookings?: Prisma.BookingCreateNestedManyWithoutCreatedByInput
   createdCustomers?: Prisma.CustomerCreateNestedManyWithoutCreatedByInput
   createdInvoices?: Prisma.InvoiceCreateNestedManyWithoutCreatedByInput
   createdPayments?: Prisma.PaymentCreateNestedManyWithoutCreatedByInput
+  ownedHalls?: Prisma.HallCreateNestedManyWithoutOwnerInput
+  ownedBookings?: Prisma.BookingCreateNestedManyWithoutOwnerInput
+  ownedCustomers?: Prisma.CustomerCreateNestedManyWithoutOwnerInput
+  ownedInvoices?: Prisma.InvoiceCreateNestedManyWithoutOwnerInput
+  ownedPayments?: Prisma.PaymentCreateNestedManyWithoutOwnerInput
+  ownedSettings?: Prisma.SettingsCreateNestedOneWithoutOwnerInput
 }
 
 export type UserUncheckedCreateWithoutUpdatedBookingsInput = {
@@ -726,18 +1612,95 @@ export type UserUncheckedCreateWithoutUpdatedBookingsInput = {
   phone?: string | null
   role: string
   status?: string
+  ownerId?: string | null
+  commercialRegNo?: string | null
+  vatRegNo?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   lastLogin?: Date | string | null
+  teamMembers?: Prisma.UserUncheckedCreateNestedManyWithoutOwnerInput
   createdBookings?: Prisma.BookingUncheckedCreateNestedManyWithoutCreatedByInput
   createdCustomers?: Prisma.CustomerUncheckedCreateNestedManyWithoutCreatedByInput
   createdInvoices?: Prisma.InvoiceUncheckedCreateNestedManyWithoutCreatedByInput
   createdPayments?: Prisma.PaymentUncheckedCreateNestedManyWithoutCreatedByInput
+  ownedHalls?: Prisma.HallUncheckedCreateNestedManyWithoutOwnerInput
+  ownedBookings?: Prisma.BookingUncheckedCreateNestedManyWithoutOwnerInput
+  ownedCustomers?: Prisma.CustomerUncheckedCreateNestedManyWithoutOwnerInput
+  ownedInvoices?: Prisma.InvoiceUncheckedCreateNestedManyWithoutOwnerInput
+  ownedPayments?: Prisma.PaymentUncheckedCreateNestedManyWithoutOwnerInput
+  ownedSettings?: Prisma.SettingsUncheckedCreateNestedOneWithoutOwnerInput
 }
 
 export type UserCreateOrConnectWithoutUpdatedBookingsInput = {
   where: Prisma.UserWhereUniqueInput
   create: Prisma.XOR<Prisma.UserCreateWithoutUpdatedBookingsInput, Prisma.UserUncheckedCreateWithoutUpdatedBookingsInput>
+}
+
+export type UserUpsertWithoutOwnedBookingsInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutOwnedBookingsInput, Prisma.UserUncheckedUpdateWithoutOwnedBookingsInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutOwnedBookingsInput, Prisma.UserUncheckedCreateWithoutOwnedBookingsInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutOwnedBookingsInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutOwnedBookingsInput, Prisma.UserUncheckedUpdateWithoutOwnedBookingsInput>
+}
+
+export type UserUpdateWithoutOwnedBookingsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  username?: Prisma.StringFieldUpdateOperationsInput | string
+  password?: Prisma.StringFieldUpdateOperationsInput | string
+  nameAr?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  role?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  commercialRegNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  vatRegNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  lastLogin?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  owner?: Prisma.UserUpdateOneWithoutTeamMembersNestedInput
+  teamMembers?: Prisma.UserUpdateManyWithoutOwnerNestedInput
+  createdBookings?: Prisma.BookingUpdateManyWithoutCreatedByNestedInput
+  updatedBookings?: Prisma.BookingUpdateManyWithoutUpdatedByNestedInput
+  createdCustomers?: Prisma.CustomerUpdateManyWithoutCreatedByNestedInput
+  createdInvoices?: Prisma.InvoiceUpdateManyWithoutCreatedByNestedInput
+  createdPayments?: Prisma.PaymentUpdateManyWithoutCreatedByNestedInput
+  ownedHalls?: Prisma.HallUpdateManyWithoutOwnerNestedInput
+  ownedCustomers?: Prisma.CustomerUpdateManyWithoutOwnerNestedInput
+  ownedInvoices?: Prisma.InvoiceUpdateManyWithoutOwnerNestedInput
+  ownedPayments?: Prisma.PaymentUpdateManyWithoutOwnerNestedInput
+  ownedSettings?: Prisma.SettingsUpdateOneWithoutOwnerNestedInput
+}
+
+export type UserUncheckedUpdateWithoutOwnedBookingsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  username?: Prisma.StringFieldUpdateOperationsInput | string
+  password?: Prisma.StringFieldUpdateOperationsInput | string
+  nameAr?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  role?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  ownerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  commercialRegNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  vatRegNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  lastLogin?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  teamMembers?: Prisma.UserUncheckedUpdateManyWithoutOwnerNestedInput
+  createdBookings?: Prisma.BookingUncheckedUpdateManyWithoutCreatedByNestedInput
+  updatedBookings?: Prisma.BookingUncheckedUpdateManyWithoutUpdatedByNestedInput
+  createdCustomers?: Prisma.CustomerUncheckedUpdateManyWithoutCreatedByNestedInput
+  createdInvoices?: Prisma.InvoiceUncheckedUpdateManyWithoutCreatedByNestedInput
+  createdPayments?: Prisma.PaymentUncheckedUpdateManyWithoutCreatedByNestedInput
+  ownedHalls?: Prisma.HallUncheckedUpdateManyWithoutOwnerNestedInput
+  ownedCustomers?: Prisma.CustomerUncheckedUpdateManyWithoutOwnerNestedInput
+  ownedInvoices?: Prisma.InvoiceUncheckedUpdateManyWithoutOwnerNestedInput
+  ownedPayments?: Prisma.PaymentUncheckedUpdateManyWithoutOwnerNestedInput
+  ownedSettings?: Prisma.SettingsUncheckedUpdateOneWithoutOwnerNestedInput
 }
 
 export type UserUpsertWithoutCreatedBookingsInput = {
@@ -760,13 +1723,23 @@ export type UserUpdateWithoutCreatedBookingsInput = {
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   role?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
+  commercialRegNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  vatRegNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   lastLogin?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  owner?: Prisma.UserUpdateOneWithoutTeamMembersNestedInput
+  teamMembers?: Prisma.UserUpdateManyWithoutOwnerNestedInput
   updatedBookings?: Prisma.BookingUpdateManyWithoutUpdatedByNestedInput
   createdCustomers?: Prisma.CustomerUpdateManyWithoutCreatedByNestedInput
   createdInvoices?: Prisma.InvoiceUpdateManyWithoutCreatedByNestedInput
   createdPayments?: Prisma.PaymentUpdateManyWithoutCreatedByNestedInput
+  ownedHalls?: Prisma.HallUpdateManyWithoutOwnerNestedInput
+  ownedBookings?: Prisma.BookingUpdateManyWithoutOwnerNestedInput
+  ownedCustomers?: Prisma.CustomerUpdateManyWithoutOwnerNestedInput
+  ownedInvoices?: Prisma.InvoiceUpdateManyWithoutOwnerNestedInput
+  ownedPayments?: Prisma.PaymentUpdateManyWithoutOwnerNestedInput
+  ownedSettings?: Prisma.SettingsUpdateOneWithoutOwnerNestedInput
 }
 
 export type UserUncheckedUpdateWithoutCreatedBookingsInput = {
@@ -778,13 +1751,23 @@ export type UserUncheckedUpdateWithoutCreatedBookingsInput = {
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   role?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
+  ownerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  commercialRegNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  vatRegNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   lastLogin?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  teamMembers?: Prisma.UserUncheckedUpdateManyWithoutOwnerNestedInput
   updatedBookings?: Prisma.BookingUncheckedUpdateManyWithoutUpdatedByNestedInput
   createdCustomers?: Prisma.CustomerUncheckedUpdateManyWithoutCreatedByNestedInput
   createdInvoices?: Prisma.InvoiceUncheckedUpdateManyWithoutCreatedByNestedInput
   createdPayments?: Prisma.PaymentUncheckedUpdateManyWithoutCreatedByNestedInput
+  ownedHalls?: Prisma.HallUncheckedUpdateManyWithoutOwnerNestedInput
+  ownedBookings?: Prisma.BookingUncheckedUpdateManyWithoutOwnerNestedInput
+  ownedCustomers?: Prisma.CustomerUncheckedUpdateManyWithoutOwnerNestedInput
+  ownedInvoices?: Prisma.InvoiceUncheckedUpdateManyWithoutOwnerNestedInput
+  ownedPayments?: Prisma.PaymentUncheckedUpdateManyWithoutOwnerNestedInput
+  ownedSettings?: Prisma.SettingsUncheckedUpdateOneWithoutOwnerNestedInput
 }
 
 export type UserUpsertWithoutUpdatedBookingsInput = {
@@ -807,13 +1790,23 @@ export type UserUpdateWithoutUpdatedBookingsInput = {
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   role?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
+  commercialRegNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  vatRegNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   lastLogin?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  owner?: Prisma.UserUpdateOneWithoutTeamMembersNestedInput
+  teamMembers?: Prisma.UserUpdateManyWithoutOwnerNestedInput
   createdBookings?: Prisma.BookingUpdateManyWithoutCreatedByNestedInput
   createdCustomers?: Prisma.CustomerUpdateManyWithoutCreatedByNestedInput
   createdInvoices?: Prisma.InvoiceUpdateManyWithoutCreatedByNestedInput
   createdPayments?: Prisma.PaymentUpdateManyWithoutCreatedByNestedInput
+  ownedHalls?: Prisma.HallUpdateManyWithoutOwnerNestedInput
+  ownedBookings?: Prisma.BookingUpdateManyWithoutOwnerNestedInput
+  ownedCustomers?: Prisma.CustomerUpdateManyWithoutOwnerNestedInput
+  ownedInvoices?: Prisma.InvoiceUpdateManyWithoutOwnerNestedInput
+  ownedPayments?: Prisma.PaymentUpdateManyWithoutOwnerNestedInput
+  ownedSettings?: Prisma.SettingsUpdateOneWithoutOwnerNestedInput
 }
 
 export type UserUncheckedUpdateWithoutUpdatedBookingsInput = {
@@ -825,13 +1818,84 @@ export type UserUncheckedUpdateWithoutUpdatedBookingsInput = {
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   role?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
+  ownerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  commercialRegNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  vatRegNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   lastLogin?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  teamMembers?: Prisma.UserUncheckedUpdateManyWithoutOwnerNestedInput
   createdBookings?: Prisma.BookingUncheckedUpdateManyWithoutCreatedByNestedInput
   createdCustomers?: Prisma.CustomerUncheckedUpdateManyWithoutCreatedByNestedInput
   createdInvoices?: Prisma.InvoiceUncheckedUpdateManyWithoutCreatedByNestedInput
   createdPayments?: Prisma.PaymentUncheckedUpdateManyWithoutCreatedByNestedInput
+  ownedHalls?: Prisma.HallUncheckedUpdateManyWithoutOwnerNestedInput
+  ownedBookings?: Prisma.BookingUncheckedUpdateManyWithoutOwnerNestedInput
+  ownedCustomers?: Prisma.CustomerUncheckedUpdateManyWithoutOwnerNestedInput
+  ownedInvoices?: Prisma.InvoiceUncheckedUpdateManyWithoutOwnerNestedInput
+  ownedPayments?: Prisma.PaymentUncheckedUpdateManyWithoutOwnerNestedInput
+  ownedSettings?: Prisma.SettingsUncheckedUpdateOneWithoutOwnerNestedInput
+}
+
+export type UserCreateWithoutOwnedInvoicesInput = {
+  id?: string
+  username: string
+  password: string
+  nameAr: string
+  email?: string | null
+  phone?: string | null
+  role: string
+  status?: string
+  commercialRegNo?: string | null
+  vatRegNo?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  lastLogin?: Date | string | null
+  owner?: Prisma.UserCreateNestedOneWithoutTeamMembersInput
+  teamMembers?: Prisma.UserCreateNestedManyWithoutOwnerInput
+  createdBookings?: Prisma.BookingCreateNestedManyWithoutCreatedByInput
+  updatedBookings?: Prisma.BookingCreateNestedManyWithoutUpdatedByInput
+  createdCustomers?: Prisma.CustomerCreateNestedManyWithoutCreatedByInput
+  createdInvoices?: Prisma.InvoiceCreateNestedManyWithoutCreatedByInput
+  createdPayments?: Prisma.PaymentCreateNestedManyWithoutCreatedByInput
+  ownedHalls?: Prisma.HallCreateNestedManyWithoutOwnerInput
+  ownedBookings?: Prisma.BookingCreateNestedManyWithoutOwnerInput
+  ownedCustomers?: Prisma.CustomerCreateNestedManyWithoutOwnerInput
+  ownedPayments?: Prisma.PaymentCreateNestedManyWithoutOwnerInput
+  ownedSettings?: Prisma.SettingsCreateNestedOneWithoutOwnerInput
+}
+
+export type UserUncheckedCreateWithoutOwnedInvoicesInput = {
+  id?: string
+  username: string
+  password: string
+  nameAr: string
+  email?: string | null
+  phone?: string | null
+  role: string
+  status?: string
+  ownerId?: string | null
+  commercialRegNo?: string | null
+  vatRegNo?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  lastLogin?: Date | string | null
+  teamMembers?: Prisma.UserUncheckedCreateNestedManyWithoutOwnerInput
+  createdBookings?: Prisma.BookingUncheckedCreateNestedManyWithoutCreatedByInput
+  updatedBookings?: Prisma.BookingUncheckedCreateNestedManyWithoutUpdatedByInput
+  createdCustomers?: Prisma.CustomerUncheckedCreateNestedManyWithoutCreatedByInput
+  createdInvoices?: Prisma.InvoiceUncheckedCreateNestedManyWithoutCreatedByInput
+  createdPayments?: Prisma.PaymentUncheckedCreateNestedManyWithoutCreatedByInput
+  ownedHalls?: Prisma.HallUncheckedCreateNestedManyWithoutOwnerInput
+  ownedBookings?: Prisma.BookingUncheckedCreateNestedManyWithoutOwnerInput
+  ownedCustomers?: Prisma.CustomerUncheckedCreateNestedManyWithoutOwnerInput
+  ownedPayments?: Prisma.PaymentUncheckedCreateNestedManyWithoutOwnerInput
+  ownedSettings?: Prisma.SettingsUncheckedCreateNestedOneWithoutOwnerInput
+}
+
+export type UserCreateOrConnectWithoutOwnedInvoicesInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutOwnedInvoicesInput, Prisma.UserUncheckedCreateWithoutOwnedInvoicesInput>
 }
 
 export type UserCreateWithoutCreatedInvoicesInput = {
@@ -843,13 +1907,23 @@ export type UserCreateWithoutCreatedInvoicesInput = {
   phone?: string | null
   role: string
   status?: string
+  commercialRegNo?: string | null
+  vatRegNo?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   lastLogin?: Date | string | null
+  owner?: Prisma.UserCreateNestedOneWithoutTeamMembersInput
+  teamMembers?: Prisma.UserCreateNestedManyWithoutOwnerInput
   createdBookings?: Prisma.BookingCreateNestedManyWithoutCreatedByInput
   updatedBookings?: Prisma.BookingCreateNestedManyWithoutUpdatedByInput
   createdCustomers?: Prisma.CustomerCreateNestedManyWithoutCreatedByInput
   createdPayments?: Prisma.PaymentCreateNestedManyWithoutCreatedByInput
+  ownedHalls?: Prisma.HallCreateNestedManyWithoutOwnerInput
+  ownedBookings?: Prisma.BookingCreateNestedManyWithoutOwnerInput
+  ownedCustomers?: Prisma.CustomerCreateNestedManyWithoutOwnerInput
+  ownedInvoices?: Prisma.InvoiceCreateNestedManyWithoutOwnerInput
+  ownedPayments?: Prisma.PaymentCreateNestedManyWithoutOwnerInput
+  ownedSettings?: Prisma.SettingsCreateNestedOneWithoutOwnerInput
 }
 
 export type UserUncheckedCreateWithoutCreatedInvoicesInput = {
@@ -861,18 +1935,95 @@ export type UserUncheckedCreateWithoutCreatedInvoicesInput = {
   phone?: string | null
   role: string
   status?: string
+  ownerId?: string | null
+  commercialRegNo?: string | null
+  vatRegNo?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   lastLogin?: Date | string | null
+  teamMembers?: Prisma.UserUncheckedCreateNestedManyWithoutOwnerInput
   createdBookings?: Prisma.BookingUncheckedCreateNestedManyWithoutCreatedByInput
   updatedBookings?: Prisma.BookingUncheckedCreateNestedManyWithoutUpdatedByInput
   createdCustomers?: Prisma.CustomerUncheckedCreateNestedManyWithoutCreatedByInput
   createdPayments?: Prisma.PaymentUncheckedCreateNestedManyWithoutCreatedByInput
+  ownedHalls?: Prisma.HallUncheckedCreateNestedManyWithoutOwnerInput
+  ownedBookings?: Prisma.BookingUncheckedCreateNestedManyWithoutOwnerInput
+  ownedCustomers?: Prisma.CustomerUncheckedCreateNestedManyWithoutOwnerInput
+  ownedInvoices?: Prisma.InvoiceUncheckedCreateNestedManyWithoutOwnerInput
+  ownedPayments?: Prisma.PaymentUncheckedCreateNestedManyWithoutOwnerInput
+  ownedSettings?: Prisma.SettingsUncheckedCreateNestedOneWithoutOwnerInput
 }
 
 export type UserCreateOrConnectWithoutCreatedInvoicesInput = {
   where: Prisma.UserWhereUniqueInput
   create: Prisma.XOR<Prisma.UserCreateWithoutCreatedInvoicesInput, Prisma.UserUncheckedCreateWithoutCreatedInvoicesInput>
+}
+
+export type UserUpsertWithoutOwnedInvoicesInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutOwnedInvoicesInput, Prisma.UserUncheckedUpdateWithoutOwnedInvoicesInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutOwnedInvoicesInput, Prisma.UserUncheckedCreateWithoutOwnedInvoicesInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutOwnedInvoicesInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutOwnedInvoicesInput, Prisma.UserUncheckedUpdateWithoutOwnedInvoicesInput>
+}
+
+export type UserUpdateWithoutOwnedInvoicesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  username?: Prisma.StringFieldUpdateOperationsInput | string
+  password?: Prisma.StringFieldUpdateOperationsInput | string
+  nameAr?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  role?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  commercialRegNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  vatRegNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  lastLogin?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  owner?: Prisma.UserUpdateOneWithoutTeamMembersNestedInput
+  teamMembers?: Prisma.UserUpdateManyWithoutOwnerNestedInput
+  createdBookings?: Prisma.BookingUpdateManyWithoutCreatedByNestedInput
+  updatedBookings?: Prisma.BookingUpdateManyWithoutUpdatedByNestedInput
+  createdCustomers?: Prisma.CustomerUpdateManyWithoutCreatedByNestedInput
+  createdInvoices?: Prisma.InvoiceUpdateManyWithoutCreatedByNestedInput
+  createdPayments?: Prisma.PaymentUpdateManyWithoutCreatedByNestedInput
+  ownedHalls?: Prisma.HallUpdateManyWithoutOwnerNestedInput
+  ownedBookings?: Prisma.BookingUpdateManyWithoutOwnerNestedInput
+  ownedCustomers?: Prisma.CustomerUpdateManyWithoutOwnerNestedInput
+  ownedPayments?: Prisma.PaymentUpdateManyWithoutOwnerNestedInput
+  ownedSettings?: Prisma.SettingsUpdateOneWithoutOwnerNestedInput
+}
+
+export type UserUncheckedUpdateWithoutOwnedInvoicesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  username?: Prisma.StringFieldUpdateOperationsInput | string
+  password?: Prisma.StringFieldUpdateOperationsInput | string
+  nameAr?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  role?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  ownerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  commercialRegNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  vatRegNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  lastLogin?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  teamMembers?: Prisma.UserUncheckedUpdateManyWithoutOwnerNestedInput
+  createdBookings?: Prisma.BookingUncheckedUpdateManyWithoutCreatedByNestedInput
+  updatedBookings?: Prisma.BookingUncheckedUpdateManyWithoutUpdatedByNestedInput
+  createdCustomers?: Prisma.CustomerUncheckedUpdateManyWithoutCreatedByNestedInput
+  createdInvoices?: Prisma.InvoiceUncheckedUpdateManyWithoutCreatedByNestedInput
+  createdPayments?: Prisma.PaymentUncheckedUpdateManyWithoutCreatedByNestedInput
+  ownedHalls?: Prisma.HallUncheckedUpdateManyWithoutOwnerNestedInput
+  ownedBookings?: Prisma.BookingUncheckedUpdateManyWithoutOwnerNestedInput
+  ownedCustomers?: Prisma.CustomerUncheckedUpdateManyWithoutOwnerNestedInput
+  ownedPayments?: Prisma.PaymentUncheckedUpdateManyWithoutOwnerNestedInput
+  ownedSettings?: Prisma.SettingsUncheckedUpdateOneWithoutOwnerNestedInput
 }
 
 export type UserUpsertWithoutCreatedInvoicesInput = {
@@ -895,13 +2046,23 @@ export type UserUpdateWithoutCreatedInvoicesInput = {
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   role?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
+  commercialRegNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  vatRegNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   lastLogin?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  owner?: Prisma.UserUpdateOneWithoutTeamMembersNestedInput
+  teamMembers?: Prisma.UserUpdateManyWithoutOwnerNestedInput
   createdBookings?: Prisma.BookingUpdateManyWithoutCreatedByNestedInput
   updatedBookings?: Prisma.BookingUpdateManyWithoutUpdatedByNestedInput
   createdCustomers?: Prisma.CustomerUpdateManyWithoutCreatedByNestedInput
   createdPayments?: Prisma.PaymentUpdateManyWithoutCreatedByNestedInput
+  ownedHalls?: Prisma.HallUpdateManyWithoutOwnerNestedInput
+  ownedBookings?: Prisma.BookingUpdateManyWithoutOwnerNestedInput
+  ownedCustomers?: Prisma.CustomerUpdateManyWithoutOwnerNestedInput
+  ownedInvoices?: Prisma.InvoiceUpdateManyWithoutOwnerNestedInput
+  ownedPayments?: Prisma.PaymentUpdateManyWithoutOwnerNestedInput
+  ownedSettings?: Prisma.SettingsUpdateOneWithoutOwnerNestedInput
 }
 
 export type UserUncheckedUpdateWithoutCreatedInvoicesInput = {
@@ -913,13 +2074,84 @@ export type UserUncheckedUpdateWithoutCreatedInvoicesInput = {
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   role?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
+  ownerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  commercialRegNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  vatRegNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   lastLogin?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  teamMembers?: Prisma.UserUncheckedUpdateManyWithoutOwnerNestedInput
   createdBookings?: Prisma.BookingUncheckedUpdateManyWithoutCreatedByNestedInput
   updatedBookings?: Prisma.BookingUncheckedUpdateManyWithoutUpdatedByNestedInput
   createdCustomers?: Prisma.CustomerUncheckedUpdateManyWithoutCreatedByNestedInput
   createdPayments?: Prisma.PaymentUncheckedUpdateManyWithoutCreatedByNestedInput
+  ownedHalls?: Prisma.HallUncheckedUpdateManyWithoutOwnerNestedInput
+  ownedBookings?: Prisma.BookingUncheckedUpdateManyWithoutOwnerNestedInput
+  ownedCustomers?: Prisma.CustomerUncheckedUpdateManyWithoutOwnerNestedInput
+  ownedInvoices?: Prisma.InvoiceUncheckedUpdateManyWithoutOwnerNestedInput
+  ownedPayments?: Prisma.PaymentUncheckedUpdateManyWithoutOwnerNestedInput
+  ownedSettings?: Prisma.SettingsUncheckedUpdateOneWithoutOwnerNestedInput
+}
+
+export type UserCreateWithoutOwnedPaymentsInput = {
+  id?: string
+  username: string
+  password: string
+  nameAr: string
+  email?: string | null
+  phone?: string | null
+  role: string
+  status?: string
+  commercialRegNo?: string | null
+  vatRegNo?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  lastLogin?: Date | string | null
+  owner?: Prisma.UserCreateNestedOneWithoutTeamMembersInput
+  teamMembers?: Prisma.UserCreateNestedManyWithoutOwnerInput
+  createdBookings?: Prisma.BookingCreateNestedManyWithoutCreatedByInput
+  updatedBookings?: Prisma.BookingCreateNestedManyWithoutUpdatedByInput
+  createdCustomers?: Prisma.CustomerCreateNestedManyWithoutCreatedByInput
+  createdInvoices?: Prisma.InvoiceCreateNestedManyWithoutCreatedByInput
+  createdPayments?: Prisma.PaymentCreateNestedManyWithoutCreatedByInput
+  ownedHalls?: Prisma.HallCreateNestedManyWithoutOwnerInput
+  ownedBookings?: Prisma.BookingCreateNestedManyWithoutOwnerInput
+  ownedCustomers?: Prisma.CustomerCreateNestedManyWithoutOwnerInput
+  ownedInvoices?: Prisma.InvoiceCreateNestedManyWithoutOwnerInput
+  ownedSettings?: Prisma.SettingsCreateNestedOneWithoutOwnerInput
+}
+
+export type UserUncheckedCreateWithoutOwnedPaymentsInput = {
+  id?: string
+  username: string
+  password: string
+  nameAr: string
+  email?: string | null
+  phone?: string | null
+  role: string
+  status?: string
+  ownerId?: string | null
+  commercialRegNo?: string | null
+  vatRegNo?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  lastLogin?: Date | string | null
+  teamMembers?: Prisma.UserUncheckedCreateNestedManyWithoutOwnerInput
+  createdBookings?: Prisma.BookingUncheckedCreateNestedManyWithoutCreatedByInput
+  updatedBookings?: Prisma.BookingUncheckedCreateNestedManyWithoutUpdatedByInput
+  createdCustomers?: Prisma.CustomerUncheckedCreateNestedManyWithoutCreatedByInput
+  createdInvoices?: Prisma.InvoiceUncheckedCreateNestedManyWithoutCreatedByInput
+  createdPayments?: Prisma.PaymentUncheckedCreateNestedManyWithoutCreatedByInput
+  ownedHalls?: Prisma.HallUncheckedCreateNestedManyWithoutOwnerInput
+  ownedBookings?: Prisma.BookingUncheckedCreateNestedManyWithoutOwnerInput
+  ownedCustomers?: Prisma.CustomerUncheckedCreateNestedManyWithoutOwnerInput
+  ownedInvoices?: Prisma.InvoiceUncheckedCreateNestedManyWithoutOwnerInput
+  ownedSettings?: Prisma.SettingsUncheckedCreateNestedOneWithoutOwnerInput
+}
+
+export type UserCreateOrConnectWithoutOwnedPaymentsInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutOwnedPaymentsInput, Prisma.UserUncheckedCreateWithoutOwnedPaymentsInput>
 }
 
 export type UserCreateWithoutCreatedPaymentsInput = {
@@ -931,13 +2163,23 @@ export type UserCreateWithoutCreatedPaymentsInput = {
   phone?: string | null
   role: string
   status?: string
+  commercialRegNo?: string | null
+  vatRegNo?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   lastLogin?: Date | string | null
+  owner?: Prisma.UserCreateNestedOneWithoutTeamMembersInput
+  teamMembers?: Prisma.UserCreateNestedManyWithoutOwnerInput
   createdBookings?: Prisma.BookingCreateNestedManyWithoutCreatedByInput
   updatedBookings?: Prisma.BookingCreateNestedManyWithoutUpdatedByInput
   createdCustomers?: Prisma.CustomerCreateNestedManyWithoutCreatedByInput
   createdInvoices?: Prisma.InvoiceCreateNestedManyWithoutCreatedByInput
+  ownedHalls?: Prisma.HallCreateNestedManyWithoutOwnerInput
+  ownedBookings?: Prisma.BookingCreateNestedManyWithoutOwnerInput
+  ownedCustomers?: Prisma.CustomerCreateNestedManyWithoutOwnerInput
+  ownedInvoices?: Prisma.InvoiceCreateNestedManyWithoutOwnerInput
+  ownedPayments?: Prisma.PaymentCreateNestedManyWithoutOwnerInput
+  ownedSettings?: Prisma.SettingsCreateNestedOneWithoutOwnerInput
 }
 
 export type UserUncheckedCreateWithoutCreatedPaymentsInput = {
@@ -949,18 +2191,95 @@ export type UserUncheckedCreateWithoutCreatedPaymentsInput = {
   phone?: string | null
   role: string
   status?: string
+  ownerId?: string | null
+  commercialRegNo?: string | null
+  vatRegNo?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   lastLogin?: Date | string | null
+  teamMembers?: Prisma.UserUncheckedCreateNestedManyWithoutOwnerInput
   createdBookings?: Prisma.BookingUncheckedCreateNestedManyWithoutCreatedByInput
   updatedBookings?: Prisma.BookingUncheckedCreateNestedManyWithoutUpdatedByInput
   createdCustomers?: Prisma.CustomerUncheckedCreateNestedManyWithoutCreatedByInput
   createdInvoices?: Prisma.InvoiceUncheckedCreateNestedManyWithoutCreatedByInput
+  ownedHalls?: Prisma.HallUncheckedCreateNestedManyWithoutOwnerInput
+  ownedBookings?: Prisma.BookingUncheckedCreateNestedManyWithoutOwnerInput
+  ownedCustomers?: Prisma.CustomerUncheckedCreateNestedManyWithoutOwnerInput
+  ownedInvoices?: Prisma.InvoiceUncheckedCreateNestedManyWithoutOwnerInput
+  ownedPayments?: Prisma.PaymentUncheckedCreateNestedManyWithoutOwnerInput
+  ownedSettings?: Prisma.SettingsUncheckedCreateNestedOneWithoutOwnerInput
 }
 
 export type UserCreateOrConnectWithoutCreatedPaymentsInput = {
   where: Prisma.UserWhereUniqueInput
   create: Prisma.XOR<Prisma.UserCreateWithoutCreatedPaymentsInput, Prisma.UserUncheckedCreateWithoutCreatedPaymentsInput>
+}
+
+export type UserUpsertWithoutOwnedPaymentsInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutOwnedPaymentsInput, Prisma.UserUncheckedUpdateWithoutOwnedPaymentsInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutOwnedPaymentsInput, Prisma.UserUncheckedCreateWithoutOwnedPaymentsInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutOwnedPaymentsInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutOwnedPaymentsInput, Prisma.UserUncheckedUpdateWithoutOwnedPaymentsInput>
+}
+
+export type UserUpdateWithoutOwnedPaymentsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  username?: Prisma.StringFieldUpdateOperationsInput | string
+  password?: Prisma.StringFieldUpdateOperationsInput | string
+  nameAr?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  role?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  commercialRegNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  vatRegNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  lastLogin?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  owner?: Prisma.UserUpdateOneWithoutTeamMembersNestedInput
+  teamMembers?: Prisma.UserUpdateManyWithoutOwnerNestedInput
+  createdBookings?: Prisma.BookingUpdateManyWithoutCreatedByNestedInput
+  updatedBookings?: Prisma.BookingUpdateManyWithoutUpdatedByNestedInput
+  createdCustomers?: Prisma.CustomerUpdateManyWithoutCreatedByNestedInput
+  createdInvoices?: Prisma.InvoiceUpdateManyWithoutCreatedByNestedInput
+  createdPayments?: Prisma.PaymentUpdateManyWithoutCreatedByNestedInput
+  ownedHalls?: Prisma.HallUpdateManyWithoutOwnerNestedInput
+  ownedBookings?: Prisma.BookingUpdateManyWithoutOwnerNestedInput
+  ownedCustomers?: Prisma.CustomerUpdateManyWithoutOwnerNestedInput
+  ownedInvoices?: Prisma.InvoiceUpdateManyWithoutOwnerNestedInput
+  ownedSettings?: Prisma.SettingsUpdateOneWithoutOwnerNestedInput
+}
+
+export type UserUncheckedUpdateWithoutOwnedPaymentsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  username?: Prisma.StringFieldUpdateOperationsInput | string
+  password?: Prisma.StringFieldUpdateOperationsInput | string
+  nameAr?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  role?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  ownerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  commercialRegNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  vatRegNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  lastLogin?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  teamMembers?: Prisma.UserUncheckedUpdateManyWithoutOwnerNestedInput
+  createdBookings?: Prisma.BookingUncheckedUpdateManyWithoutCreatedByNestedInput
+  updatedBookings?: Prisma.BookingUncheckedUpdateManyWithoutUpdatedByNestedInput
+  createdCustomers?: Prisma.CustomerUncheckedUpdateManyWithoutCreatedByNestedInput
+  createdInvoices?: Prisma.InvoiceUncheckedUpdateManyWithoutCreatedByNestedInput
+  createdPayments?: Prisma.PaymentUncheckedUpdateManyWithoutCreatedByNestedInput
+  ownedHalls?: Prisma.HallUncheckedUpdateManyWithoutOwnerNestedInput
+  ownedBookings?: Prisma.BookingUncheckedUpdateManyWithoutOwnerNestedInput
+  ownedCustomers?: Prisma.CustomerUncheckedUpdateManyWithoutOwnerNestedInput
+  ownedInvoices?: Prisma.InvoiceUncheckedUpdateManyWithoutOwnerNestedInput
+  ownedSettings?: Prisma.SettingsUncheckedUpdateOneWithoutOwnerNestedInput
 }
 
 export type UserUpsertWithoutCreatedPaymentsInput = {
@@ -983,13 +2302,23 @@ export type UserUpdateWithoutCreatedPaymentsInput = {
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   role?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
+  commercialRegNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  vatRegNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   lastLogin?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  owner?: Prisma.UserUpdateOneWithoutTeamMembersNestedInput
+  teamMembers?: Prisma.UserUpdateManyWithoutOwnerNestedInput
   createdBookings?: Prisma.BookingUpdateManyWithoutCreatedByNestedInput
   updatedBookings?: Prisma.BookingUpdateManyWithoutUpdatedByNestedInput
   createdCustomers?: Prisma.CustomerUpdateManyWithoutCreatedByNestedInput
   createdInvoices?: Prisma.InvoiceUpdateManyWithoutCreatedByNestedInput
+  ownedHalls?: Prisma.HallUpdateManyWithoutOwnerNestedInput
+  ownedBookings?: Prisma.BookingUpdateManyWithoutOwnerNestedInput
+  ownedCustomers?: Prisma.CustomerUpdateManyWithoutOwnerNestedInput
+  ownedInvoices?: Prisma.InvoiceUpdateManyWithoutOwnerNestedInput
+  ownedPayments?: Prisma.PaymentUpdateManyWithoutOwnerNestedInput
+  ownedSettings?: Prisma.SettingsUpdateOneWithoutOwnerNestedInput
 }
 
 export type UserUncheckedUpdateWithoutCreatedPaymentsInput = {
@@ -1001,13 +2330,239 @@ export type UserUncheckedUpdateWithoutCreatedPaymentsInput = {
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   role?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
+  ownerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  commercialRegNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  vatRegNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   lastLogin?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  teamMembers?: Prisma.UserUncheckedUpdateManyWithoutOwnerNestedInput
   createdBookings?: Prisma.BookingUncheckedUpdateManyWithoutCreatedByNestedInput
   updatedBookings?: Prisma.BookingUncheckedUpdateManyWithoutUpdatedByNestedInput
   createdCustomers?: Prisma.CustomerUncheckedUpdateManyWithoutCreatedByNestedInput
   createdInvoices?: Prisma.InvoiceUncheckedUpdateManyWithoutCreatedByNestedInput
+  ownedHalls?: Prisma.HallUncheckedUpdateManyWithoutOwnerNestedInput
+  ownedBookings?: Prisma.BookingUncheckedUpdateManyWithoutOwnerNestedInput
+  ownedCustomers?: Prisma.CustomerUncheckedUpdateManyWithoutOwnerNestedInput
+  ownedInvoices?: Prisma.InvoiceUncheckedUpdateManyWithoutOwnerNestedInput
+  ownedPayments?: Prisma.PaymentUncheckedUpdateManyWithoutOwnerNestedInput
+  ownedSettings?: Prisma.SettingsUncheckedUpdateOneWithoutOwnerNestedInput
+}
+
+export type UserCreateWithoutOwnedSettingsInput = {
+  id?: string
+  username: string
+  password: string
+  nameAr: string
+  email?: string | null
+  phone?: string | null
+  role: string
+  status?: string
+  commercialRegNo?: string | null
+  vatRegNo?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  lastLogin?: Date | string | null
+  owner?: Prisma.UserCreateNestedOneWithoutTeamMembersInput
+  teamMembers?: Prisma.UserCreateNestedManyWithoutOwnerInput
+  createdBookings?: Prisma.BookingCreateNestedManyWithoutCreatedByInput
+  updatedBookings?: Prisma.BookingCreateNestedManyWithoutUpdatedByInput
+  createdCustomers?: Prisma.CustomerCreateNestedManyWithoutCreatedByInput
+  createdInvoices?: Prisma.InvoiceCreateNestedManyWithoutCreatedByInput
+  createdPayments?: Prisma.PaymentCreateNestedManyWithoutCreatedByInput
+  ownedHalls?: Prisma.HallCreateNestedManyWithoutOwnerInput
+  ownedBookings?: Prisma.BookingCreateNestedManyWithoutOwnerInput
+  ownedCustomers?: Prisma.CustomerCreateNestedManyWithoutOwnerInput
+  ownedInvoices?: Prisma.InvoiceCreateNestedManyWithoutOwnerInput
+  ownedPayments?: Prisma.PaymentCreateNestedManyWithoutOwnerInput
+}
+
+export type UserUncheckedCreateWithoutOwnedSettingsInput = {
+  id?: string
+  username: string
+  password: string
+  nameAr: string
+  email?: string | null
+  phone?: string | null
+  role: string
+  status?: string
+  ownerId?: string | null
+  commercialRegNo?: string | null
+  vatRegNo?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  lastLogin?: Date | string | null
+  teamMembers?: Prisma.UserUncheckedCreateNestedManyWithoutOwnerInput
+  createdBookings?: Prisma.BookingUncheckedCreateNestedManyWithoutCreatedByInput
+  updatedBookings?: Prisma.BookingUncheckedCreateNestedManyWithoutUpdatedByInput
+  createdCustomers?: Prisma.CustomerUncheckedCreateNestedManyWithoutCreatedByInput
+  createdInvoices?: Prisma.InvoiceUncheckedCreateNestedManyWithoutCreatedByInput
+  createdPayments?: Prisma.PaymentUncheckedCreateNestedManyWithoutCreatedByInput
+  ownedHalls?: Prisma.HallUncheckedCreateNestedManyWithoutOwnerInput
+  ownedBookings?: Prisma.BookingUncheckedCreateNestedManyWithoutOwnerInput
+  ownedCustomers?: Prisma.CustomerUncheckedCreateNestedManyWithoutOwnerInput
+  ownedInvoices?: Prisma.InvoiceUncheckedCreateNestedManyWithoutOwnerInput
+  ownedPayments?: Prisma.PaymentUncheckedCreateNestedManyWithoutOwnerInput
+}
+
+export type UserCreateOrConnectWithoutOwnedSettingsInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutOwnedSettingsInput, Prisma.UserUncheckedCreateWithoutOwnedSettingsInput>
+}
+
+export type UserUpsertWithoutOwnedSettingsInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutOwnedSettingsInput, Prisma.UserUncheckedUpdateWithoutOwnedSettingsInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutOwnedSettingsInput, Prisma.UserUncheckedCreateWithoutOwnedSettingsInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutOwnedSettingsInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutOwnedSettingsInput, Prisma.UserUncheckedUpdateWithoutOwnedSettingsInput>
+}
+
+export type UserUpdateWithoutOwnedSettingsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  username?: Prisma.StringFieldUpdateOperationsInput | string
+  password?: Prisma.StringFieldUpdateOperationsInput | string
+  nameAr?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  role?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  commercialRegNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  vatRegNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  lastLogin?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  owner?: Prisma.UserUpdateOneWithoutTeamMembersNestedInput
+  teamMembers?: Prisma.UserUpdateManyWithoutOwnerNestedInput
+  createdBookings?: Prisma.BookingUpdateManyWithoutCreatedByNestedInput
+  updatedBookings?: Prisma.BookingUpdateManyWithoutUpdatedByNestedInput
+  createdCustomers?: Prisma.CustomerUpdateManyWithoutCreatedByNestedInput
+  createdInvoices?: Prisma.InvoiceUpdateManyWithoutCreatedByNestedInput
+  createdPayments?: Prisma.PaymentUpdateManyWithoutCreatedByNestedInput
+  ownedHalls?: Prisma.HallUpdateManyWithoutOwnerNestedInput
+  ownedBookings?: Prisma.BookingUpdateManyWithoutOwnerNestedInput
+  ownedCustomers?: Prisma.CustomerUpdateManyWithoutOwnerNestedInput
+  ownedInvoices?: Prisma.InvoiceUpdateManyWithoutOwnerNestedInput
+  ownedPayments?: Prisma.PaymentUpdateManyWithoutOwnerNestedInput
+}
+
+export type UserUncheckedUpdateWithoutOwnedSettingsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  username?: Prisma.StringFieldUpdateOperationsInput | string
+  password?: Prisma.StringFieldUpdateOperationsInput | string
+  nameAr?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  role?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  ownerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  commercialRegNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  vatRegNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  lastLogin?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  teamMembers?: Prisma.UserUncheckedUpdateManyWithoutOwnerNestedInput
+  createdBookings?: Prisma.BookingUncheckedUpdateManyWithoutCreatedByNestedInput
+  updatedBookings?: Prisma.BookingUncheckedUpdateManyWithoutUpdatedByNestedInput
+  createdCustomers?: Prisma.CustomerUncheckedUpdateManyWithoutCreatedByNestedInput
+  createdInvoices?: Prisma.InvoiceUncheckedUpdateManyWithoutCreatedByNestedInput
+  createdPayments?: Prisma.PaymentUncheckedUpdateManyWithoutCreatedByNestedInput
+  ownedHalls?: Prisma.HallUncheckedUpdateManyWithoutOwnerNestedInput
+  ownedBookings?: Prisma.BookingUncheckedUpdateManyWithoutOwnerNestedInput
+  ownedCustomers?: Prisma.CustomerUncheckedUpdateManyWithoutOwnerNestedInput
+  ownedInvoices?: Prisma.InvoiceUncheckedUpdateManyWithoutOwnerNestedInput
+  ownedPayments?: Prisma.PaymentUncheckedUpdateManyWithoutOwnerNestedInput
+}
+
+export type UserCreateManyOwnerInput = {
+  id?: string
+  username: string
+  password: string
+  nameAr: string
+  email?: string | null
+  phone?: string | null
+  role: string
+  status?: string
+  commercialRegNo?: string | null
+  vatRegNo?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  lastLogin?: Date | string | null
+}
+
+export type UserUpdateWithoutOwnerInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  username?: Prisma.StringFieldUpdateOperationsInput | string
+  password?: Prisma.StringFieldUpdateOperationsInput | string
+  nameAr?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  role?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  commercialRegNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  vatRegNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  lastLogin?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  teamMembers?: Prisma.UserUpdateManyWithoutOwnerNestedInput
+  createdBookings?: Prisma.BookingUpdateManyWithoutCreatedByNestedInput
+  updatedBookings?: Prisma.BookingUpdateManyWithoutUpdatedByNestedInput
+  createdCustomers?: Prisma.CustomerUpdateManyWithoutCreatedByNestedInput
+  createdInvoices?: Prisma.InvoiceUpdateManyWithoutCreatedByNestedInput
+  createdPayments?: Prisma.PaymentUpdateManyWithoutCreatedByNestedInput
+  ownedHalls?: Prisma.HallUpdateManyWithoutOwnerNestedInput
+  ownedBookings?: Prisma.BookingUpdateManyWithoutOwnerNestedInput
+  ownedCustomers?: Prisma.CustomerUpdateManyWithoutOwnerNestedInput
+  ownedInvoices?: Prisma.InvoiceUpdateManyWithoutOwnerNestedInput
+  ownedPayments?: Prisma.PaymentUpdateManyWithoutOwnerNestedInput
+  ownedSettings?: Prisma.SettingsUpdateOneWithoutOwnerNestedInput
+}
+
+export type UserUncheckedUpdateWithoutOwnerInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  username?: Prisma.StringFieldUpdateOperationsInput | string
+  password?: Prisma.StringFieldUpdateOperationsInput | string
+  nameAr?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  role?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  commercialRegNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  vatRegNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  lastLogin?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  teamMembers?: Prisma.UserUncheckedUpdateManyWithoutOwnerNestedInput
+  createdBookings?: Prisma.BookingUncheckedUpdateManyWithoutCreatedByNestedInput
+  updatedBookings?: Prisma.BookingUncheckedUpdateManyWithoutUpdatedByNestedInput
+  createdCustomers?: Prisma.CustomerUncheckedUpdateManyWithoutCreatedByNestedInput
+  createdInvoices?: Prisma.InvoiceUncheckedUpdateManyWithoutCreatedByNestedInput
+  createdPayments?: Prisma.PaymentUncheckedUpdateManyWithoutCreatedByNestedInput
+  ownedHalls?: Prisma.HallUncheckedUpdateManyWithoutOwnerNestedInput
+  ownedBookings?: Prisma.BookingUncheckedUpdateManyWithoutOwnerNestedInput
+  ownedCustomers?: Prisma.CustomerUncheckedUpdateManyWithoutOwnerNestedInput
+  ownedInvoices?: Prisma.InvoiceUncheckedUpdateManyWithoutOwnerNestedInput
+  ownedPayments?: Prisma.PaymentUncheckedUpdateManyWithoutOwnerNestedInput
+  ownedSettings?: Prisma.SettingsUncheckedUpdateOneWithoutOwnerNestedInput
+}
+
+export type UserUncheckedUpdateManyWithoutOwnerInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  username?: Prisma.StringFieldUpdateOperationsInput | string
+  password?: Prisma.StringFieldUpdateOperationsInput | string
+  nameAr?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  role?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  commercialRegNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  vatRegNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  lastLogin?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
 }
 
 
@@ -1016,19 +2571,31 @@ export type UserUncheckedUpdateWithoutCreatedPaymentsInput = {
  */
 
 export type UserCountOutputType = {
+  teamMembers: number
   createdBookings: number
   updatedBookings: number
   createdCustomers: number
   createdInvoices: number
   createdPayments: number
+  ownedHalls: number
+  ownedBookings: number
+  ownedCustomers: number
+  ownedInvoices: number
+  ownedPayments: number
 }
 
 export type UserCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  teamMembers?: boolean | UserCountOutputTypeCountTeamMembersArgs
   createdBookings?: boolean | UserCountOutputTypeCountCreatedBookingsArgs
   updatedBookings?: boolean | UserCountOutputTypeCountUpdatedBookingsArgs
   createdCustomers?: boolean | UserCountOutputTypeCountCreatedCustomersArgs
   createdInvoices?: boolean | UserCountOutputTypeCountCreatedInvoicesArgs
   createdPayments?: boolean | UserCountOutputTypeCountCreatedPaymentsArgs
+  ownedHalls?: boolean | UserCountOutputTypeCountOwnedHallsArgs
+  ownedBookings?: boolean | UserCountOutputTypeCountOwnedBookingsArgs
+  ownedCustomers?: boolean | UserCountOutputTypeCountOwnedCustomersArgs
+  ownedInvoices?: boolean | UserCountOutputTypeCountOwnedInvoicesArgs
+  ownedPayments?: boolean | UserCountOutputTypeCountOwnedPaymentsArgs
 }
 
 /**
@@ -1039,6 +2606,13 @@ export type UserCountOutputTypeDefaultArgs<ExtArgs extends runtime.Types.Extensi
    * Select specific fields to fetch from the UserCountOutputType
    */
   select?: Prisma.UserCountOutputTypeSelect<ExtArgs> | null
+}
+
+/**
+ * UserCountOutputType without action
+ */
+export type UserCountOutputTypeCountTeamMembersArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.UserWhereInput
 }
 
 /**
@@ -1076,6 +2650,41 @@ export type UserCountOutputTypeCountCreatedPaymentsArgs<ExtArgs extends runtime.
   where?: Prisma.PaymentWhereInput
 }
 
+/**
+ * UserCountOutputType without action
+ */
+export type UserCountOutputTypeCountOwnedHallsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.HallWhereInput
+}
+
+/**
+ * UserCountOutputType without action
+ */
+export type UserCountOutputTypeCountOwnedBookingsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.BookingWhereInput
+}
+
+/**
+ * UserCountOutputType without action
+ */
+export type UserCountOutputTypeCountOwnedCustomersArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.CustomerWhereInput
+}
+
+/**
+ * UserCountOutputType without action
+ */
+export type UserCountOutputTypeCountOwnedInvoicesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.InvoiceWhereInput
+}
+
+/**
+ * UserCountOutputType without action
+ */
+export type UserCountOutputTypeCountOwnedPaymentsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.PaymentWhereInput
+}
+
 
 export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -1086,14 +2695,25 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   phone?: boolean
   role?: boolean
   status?: boolean
+  ownerId?: boolean
+  commercialRegNo?: boolean
+  vatRegNo?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   lastLogin?: boolean
+  owner?: boolean | Prisma.User$ownerArgs<ExtArgs>
+  teamMembers?: boolean | Prisma.User$teamMembersArgs<ExtArgs>
   createdBookings?: boolean | Prisma.User$createdBookingsArgs<ExtArgs>
   updatedBookings?: boolean | Prisma.User$updatedBookingsArgs<ExtArgs>
   createdCustomers?: boolean | Prisma.User$createdCustomersArgs<ExtArgs>
   createdInvoices?: boolean | Prisma.User$createdInvoicesArgs<ExtArgs>
   createdPayments?: boolean | Prisma.User$createdPaymentsArgs<ExtArgs>
+  ownedHalls?: boolean | Prisma.User$ownedHallsArgs<ExtArgs>
+  ownedBookings?: boolean | Prisma.User$ownedBookingsArgs<ExtArgs>
+  ownedCustomers?: boolean | Prisma.User$ownedCustomersArgs<ExtArgs>
+  ownedInvoices?: boolean | Prisma.User$ownedInvoicesArgs<ExtArgs>
+  ownedPayments?: boolean | Prisma.User$ownedPaymentsArgs<ExtArgs>
+  ownedSettings?: boolean | Prisma.User$ownedSettingsArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["user"]>
 
@@ -1106,9 +2726,13 @@ export type UserSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   phone?: boolean
   role?: boolean
   status?: boolean
+  ownerId?: boolean
+  commercialRegNo?: boolean
+  vatRegNo?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   lastLogin?: boolean
+  owner?: boolean | Prisma.User$ownerArgs<ExtArgs>
 }, ExtArgs["result"]["user"]>
 
 export type UserSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -1120,9 +2744,13 @@ export type UserSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   phone?: boolean
   role?: boolean
   status?: boolean
+  ownerId?: boolean
+  commercialRegNo?: boolean
+  vatRegNo?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   lastLogin?: boolean
+  owner?: boolean | Prisma.User$ownerArgs<ExtArgs>
 }, ExtArgs["result"]["user"]>
 
 export type UserSelectScalar = {
@@ -1134,31 +2762,54 @@ export type UserSelectScalar = {
   phone?: boolean
   role?: boolean
   status?: boolean
+  ownerId?: boolean
+  commercialRegNo?: boolean
+  vatRegNo?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   lastLogin?: boolean
 }
 
-export type UserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "username" | "password" | "nameAr" | "email" | "phone" | "role" | "status" | "createdAt" | "updatedAt" | "lastLogin", ExtArgs["result"]["user"]>
+export type UserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "username" | "password" | "nameAr" | "email" | "phone" | "role" | "status" | "ownerId" | "commercialRegNo" | "vatRegNo" | "createdAt" | "updatedAt" | "lastLogin", ExtArgs["result"]["user"]>
 export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  owner?: boolean | Prisma.User$ownerArgs<ExtArgs>
+  teamMembers?: boolean | Prisma.User$teamMembersArgs<ExtArgs>
   createdBookings?: boolean | Prisma.User$createdBookingsArgs<ExtArgs>
   updatedBookings?: boolean | Prisma.User$updatedBookingsArgs<ExtArgs>
   createdCustomers?: boolean | Prisma.User$createdCustomersArgs<ExtArgs>
   createdInvoices?: boolean | Prisma.User$createdInvoicesArgs<ExtArgs>
   createdPayments?: boolean | Prisma.User$createdPaymentsArgs<ExtArgs>
+  ownedHalls?: boolean | Prisma.User$ownedHallsArgs<ExtArgs>
+  ownedBookings?: boolean | Prisma.User$ownedBookingsArgs<ExtArgs>
+  ownedCustomers?: boolean | Prisma.User$ownedCustomersArgs<ExtArgs>
+  ownedInvoices?: boolean | Prisma.User$ownedInvoicesArgs<ExtArgs>
+  ownedPayments?: boolean | Prisma.User$ownedPaymentsArgs<ExtArgs>
+  ownedSettings?: boolean | Prisma.User$ownedSettingsArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
 }
-export type UserIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
-export type UserIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
+export type UserIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  owner?: boolean | Prisma.User$ownerArgs<ExtArgs>
+}
+export type UserIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  owner?: boolean | Prisma.User$ownerArgs<ExtArgs>
+}
 
 export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "User"
   objects: {
+    owner: Prisma.$UserPayload<ExtArgs> | null
+    teamMembers: Prisma.$UserPayload<ExtArgs>[]
     createdBookings: Prisma.$BookingPayload<ExtArgs>[]
     updatedBookings: Prisma.$BookingPayload<ExtArgs>[]
     createdCustomers: Prisma.$CustomerPayload<ExtArgs>[]
     createdInvoices: Prisma.$InvoicePayload<ExtArgs>[]
     createdPayments: Prisma.$PaymentPayload<ExtArgs>[]
+    ownedHalls: Prisma.$HallPayload<ExtArgs>[]
+    ownedBookings: Prisma.$BookingPayload<ExtArgs>[]
+    ownedCustomers: Prisma.$CustomerPayload<ExtArgs>[]
+    ownedInvoices: Prisma.$InvoicePayload<ExtArgs>[]
+    ownedPayments: Prisma.$PaymentPayload<ExtArgs>[]
+    ownedSettings: Prisma.$SettingsPayload<ExtArgs> | null
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -1169,6 +2820,9 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     phone: string | null
     role: string
     status: string
+    ownerId: string | null
+    commercialRegNo: string | null
+    vatRegNo: string | null
     createdAt: Date
     updatedAt: Date
     lastLogin: Date | null
@@ -1566,11 +3220,19 @@ readonly fields: UserFieldRefs;
  */
 export interface Prisma__UserClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
+  owner<T extends Prisma.User$ownerArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$ownerArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  teamMembers<T extends Prisma.User$teamMembersArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$teamMembersArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   createdBookings<T extends Prisma.User$createdBookingsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$createdBookingsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$BookingPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   updatedBookings<T extends Prisma.User$updatedBookingsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$updatedBookingsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$BookingPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   createdCustomers<T extends Prisma.User$createdCustomersArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$createdCustomersArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CustomerPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   createdInvoices<T extends Prisma.User$createdInvoicesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$createdInvoicesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$InvoicePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   createdPayments<T extends Prisma.User$createdPaymentsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$createdPaymentsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$PaymentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  ownedHalls<T extends Prisma.User$ownedHallsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$ownedHallsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$HallPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  ownedBookings<T extends Prisma.User$ownedBookingsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$ownedBookingsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$BookingPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  ownedCustomers<T extends Prisma.User$ownedCustomersArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$ownedCustomersArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CustomerPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  ownedInvoices<T extends Prisma.User$ownedInvoicesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$ownedInvoicesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$InvoicePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  ownedPayments<T extends Prisma.User$ownedPaymentsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$ownedPaymentsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$PaymentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  ownedSettings<T extends Prisma.User$ownedSettingsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$ownedSettingsArgs<ExtArgs>>): Prisma.Prisma__SettingsClient<runtime.Types.Result.GetResult<Prisma.$SettingsPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1608,6 +3270,9 @@ export interface UserFieldRefs {
   readonly phone: Prisma.FieldRef<"User", 'String'>
   readonly role: Prisma.FieldRef<"User", 'String'>
   readonly status: Prisma.FieldRef<"User", 'String'>
+  readonly ownerId: Prisma.FieldRef<"User", 'String'>
+  readonly commercialRegNo: Prisma.FieldRef<"User", 'String'>
+  readonly vatRegNo: Prisma.FieldRef<"User", 'String'>
   readonly createdAt: Prisma.FieldRef<"User", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"User", 'DateTime'>
   readonly lastLogin: Prisma.FieldRef<"User", 'DateTime'>
@@ -1860,6 +3525,10 @@ export type UserCreateManyAndReturnArgs<ExtArgs extends runtime.Types.Extensions
    */
   data: Prisma.UserCreateManyInput | Prisma.UserCreateManyInput[]
   skipDuplicates?: boolean
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.UserIncludeCreateManyAndReturn<ExtArgs> | null
 }
 
 /**
@@ -1930,6 +3599,10 @@ export type UserUpdateManyAndReturnArgs<ExtArgs extends runtime.Types.Extensions
    * Limit how many Users to update.
    */
   limit?: number
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.UserIncludeUpdateManyAndReturn<ExtArgs> | null
 }
 
 /**
@@ -1996,6 +3669,49 @@ export type UserDeleteManyArgs<ExtArgs extends runtime.Types.Extensions.Internal
    * Limit how many Users to delete.
    */
   limit?: number
+}
+
+/**
+ * User.owner
+ */
+export type User$ownerArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the User
+   */
+  select?: Prisma.UserSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the User
+   */
+  omit?: Prisma.UserOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.UserInclude<ExtArgs> | null
+  where?: Prisma.UserWhereInput
+}
+
+/**
+ * User.teamMembers
+ */
+export type User$teamMembersArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the User
+   */
+  select?: Prisma.UserSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the User
+   */
+  omit?: Prisma.UserOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.UserInclude<ExtArgs> | null
+  where?: Prisma.UserWhereInput
+  orderBy?: Prisma.UserOrderByWithRelationInput | Prisma.UserOrderByWithRelationInput[]
+  cursor?: Prisma.UserWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.UserScalarFieldEnum | Prisma.UserScalarFieldEnum[]
 }
 
 /**
@@ -2116,6 +3832,145 @@ export type User$createdPaymentsArgs<ExtArgs extends runtime.Types.Extensions.In
   take?: number
   skip?: number
   distinct?: Prisma.PaymentScalarFieldEnum | Prisma.PaymentScalarFieldEnum[]
+}
+
+/**
+ * User.ownedHalls
+ */
+export type User$ownedHallsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Hall
+   */
+  select?: Prisma.HallSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Hall
+   */
+  omit?: Prisma.HallOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.HallInclude<ExtArgs> | null
+  where?: Prisma.HallWhereInput
+  orderBy?: Prisma.HallOrderByWithRelationInput | Prisma.HallOrderByWithRelationInput[]
+  cursor?: Prisma.HallWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.HallScalarFieldEnum | Prisma.HallScalarFieldEnum[]
+}
+
+/**
+ * User.ownedBookings
+ */
+export type User$ownedBookingsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Booking
+   */
+  select?: Prisma.BookingSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Booking
+   */
+  omit?: Prisma.BookingOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.BookingInclude<ExtArgs> | null
+  where?: Prisma.BookingWhereInput
+  orderBy?: Prisma.BookingOrderByWithRelationInput | Prisma.BookingOrderByWithRelationInput[]
+  cursor?: Prisma.BookingWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.BookingScalarFieldEnum | Prisma.BookingScalarFieldEnum[]
+}
+
+/**
+ * User.ownedCustomers
+ */
+export type User$ownedCustomersArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Customer
+   */
+  select?: Prisma.CustomerSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Customer
+   */
+  omit?: Prisma.CustomerOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.CustomerInclude<ExtArgs> | null
+  where?: Prisma.CustomerWhereInput
+  orderBy?: Prisma.CustomerOrderByWithRelationInput | Prisma.CustomerOrderByWithRelationInput[]
+  cursor?: Prisma.CustomerWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.CustomerScalarFieldEnum | Prisma.CustomerScalarFieldEnum[]
+}
+
+/**
+ * User.ownedInvoices
+ */
+export type User$ownedInvoicesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Invoice
+   */
+  select?: Prisma.InvoiceSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Invoice
+   */
+  omit?: Prisma.InvoiceOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.InvoiceInclude<ExtArgs> | null
+  where?: Prisma.InvoiceWhereInput
+  orderBy?: Prisma.InvoiceOrderByWithRelationInput | Prisma.InvoiceOrderByWithRelationInput[]
+  cursor?: Prisma.InvoiceWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.InvoiceScalarFieldEnum | Prisma.InvoiceScalarFieldEnum[]
+}
+
+/**
+ * User.ownedPayments
+ */
+export type User$ownedPaymentsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Payment
+   */
+  select?: Prisma.PaymentSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Payment
+   */
+  omit?: Prisma.PaymentOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.PaymentInclude<ExtArgs> | null
+  where?: Prisma.PaymentWhereInput
+  orderBy?: Prisma.PaymentOrderByWithRelationInput | Prisma.PaymentOrderByWithRelationInput[]
+  cursor?: Prisma.PaymentWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.PaymentScalarFieldEnum | Prisma.PaymentScalarFieldEnum[]
+}
+
+/**
+ * User.ownedSettings
+ */
+export type User$ownedSettingsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Settings
+   */
+  select?: Prisma.SettingsSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Settings
+   */
+  omit?: Prisma.SettingsOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.SettingsInclude<ExtArgs> | null
+  where?: Prisma.SettingsWhereInput
 }
 
 /**

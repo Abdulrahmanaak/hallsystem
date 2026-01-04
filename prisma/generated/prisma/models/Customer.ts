@@ -33,6 +33,7 @@ export type CustomerMinAggregateOutputType = {
   address: string | null
   customerType: string | null
   notes: string | null
+  ownerId: string | null
   isDeleted: boolean | null
   deletedAt: Date | null
   createdAt: Date | null
@@ -49,6 +50,7 @@ export type CustomerMaxAggregateOutputType = {
   address: string | null
   customerType: string | null
   notes: string | null
+  ownerId: string | null
   isDeleted: boolean | null
   deletedAt: Date | null
   createdAt: Date | null
@@ -65,6 +67,7 @@ export type CustomerCountAggregateOutputType = {
   address: number
   customerType: number
   notes: number
+  ownerId: number
   isDeleted: number
   deletedAt: number
   createdAt: number
@@ -83,6 +86,7 @@ export type CustomerMinAggregateInputType = {
   address?: true
   customerType?: true
   notes?: true
+  ownerId?: true
   isDeleted?: true
   deletedAt?: true
   createdAt?: true
@@ -99,6 +103,7 @@ export type CustomerMaxAggregateInputType = {
   address?: true
   customerType?: true
   notes?: true
+  ownerId?: true
   isDeleted?: true
   deletedAt?: true
   createdAt?: true
@@ -115,6 +120,7 @@ export type CustomerCountAggregateInputType = {
   address?: true
   customerType?: true
   notes?: true
+  ownerId?: true
   isDeleted?: true
   deletedAt?: true
   createdAt?: true
@@ -204,6 +210,7 @@ export type CustomerGroupByOutputType = {
   address: string | null
   customerType: string
   notes: string | null
+  ownerId: string
   isDeleted: boolean
   deletedAt: Date | null
   createdAt: Date
@@ -241,11 +248,13 @@ export type CustomerWhereInput = {
   address?: Prisma.StringNullableFilter<"Customer"> | string | null
   customerType?: Prisma.StringFilter<"Customer"> | string
   notes?: Prisma.StringNullableFilter<"Customer"> | string | null
+  ownerId?: Prisma.StringFilter<"Customer"> | string
   isDeleted?: Prisma.BoolFilter<"Customer"> | boolean
   deletedAt?: Prisma.DateTimeNullableFilter<"Customer"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"Customer"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Customer"> | Date | string
   createdById?: Prisma.StringFilter<"Customer"> | string
+  owner?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
   createdBy?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
   bookings?: Prisma.BookingListRelationFilter
   invoices?: Prisma.InvoiceListRelationFilter
@@ -260,11 +269,13 @@ export type CustomerOrderByWithRelationInput = {
   address?: Prisma.SortOrderInput | Prisma.SortOrder
   customerType?: Prisma.SortOrder
   notes?: Prisma.SortOrderInput | Prisma.SortOrder
+  ownerId?: Prisma.SortOrder
   isDeleted?: Prisma.SortOrder
   deletedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   createdById?: Prisma.SortOrder
+  owner?: Prisma.UserOrderByWithRelationInput
   createdBy?: Prisma.UserOrderByWithRelationInput
   bookings?: Prisma.BookingOrderByRelationAggregateInput
   invoices?: Prisma.InvoiceOrderByRelationAggregateInput
@@ -282,11 +293,13 @@ export type CustomerWhereUniqueInput = Prisma.AtLeast<{
   address?: Prisma.StringNullableFilter<"Customer"> | string | null
   customerType?: Prisma.StringFilter<"Customer"> | string
   notes?: Prisma.StringNullableFilter<"Customer"> | string | null
+  ownerId?: Prisma.StringFilter<"Customer"> | string
   isDeleted?: Prisma.BoolFilter<"Customer"> | boolean
   deletedAt?: Prisma.DateTimeNullableFilter<"Customer"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"Customer"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Customer"> | Date | string
   createdById?: Prisma.StringFilter<"Customer"> | string
+  owner?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
   createdBy?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
   bookings?: Prisma.BookingListRelationFilter
   invoices?: Prisma.InvoiceListRelationFilter
@@ -301,6 +314,7 @@ export type CustomerOrderByWithAggregationInput = {
   address?: Prisma.SortOrderInput | Prisma.SortOrder
   customerType?: Prisma.SortOrder
   notes?: Prisma.SortOrderInput | Prisma.SortOrder
+  ownerId?: Prisma.SortOrder
   isDeleted?: Prisma.SortOrder
   deletedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -323,6 +337,7 @@ export type CustomerScalarWhereWithAggregatesInput = {
   address?: Prisma.StringNullableWithAggregatesFilter<"Customer"> | string | null
   customerType?: Prisma.StringWithAggregatesFilter<"Customer"> | string
   notes?: Prisma.StringNullableWithAggregatesFilter<"Customer"> | string | null
+  ownerId?: Prisma.StringWithAggregatesFilter<"Customer"> | string
   isDeleted?: Prisma.BoolWithAggregatesFilter<"Customer"> | boolean
   deletedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"Customer"> | Date | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Customer"> | Date | string
@@ -343,6 +358,7 @@ export type CustomerCreateInput = {
   deletedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  owner: Prisma.UserCreateNestedOneWithoutOwnedCustomersInput
   createdBy: Prisma.UserCreateNestedOneWithoutCreatedCustomersInput
   bookings?: Prisma.BookingCreateNestedManyWithoutCustomerInput
   invoices?: Prisma.InvoiceCreateNestedManyWithoutCustomerInput
@@ -357,6 +373,7 @@ export type CustomerUncheckedCreateInput = {
   address?: string | null
   customerType?: string
   notes?: string | null
+  ownerId: string
   isDeleted?: boolean
   deletedAt?: Date | string | null
   createdAt?: Date | string
@@ -379,6 +396,7 @@ export type CustomerUpdateInput = {
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  owner?: Prisma.UserUpdateOneRequiredWithoutOwnedCustomersNestedInput
   createdBy?: Prisma.UserUpdateOneRequiredWithoutCreatedCustomersNestedInput
   bookings?: Prisma.BookingUpdateManyWithoutCustomerNestedInput
   invoices?: Prisma.InvoiceUpdateManyWithoutCustomerNestedInput
@@ -393,6 +411,7 @@ export type CustomerUncheckedUpdateInput = {
   address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customerType?: Prisma.StringFieldUpdateOperationsInput | string
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  ownerId?: Prisma.StringFieldUpdateOperationsInput | string
   isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -411,6 +430,7 @@ export type CustomerCreateManyInput = {
   address?: string | null
   customerType?: string
   notes?: string | null
+  ownerId: string
   isDeleted?: boolean
   deletedAt?: Date | string | null
   createdAt?: Date | string
@@ -442,6 +462,7 @@ export type CustomerUncheckedUpdateManyInput = {
   address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customerType?: Prisma.StringFieldUpdateOperationsInput | string
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  ownerId?: Prisma.StringFieldUpdateOperationsInput | string
   isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -468,6 +489,7 @@ export type CustomerCountOrderByAggregateInput = {
   address?: Prisma.SortOrder
   customerType?: Prisma.SortOrder
   notes?: Prisma.SortOrder
+  ownerId?: Prisma.SortOrder
   isDeleted?: Prisma.SortOrder
   deletedAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -484,6 +506,7 @@ export type CustomerMaxOrderByAggregateInput = {
   address?: Prisma.SortOrder
   customerType?: Prisma.SortOrder
   notes?: Prisma.SortOrder
+  ownerId?: Prisma.SortOrder
   isDeleted?: Prisma.SortOrder
   deletedAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -500,6 +523,7 @@ export type CustomerMinOrderByAggregateInput = {
   address?: Prisma.SortOrder
   customerType?: Prisma.SortOrder
   notes?: Prisma.SortOrder
+  ownerId?: Prisma.SortOrder
   isDeleted?: Prisma.SortOrder
   deletedAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -519,10 +543,24 @@ export type CustomerCreateNestedManyWithoutCreatedByInput = {
   connect?: Prisma.CustomerWhereUniqueInput | Prisma.CustomerWhereUniqueInput[]
 }
 
+export type CustomerCreateNestedManyWithoutOwnerInput = {
+  create?: Prisma.XOR<Prisma.CustomerCreateWithoutOwnerInput, Prisma.CustomerUncheckedCreateWithoutOwnerInput> | Prisma.CustomerCreateWithoutOwnerInput[] | Prisma.CustomerUncheckedCreateWithoutOwnerInput[]
+  connectOrCreate?: Prisma.CustomerCreateOrConnectWithoutOwnerInput | Prisma.CustomerCreateOrConnectWithoutOwnerInput[]
+  createMany?: Prisma.CustomerCreateManyOwnerInputEnvelope
+  connect?: Prisma.CustomerWhereUniqueInput | Prisma.CustomerWhereUniqueInput[]
+}
+
 export type CustomerUncheckedCreateNestedManyWithoutCreatedByInput = {
   create?: Prisma.XOR<Prisma.CustomerCreateWithoutCreatedByInput, Prisma.CustomerUncheckedCreateWithoutCreatedByInput> | Prisma.CustomerCreateWithoutCreatedByInput[] | Prisma.CustomerUncheckedCreateWithoutCreatedByInput[]
   connectOrCreate?: Prisma.CustomerCreateOrConnectWithoutCreatedByInput | Prisma.CustomerCreateOrConnectWithoutCreatedByInput[]
   createMany?: Prisma.CustomerCreateManyCreatedByInputEnvelope
+  connect?: Prisma.CustomerWhereUniqueInput | Prisma.CustomerWhereUniqueInput[]
+}
+
+export type CustomerUncheckedCreateNestedManyWithoutOwnerInput = {
+  create?: Prisma.XOR<Prisma.CustomerCreateWithoutOwnerInput, Prisma.CustomerUncheckedCreateWithoutOwnerInput> | Prisma.CustomerCreateWithoutOwnerInput[] | Prisma.CustomerUncheckedCreateWithoutOwnerInput[]
+  connectOrCreate?: Prisma.CustomerCreateOrConnectWithoutOwnerInput | Prisma.CustomerCreateOrConnectWithoutOwnerInput[]
+  createMany?: Prisma.CustomerCreateManyOwnerInputEnvelope
   connect?: Prisma.CustomerWhereUniqueInput | Prisma.CustomerWhereUniqueInput[]
 }
 
@@ -540,6 +578,20 @@ export type CustomerUpdateManyWithoutCreatedByNestedInput = {
   deleteMany?: Prisma.CustomerScalarWhereInput | Prisma.CustomerScalarWhereInput[]
 }
 
+export type CustomerUpdateManyWithoutOwnerNestedInput = {
+  create?: Prisma.XOR<Prisma.CustomerCreateWithoutOwnerInput, Prisma.CustomerUncheckedCreateWithoutOwnerInput> | Prisma.CustomerCreateWithoutOwnerInput[] | Prisma.CustomerUncheckedCreateWithoutOwnerInput[]
+  connectOrCreate?: Prisma.CustomerCreateOrConnectWithoutOwnerInput | Prisma.CustomerCreateOrConnectWithoutOwnerInput[]
+  upsert?: Prisma.CustomerUpsertWithWhereUniqueWithoutOwnerInput | Prisma.CustomerUpsertWithWhereUniqueWithoutOwnerInput[]
+  createMany?: Prisma.CustomerCreateManyOwnerInputEnvelope
+  set?: Prisma.CustomerWhereUniqueInput | Prisma.CustomerWhereUniqueInput[]
+  disconnect?: Prisma.CustomerWhereUniqueInput | Prisma.CustomerWhereUniqueInput[]
+  delete?: Prisma.CustomerWhereUniqueInput | Prisma.CustomerWhereUniqueInput[]
+  connect?: Prisma.CustomerWhereUniqueInput | Prisma.CustomerWhereUniqueInput[]
+  update?: Prisma.CustomerUpdateWithWhereUniqueWithoutOwnerInput | Prisma.CustomerUpdateWithWhereUniqueWithoutOwnerInput[]
+  updateMany?: Prisma.CustomerUpdateManyWithWhereWithoutOwnerInput | Prisma.CustomerUpdateManyWithWhereWithoutOwnerInput[]
+  deleteMany?: Prisma.CustomerScalarWhereInput | Prisma.CustomerScalarWhereInput[]
+}
+
 export type CustomerUncheckedUpdateManyWithoutCreatedByNestedInput = {
   create?: Prisma.XOR<Prisma.CustomerCreateWithoutCreatedByInput, Prisma.CustomerUncheckedCreateWithoutCreatedByInput> | Prisma.CustomerCreateWithoutCreatedByInput[] | Prisma.CustomerUncheckedCreateWithoutCreatedByInput[]
   connectOrCreate?: Prisma.CustomerCreateOrConnectWithoutCreatedByInput | Prisma.CustomerCreateOrConnectWithoutCreatedByInput[]
@@ -551,6 +603,20 @@ export type CustomerUncheckedUpdateManyWithoutCreatedByNestedInput = {
   connect?: Prisma.CustomerWhereUniqueInput | Prisma.CustomerWhereUniqueInput[]
   update?: Prisma.CustomerUpdateWithWhereUniqueWithoutCreatedByInput | Prisma.CustomerUpdateWithWhereUniqueWithoutCreatedByInput[]
   updateMany?: Prisma.CustomerUpdateManyWithWhereWithoutCreatedByInput | Prisma.CustomerUpdateManyWithWhereWithoutCreatedByInput[]
+  deleteMany?: Prisma.CustomerScalarWhereInput | Prisma.CustomerScalarWhereInput[]
+}
+
+export type CustomerUncheckedUpdateManyWithoutOwnerNestedInput = {
+  create?: Prisma.XOR<Prisma.CustomerCreateWithoutOwnerInput, Prisma.CustomerUncheckedCreateWithoutOwnerInput> | Prisma.CustomerCreateWithoutOwnerInput[] | Prisma.CustomerUncheckedCreateWithoutOwnerInput[]
+  connectOrCreate?: Prisma.CustomerCreateOrConnectWithoutOwnerInput | Prisma.CustomerCreateOrConnectWithoutOwnerInput[]
+  upsert?: Prisma.CustomerUpsertWithWhereUniqueWithoutOwnerInput | Prisma.CustomerUpsertWithWhereUniqueWithoutOwnerInput[]
+  createMany?: Prisma.CustomerCreateManyOwnerInputEnvelope
+  set?: Prisma.CustomerWhereUniqueInput | Prisma.CustomerWhereUniqueInput[]
+  disconnect?: Prisma.CustomerWhereUniqueInput | Prisma.CustomerWhereUniqueInput[]
+  delete?: Prisma.CustomerWhereUniqueInput | Prisma.CustomerWhereUniqueInput[]
+  connect?: Prisma.CustomerWhereUniqueInput | Prisma.CustomerWhereUniqueInput[]
+  update?: Prisma.CustomerUpdateWithWhereUniqueWithoutOwnerInput | Prisma.CustomerUpdateWithWhereUniqueWithoutOwnerInput[]
+  updateMany?: Prisma.CustomerUpdateManyWithWhereWithoutOwnerInput | Prisma.CustomerUpdateManyWithWhereWithoutOwnerInput[]
   deleteMany?: Prisma.CustomerScalarWhereInput | Prisma.CustomerScalarWhereInput[]
 }
 
@@ -599,6 +665,7 @@ export type CustomerCreateWithoutCreatedByInput = {
   deletedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  owner: Prisma.UserCreateNestedOneWithoutOwnedCustomersInput
   bookings?: Prisma.BookingCreateNestedManyWithoutCustomerInput
   invoices?: Prisma.InvoiceCreateNestedManyWithoutCustomerInput
 }
@@ -612,6 +679,7 @@ export type CustomerUncheckedCreateWithoutCreatedByInput = {
   address?: string | null
   customerType?: string
   notes?: string | null
+  ownerId: string
   isDeleted?: boolean
   deletedAt?: Date | string | null
   createdAt?: Date | string
@@ -627,6 +695,52 @@ export type CustomerCreateOrConnectWithoutCreatedByInput = {
 
 export type CustomerCreateManyCreatedByInputEnvelope = {
   data: Prisma.CustomerCreateManyCreatedByInput | Prisma.CustomerCreateManyCreatedByInput[]
+  skipDuplicates?: boolean
+}
+
+export type CustomerCreateWithoutOwnerInput = {
+  id?: string
+  nameAr: string
+  phone: string
+  email?: string | null
+  idNumber?: string | null
+  address?: string | null
+  customerType?: string
+  notes?: string | null
+  isDeleted?: boolean
+  deletedAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  createdBy: Prisma.UserCreateNestedOneWithoutCreatedCustomersInput
+  bookings?: Prisma.BookingCreateNestedManyWithoutCustomerInput
+  invoices?: Prisma.InvoiceCreateNestedManyWithoutCustomerInput
+}
+
+export type CustomerUncheckedCreateWithoutOwnerInput = {
+  id?: string
+  nameAr: string
+  phone: string
+  email?: string | null
+  idNumber?: string | null
+  address?: string | null
+  customerType?: string
+  notes?: string | null
+  isDeleted?: boolean
+  deletedAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  createdById: string
+  bookings?: Prisma.BookingUncheckedCreateNestedManyWithoutCustomerInput
+  invoices?: Prisma.InvoiceUncheckedCreateNestedManyWithoutCustomerInput
+}
+
+export type CustomerCreateOrConnectWithoutOwnerInput = {
+  where: Prisma.CustomerWhereUniqueInput
+  create: Prisma.XOR<Prisma.CustomerCreateWithoutOwnerInput, Prisma.CustomerUncheckedCreateWithoutOwnerInput>
+}
+
+export type CustomerCreateManyOwnerInputEnvelope = {
+  data: Prisma.CustomerCreateManyOwnerInput | Prisma.CustomerCreateManyOwnerInput[]
   skipDuplicates?: boolean
 }
 
@@ -658,11 +772,28 @@ export type CustomerScalarWhereInput = {
   address?: Prisma.StringNullableFilter<"Customer"> | string | null
   customerType?: Prisma.StringFilter<"Customer"> | string
   notes?: Prisma.StringNullableFilter<"Customer"> | string | null
+  ownerId?: Prisma.StringFilter<"Customer"> | string
   isDeleted?: Prisma.BoolFilter<"Customer"> | boolean
   deletedAt?: Prisma.DateTimeNullableFilter<"Customer"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"Customer"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Customer"> | Date | string
   createdById?: Prisma.StringFilter<"Customer"> | string
+}
+
+export type CustomerUpsertWithWhereUniqueWithoutOwnerInput = {
+  where: Prisma.CustomerWhereUniqueInput
+  update: Prisma.XOR<Prisma.CustomerUpdateWithoutOwnerInput, Prisma.CustomerUncheckedUpdateWithoutOwnerInput>
+  create: Prisma.XOR<Prisma.CustomerCreateWithoutOwnerInput, Prisma.CustomerUncheckedCreateWithoutOwnerInput>
+}
+
+export type CustomerUpdateWithWhereUniqueWithoutOwnerInput = {
+  where: Prisma.CustomerWhereUniqueInput
+  data: Prisma.XOR<Prisma.CustomerUpdateWithoutOwnerInput, Prisma.CustomerUncheckedUpdateWithoutOwnerInput>
+}
+
+export type CustomerUpdateManyWithWhereWithoutOwnerInput = {
+  where: Prisma.CustomerScalarWhereInput
+  data: Prisma.XOR<Prisma.CustomerUpdateManyMutationInput, Prisma.CustomerUncheckedUpdateManyWithoutOwnerInput>
 }
 
 export type CustomerCreateWithoutBookingsInput = {
@@ -678,6 +809,7 @@ export type CustomerCreateWithoutBookingsInput = {
   deletedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  owner: Prisma.UserCreateNestedOneWithoutOwnedCustomersInput
   createdBy: Prisma.UserCreateNestedOneWithoutCreatedCustomersInput
   invoices?: Prisma.InvoiceCreateNestedManyWithoutCustomerInput
 }
@@ -691,6 +823,7 @@ export type CustomerUncheckedCreateWithoutBookingsInput = {
   address?: string | null
   customerType?: string
   notes?: string | null
+  ownerId: string
   isDeleted?: boolean
   deletedAt?: Date | string | null
   createdAt?: Date | string
@@ -728,6 +861,7 @@ export type CustomerUpdateWithoutBookingsInput = {
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  owner?: Prisma.UserUpdateOneRequiredWithoutOwnedCustomersNestedInput
   createdBy?: Prisma.UserUpdateOneRequiredWithoutCreatedCustomersNestedInput
   invoices?: Prisma.InvoiceUpdateManyWithoutCustomerNestedInput
 }
@@ -741,6 +875,7 @@ export type CustomerUncheckedUpdateWithoutBookingsInput = {
   address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customerType?: Prisma.StringFieldUpdateOperationsInput | string
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  ownerId?: Prisma.StringFieldUpdateOperationsInput | string
   isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -762,6 +897,7 @@ export type CustomerCreateWithoutInvoicesInput = {
   deletedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  owner: Prisma.UserCreateNestedOneWithoutOwnedCustomersInput
   createdBy: Prisma.UserCreateNestedOneWithoutCreatedCustomersInput
   bookings?: Prisma.BookingCreateNestedManyWithoutCustomerInput
 }
@@ -775,6 +911,7 @@ export type CustomerUncheckedCreateWithoutInvoicesInput = {
   address?: string | null
   customerType?: string
   notes?: string | null
+  ownerId: string
   isDeleted?: boolean
   deletedAt?: Date | string | null
   createdAt?: Date | string
@@ -812,6 +949,7 @@ export type CustomerUpdateWithoutInvoicesInput = {
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  owner?: Prisma.UserUpdateOneRequiredWithoutOwnedCustomersNestedInput
   createdBy?: Prisma.UserUpdateOneRequiredWithoutCreatedCustomersNestedInput
   bookings?: Prisma.BookingUpdateManyWithoutCustomerNestedInput
 }
@@ -825,6 +963,7 @@ export type CustomerUncheckedUpdateWithoutInvoicesInput = {
   address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customerType?: Prisma.StringFieldUpdateOperationsInput | string
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  ownerId?: Prisma.StringFieldUpdateOperationsInput | string
   isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -842,10 +981,27 @@ export type CustomerCreateManyCreatedByInput = {
   address?: string | null
   customerType?: string
   notes?: string | null
+  ownerId: string
   isDeleted?: boolean
   deletedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+}
+
+export type CustomerCreateManyOwnerInput = {
+  id?: string
+  nameAr: string
+  phone: string
+  email?: string | null
+  idNumber?: string | null
+  address?: string | null
+  customerType?: string
+  notes?: string | null
+  isDeleted?: boolean
+  deletedAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  createdById: string
 }
 
 export type CustomerUpdateWithoutCreatedByInput = {
@@ -861,6 +1017,7 @@ export type CustomerUpdateWithoutCreatedByInput = {
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  owner?: Prisma.UserUpdateOneRequiredWithoutOwnedCustomersNestedInput
   bookings?: Prisma.BookingUpdateManyWithoutCustomerNestedInput
   invoices?: Prisma.InvoiceUpdateManyWithoutCustomerNestedInput
 }
@@ -874,6 +1031,7 @@ export type CustomerUncheckedUpdateWithoutCreatedByInput = {
   address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customerType?: Prisma.StringFieldUpdateOperationsInput | string
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  ownerId?: Prisma.StringFieldUpdateOperationsInput | string
   isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -891,10 +1049,63 @@ export type CustomerUncheckedUpdateManyWithoutCreatedByInput = {
   address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customerType?: Prisma.StringFieldUpdateOperationsInput | string
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  ownerId?: Prisma.StringFieldUpdateOperationsInput | string
   isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type CustomerUpdateWithoutOwnerInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  nameAr?: Prisma.StringFieldUpdateOperationsInput | string
+  phone?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  idNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customerType?: Prisma.StringFieldUpdateOperationsInput | string
+  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  createdBy?: Prisma.UserUpdateOneRequiredWithoutCreatedCustomersNestedInput
+  bookings?: Prisma.BookingUpdateManyWithoutCustomerNestedInput
+  invoices?: Prisma.InvoiceUpdateManyWithoutCustomerNestedInput
+}
+
+export type CustomerUncheckedUpdateWithoutOwnerInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  nameAr?: Prisma.StringFieldUpdateOperationsInput | string
+  phone?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  idNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customerType?: Prisma.StringFieldUpdateOperationsInput | string
+  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  createdById?: Prisma.StringFieldUpdateOperationsInput | string
+  bookings?: Prisma.BookingUncheckedUpdateManyWithoutCustomerNestedInput
+  invoices?: Prisma.InvoiceUncheckedUpdateManyWithoutCustomerNestedInput
+}
+
+export type CustomerUncheckedUpdateManyWithoutOwnerInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  nameAr?: Prisma.StringFieldUpdateOperationsInput | string
+  phone?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  idNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customerType?: Prisma.StringFieldUpdateOperationsInput | string
+  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  createdById?: Prisma.StringFieldUpdateOperationsInput | string
 }
 
 
@@ -946,11 +1157,13 @@ export type CustomerSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs
   address?: boolean
   customerType?: boolean
   notes?: boolean
+  ownerId?: boolean
   isDeleted?: boolean
   deletedAt?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   createdById?: boolean
+  owner?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   createdBy?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   bookings?: boolean | Prisma.Customer$bookingsArgs<ExtArgs>
   invoices?: boolean | Prisma.Customer$invoicesArgs<ExtArgs>
@@ -966,11 +1179,13 @@ export type CustomerSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exte
   address?: boolean
   customerType?: boolean
   notes?: boolean
+  ownerId?: boolean
   isDeleted?: boolean
   deletedAt?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   createdById?: boolean
+  owner?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   createdBy?: boolean | Prisma.UserDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["customer"]>
 
@@ -983,11 +1198,13 @@ export type CustomerSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exte
   address?: boolean
   customerType?: boolean
   notes?: boolean
+  ownerId?: boolean
   isDeleted?: boolean
   deletedAt?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   createdById?: boolean
+  owner?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   createdBy?: boolean | Prisma.UserDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["customer"]>
 
@@ -1000,6 +1217,7 @@ export type CustomerSelectScalar = {
   address?: boolean
   customerType?: boolean
   notes?: boolean
+  ownerId?: boolean
   isDeleted?: boolean
   deletedAt?: boolean
   createdAt?: boolean
@@ -1007,23 +1225,27 @@ export type CustomerSelectScalar = {
   createdById?: boolean
 }
 
-export type CustomerOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "nameAr" | "phone" | "email" | "idNumber" | "address" | "customerType" | "notes" | "isDeleted" | "deletedAt" | "createdAt" | "updatedAt" | "createdById", ExtArgs["result"]["customer"]>
+export type CustomerOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "nameAr" | "phone" | "email" | "idNumber" | "address" | "customerType" | "notes" | "ownerId" | "isDeleted" | "deletedAt" | "createdAt" | "updatedAt" | "createdById", ExtArgs["result"]["customer"]>
 export type CustomerInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  owner?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   createdBy?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   bookings?: boolean | Prisma.Customer$bookingsArgs<ExtArgs>
   invoices?: boolean | Prisma.Customer$invoicesArgs<ExtArgs>
   _count?: boolean | Prisma.CustomerCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type CustomerIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  owner?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   createdBy?: boolean | Prisma.UserDefaultArgs<ExtArgs>
 }
 export type CustomerIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  owner?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   createdBy?: boolean | Prisma.UserDefaultArgs<ExtArgs>
 }
 
 export type $CustomerPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "Customer"
   objects: {
+    owner: Prisma.$UserPayload<ExtArgs>
     createdBy: Prisma.$UserPayload<ExtArgs>
     bookings: Prisma.$BookingPayload<ExtArgs>[]
     invoices: Prisma.$InvoicePayload<ExtArgs>[]
@@ -1037,6 +1259,7 @@ export type $CustomerPayload<ExtArgs extends runtime.Types.Extensions.InternalAr
     address: string | null
     customerType: string
     notes: string | null
+    ownerId: string
     isDeleted: boolean
     deletedAt: Date | null
     createdAt: Date
@@ -1436,6 +1659,7 @@ readonly fields: CustomerFieldRefs;
  */
 export interface Prisma__CustomerClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
+  owner<T extends Prisma.UserDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.UserDefaultArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   createdBy<T extends Prisma.UserDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.UserDefaultArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   bookings<T extends Prisma.Customer$bookingsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Customer$bookingsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$BookingPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   invoices<T extends Prisma.Customer$invoicesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Customer$invoicesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$InvoicePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
@@ -1476,6 +1700,7 @@ export interface CustomerFieldRefs {
   readonly address: Prisma.FieldRef<"Customer", 'String'>
   readonly customerType: Prisma.FieldRef<"Customer", 'String'>
   readonly notes: Prisma.FieldRef<"Customer", 'String'>
+  readonly ownerId: Prisma.FieldRef<"Customer", 'String'>
   readonly isDeleted: Prisma.FieldRef<"Customer", 'Boolean'>
   readonly deletedAt: Prisma.FieldRef<"Customer", 'DateTime'>
   readonly createdAt: Prisma.FieldRef<"Customer", 'DateTime'>

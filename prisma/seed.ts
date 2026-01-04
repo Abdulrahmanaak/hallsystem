@@ -20,25 +20,29 @@ async function main() {
     await prisma.customer.deleteMany()
     await prisma.hall.deleteMany()
     await prisma.accountingSync.deleteMany()
-    await prisma.user.deleteMany()
     await prisma.settings.deleteMany()
+    await prisma.user.deleteMany()
 
-    // Create Users (all with password: "password123")
-    console.log('👥 Creating users...')
+    // Create Hall Owner (with password: "password123")
+    console.log('👥 Creating hall owner...')
     const hashedPassword = await bcrypt.hash('password123', 10)
 
-    const adminUser = await prisma.user.create({
+    const hallOwner = await prisma.user.create({
         data: {
             username: 'admin',
             password: hashedPassword,
-            nameAr: 'أحمد المدير',
+            nameAr: 'قاعة النخبة للمناسبات',
             email: 'admin@hallsystem.com',
             phone: '0501234567',
-            role: 'ADMIN',
-            status: 'ACTIVE'
+            role: 'HALL_OWNER',
+            status: 'ACTIVE',
+            ownerId: null, // Hall owners have null ownerId
+            commercialRegNo: '1234567890',
+            vatRegNo: '300123456789003'
         }
     })
 
+    // Create team members for this hall owner
     const supervisorUser = await prisma.user.create({
         data: {
             username: 'supervisor',
@@ -47,7 +51,8 @@ async function main() {
             email: 'supervisor@hallsystem.com',
             phone: '0507654321',
             role: 'ROOM_SUPERVISOR',
-            status: 'ACTIVE'
+            status: 'ACTIVE',
+            ownerId: hallOwner.id // Team member belongs to hall owner
         }
     })
 
@@ -59,7 +64,8 @@ async function main() {
             email: 'accountant@hallsystem.com',
             phone: '0509876543',
             role: 'ACCOUNTANT',
-            status: 'ACTIVE'
+            status: 'ACTIVE',
+            ownerId: hallOwner.id
         }
     })
 
@@ -71,17 +77,18 @@ async function main() {
             email: 'employee@hallsystem.com',
             phone: '0502345678',
             role: 'EMPLOYEE',
-            status: 'ACTIVE'
+            status: 'ACTIVE',
+            ownerId: hallOwner.id
         }
     })
 
-    console.log('✅ Created 4 users (admin, supervisor, accountant, employee)')
+    console.log('✅ Created hall owner + 3 team members (supervisor, accountant, employee)')
 
-    // Create System Settings
-    console.log('⚙️  Creating system settings...')
+    // Create System Settings for Hall Owner
+    console.log('⚙️  Creating settings...')
     await prisma.settings.create({
         data: {
-            id: 'system',
+            ownerId: hallOwner.id,
             companyNameAr: 'قاعة النخبة للمناسبات',
             companyPhone: '0112345678',
             companyEmail: 'info@alnukhba.com',
@@ -92,9 +99,9 @@ async function main() {
         }
     })
 
-    console.log('✅ System settings created')
+    console.log('✅ Settings created')
 
-    // Create Halls
+    // Create Halls (owned by hall owner)
     console.log('🏛️  Creating halls...')
     const hall1 = await prisma.hall.create({
         data: {
@@ -102,6 +109,7 @@ async function main() {
             capacity: 500,
             basePrice: 15000,
             hourlyRate: 2000,
+            ownerId: hallOwner.id,
             amenities: JSON.stringify({
                 chairs: true,
                 tables: true,
@@ -122,6 +130,7 @@ async function main() {
             capacity: 300,
             basePrice: 10000,
             hourlyRate: 1500,
+            ownerId: hallOwner.id,
             amenities: JSON.stringify({
                 chairs: true,
                 tables: true,
@@ -141,6 +150,7 @@ async function main() {
             capacity: 150,
             basePrice: 7000,
             hourlyRate: 1000,
+            ownerId: hallOwner.id,
             amenities: JSON.stringify({
                 chairs: true,
                 tables: true,
@@ -155,7 +165,7 @@ async function main() {
 
     console.log('✅ Created 3 halls')
 
-    // Create Customers
+    // Create Customers (owned by hall owner)
     console.log('👥 Creating customers...')
     const customer1 = await prisma.customer.create({
         data: {
@@ -165,7 +175,8 @@ async function main() {
             idNumber: '1234567890',
             address: 'الرياض، حي النخيل',
             customerType: 'INDIVIDUAL',
-            createdById: adminUser.id
+            ownerId: hallOwner.id,
+            createdById: hallOwner.id
         }
     })
 
@@ -177,6 +188,7 @@ async function main() {
             idNumber: '9876543210',
             address: 'جدة، حي الزهراء',
             customerType: 'COMPANY',
+            ownerId: hallOwner.id,
             createdById: supervisorUser.id
         }
     })
@@ -189,6 +201,7 @@ async function main() {
             idNumber: '5432167890',
             address: 'الدمام، حي الفيصلية',
             customerType: 'INDIVIDUAL',
+            ownerId: hallOwner.id,
             createdById: employeeUser.id
         }
     })
@@ -205,6 +218,7 @@ async function main() {
             bookingNumber: 'BK-2024-0001',
             customerId: customer1.id,
             hallId: hall1.id,
+            ownerId: hallOwner.id,
             eventType: 'WEDDING',
             eventDate: pastDate,
             startTime: new Date('2024-11-15T17:00:00'),
@@ -226,6 +240,7 @@ async function main() {
             invoiceNumber: 'INV-2024-0001',
             bookingId: pastBooking.id,
             customerId: customer1.id,
+            ownerId: hallOwner.id,
             subtotal: 15000,
             discountAmount: 0,
             vatAmount: 2250,
@@ -243,6 +258,7 @@ async function main() {
             paymentNumber: 'PAY-2024-0001',
             bookingId: pastBooking.id,
             invoiceId: pastInvoice.id,
+            ownerId: hallOwner.id,
             amount: 17250,
             paymentMethod: 'BANK_TRANSFER',
             paymentDate: new Date('2024-11-14'),
@@ -259,6 +275,7 @@ async function main() {
             bookingNumber: 'BK-2024-0002',
             customerId: customer2.id,
             hallId: hall2.id,
+            ownerId: hallOwner.id,
             eventType: 'CONFERENCE',
             eventDate: upcomingDate,
             startTime: new Date(upcomingDate.getTime()),
@@ -279,6 +296,7 @@ async function main() {
             invoiceNumber: 'INV-2024-0002',
             bookingId: upcomingBooking.id,
             customerId: customer2.id,
+            ownerId: hallOwner.id,
             subtotal: 10000,
             discountAmount: 500,
             vatAmount: 1425,
@@ -300,6 +318,7 @@ async function main() {
             bookingNumber: 'BK-2024-0003',
             customerId: customer3.id,
             hallId: hall3.id,
+            ownerId: hallOwner.id,
             eventType: 'BIRTHDAY',
             eventDate: futureDate,
             startTime: new Date(futureDate.getTime()),
@@ -320,7 +339,7 @@ async function main() {
     console.log('\n✨ Seed completed successfully!\n')
     console.log('📋 Login credentials:')
     console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━')
-    console.log('Admin:      username: admin      | password: password123')
+    console.log('Hall Owner: username: admin      | password: password123')
     console.log('Supervisor: username: supervisor | password: password123')
     console.log('Accountant: username: accountant | password: password123')
     console.log('Employee:   username: employee   | password: password123')

@@ -43,7 +43,7 @@ export default function BookingsPage() {
                     <a href="/bookings" className="flex items-center px-6 py-3 bg-indigo-50 text-indigo-600 border-r-4 border-indigo-600">
                         <span className="mr-3">📅</span> Bookings
                     </a>
-                    {(user.role === 'ADMIN' || user.role === 'ACCOUNTANT') && (
+                    {(user.role === 'HALL_OWNER' || user.role === 'ACCOUNTANT') && (
                         <a href="/accounting" className="flex items-center px-6 py-3 text-gray-600 hover:bg-gray-50 hover:text-gray-900">
                             <span className="mr-3">💰</span> Accounting
                         </a>

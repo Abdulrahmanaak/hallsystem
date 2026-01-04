@@ -38,49 +38,43 @@ export default function Sidebar({ user, onCloseMobile }: SidebarProps) {
             label: 'الرئيسية',
             icon: <LayoutDashboard size={20} />,
             href: '/dashboard',
-            roles: ['ADMIN', 'ROOM_SUPERVISOR', 'ACCOUNTANT', 'EMPLOYEE']
+            roles: ['SUPER_ADMIN', 'HALL_OWNER', 'ROOM_SUPERVISOR', 'ACCOUNTANT', 'EMPLOYEE']
         },
         {
             label: 'التقويم',
             icon: <Calendar size={20} />,
             href: '/dashboard/calendar',
-            roles: ['ADMIN', 'ROOM_SUPERVISOR', 'ACCOUNTANT', 'EMPLOYEE']
+            roles: ['SUPER_ADMIN', 'HALL_OWNER', 'ROOM_SUPERVISOR', 'ACCOUNTANT', 'EMPLOYEE']
         },
         {
             label: 'الحجوزات',
             icon: <FileText size={20} />,
             href: '/dashboard/bookings',
-            roles: ['ADMIN', 'ROOM_SUPERVISOR', 'ACCOUNTANT', 'EMPLOYEE']
+            roles: ['SUPER_ADMIN', 'HALL_OWNER', 'ROOM_SUPERVISOR', 'ACCOUNTANT', 'EMPLOYEE']
         },
-        // {
-        //     label: 'العملاء',
-        //     icon: <Users size={20} />,
-        //     href: '/dashboard/customers',
-        //     roles: ['ADMIN', 'ROOM_SUPERVISOR', 'ACCOUNTANT', 'EMPLOYEE']
-        // },
         {
             label: 'القاعات',
             icon: <Building2 size={20} />,
             href: '/dashboard/halls',
-            roles: ['ADMIN', 'ROOM_SUPERVISOR']
+            roles: ['SUPER_ADMIN', 'HALL_OWNER', 'ROOM_SUPERVISOR']
         },
         {
             label: 'المالية',
             icon: <DollarSign size={20} />,
             href: '/dashboard/finance',
-            roles: ['ADMIN', 'ACCOUNTANT']
+            roles: ['SUPER_ADMIN', 'HALL_OWNER', 'ACCOUNTANT']
         },
         {
             label: 'المستخدمين',
             icon: <UserCog size={20} />,
             href: '/dashboard/users',
-            roles: ['ADMIN']
+            roles: ['SUPER_ADMIN', 'HALL_OWNER']
         },
         {
             label: 'الإعدادات',
             icon: <Settings size={20} />,
             href: '/dashboard/settings',
-            roles: ['ADMIN']
+            roles: ['SUPER_ADMIN', 'HALL_OWNER']
         }
     ]
 

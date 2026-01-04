@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
+import { auth } from '@/lib/auth'
 
 // Generate invoice number: INV-2025-0001
 async function generateInvoiceNumber(): Promise<string> {
@@ -29,9 +30,18 @@ async function generateInvoiceNumber(): Promise<string> {
 // GET all invoices
 export async function GET() {
     try {
+        const session = await auth()
+        if (!session?.user) {
+            return NextResponse.json({ error: 'غير مصرح' }, { status: 401 })
+        }
+
+        // Filter by owner (SUPER_ADMIN sees all)
+        const ownerFilter = session.user.role === 'SUPER_ADMIN' ? {} : { ownerId: session.user.ownerId }
+
         const invoices = await prisma.invoice.findMany({
             where: {
-                isDeleted: false
+                isDeleted: false,
+                ...ownerFilter
             },
             include: {
                 booking: {
@@ -96,20 +106,12 @@ export async function GET() {
 // POST - Create invoice from booking
 export async function POST(request: Request) {
     try {
-        const body = await request.json()
-
-        // Get admin user
-        const adminUser = await prisma.user.findFirst({
-            where: { role: 'ADMIN', status: 'ACTIVE' },
-            select: { id: true }
-        })
-
-        if (!adminUser) {
-            return NextResponse.json(
-                { error: 'No valid user found' },
-                { status: 400 }
-            )
+        const session = await auth()
+        if (!session?.user) {
+            return NextResponse.json({ error: 'غير مصرح' }, { status: 401 })
         }
+
+        const body = await request.json()
 
         // Get booking details
         const booking = await prisma.booking.findUnique({
@@ -150,6 +152,7 @@ export async function POST(request: Request) {
                 invoiceNumber,
                 bookingId: booking.id,
                 customerId: booking.customerId,
+                ownerId: session.user.ownerId, // Tenant isolation
                 subtotal: booking.totalAmount,
                 discountAmount: booking.discountAmount,
                 vatAmount: booking.vatAmount,
@@ -159,7 +162,7 @@ export async function POST(request: Request) {
                 dueDate: body.dueDate ? new Date(body.dueDate) : dueDate,
                 status: 'UNPAID',
                 notes: body.notes || null,
-                createdById: adminUser.id
+                createdById: session.user.id
             },
             include: {
                 booking: { select: { bookingNumber: true } },

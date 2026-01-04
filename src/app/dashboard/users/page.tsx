@@ -26,8 +26,17 @@ interface User {
     createdAt: string
 }
 
+// All roles for display purposes
 const ROLES: Record<string, string> = {
-    'ADMIN': 'مدير النظام',
+    'SUPER_ADMIN': 'مدير عام',
+    'HALL_OWNER': 'صاحب قاعة',
+    'ROOM_SUPERVISOR': 'مشرف القاعات',
+    'ACCOUNTANT': 'محاسب',
+    'EMPLOYEE': 'موظف'
+}
+
+// Roles available for creation by HALL_OWNER (team members only)
+const TEAM_ROLES: Record<string, string> = {
     'ROOM_SUPERVISOR': 'مشرف القاعات',
     'ACCOUNTANT': 'محاسب',
     'EMPLOYEE': 'موظف'
@@ -159,7 +168,7 @@ export default function UsersPage() {
 
     // Stats
     const activeUsers = users.filter(u => u.status === 'ACTIVE').length
-    const adminCount = users.filter(u => u.role === 'ADMIN').length
+    const ownerCount = users.filter(u => u.role === 'HALL_OWNER').length
 
     if (loading) {
         return (
@@ -226,7 +235,7 @@ export default function UsersPage() {
                             </div>
                             <div>
                                 <p className="text-sm text-[var(--text-secondary)]">مديرين</p>
-                                <p className="text-2xl font-bold text-[var(--text-primary)]">{adminCount}</p>
+                                <p className="text-2xl font-bold text-[var(--text-primary)]">{ownerCount}</p>
                             </div>
                         </div>
                     </CardContent>
@@ -419,7 +428,7 @@ export default function UsersPage() {
                                     onChange={(e) => setFormData({ ...formData, role: e.target.value })}
                                     className="form-input w-full"
                                 >
-                                    {Object.entries(ROLES).map(([key, label]) => (
+                                    {Object.entries(TEAM_ROLES).map(([key, label]) => (
                                         <option key={key} value={key}>{label}</option>
                                     ))}
                                 </select>

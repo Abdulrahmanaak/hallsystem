@@ -1,4 +1,4 @@
-export type UserRole = 'ADMIN' | 'ROOM_SUPERVISOR' | 'ACCOUNTANT' | 'EMPLOYEE';
+export type UserRole = 'SUPER_ADMIN' | 'HALL_OWNER' | 'ROOM_SUPERVISOR' | 'ACCOUNTANT' | 'EMPLOYEE';
 export type UserStatus = 'ACTIVE' | 'INACTIVE';
 export type CustomerType = 'INDIVIDUAL' | 'COMPANY';
 export type HallStatus = 'ACTIVE' | 'INACTIVE' | 'MAINTENANCE';

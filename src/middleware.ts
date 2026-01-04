@@ -8,10 +8,13 @@ export default auth((req) => {
     const token = req.auth
     const pathname = req.nextUrl.pathname
 
-    // Public paths
-    const isPublicPath = pathname === "/login" || pathname.startsWith("/api/auth")
+    // Public paths - no authentication required
+    const isPublicPath =
+        pathname === "/login" ||
+        pathname === "/signup" ||
+        pathname.startsWith("/api/auth")
 
-    // Redirect logged-in users from login page
+    // Redirect logged-in users from login/signup pages
     if (isPublicPath && token?.user) {
         return NextResponse.redirect(new URL("/dashboard", req.url))
     }
@@ -21,22 +24,30 @@ export default auth((req) => {
         return NextResponse.redirect(new URL("/login", req.url))
     }
 
-    // Role-based access control (flexible for future changes)
+    // Role-based access control
     const role = token?.user?.role
 
-    // Admin-only routes
-    if (pathname.startsWith("/dashboard/settings") && role !== "ADMIN") {
+    // Super Admin routes - only SUPER_ADMIN
+    if (pathname.startsWith("/dashboard/admin") && role !== "SUPER_ADMIN") {
         return NextResponse.redirect(new URL("/dashboard", req.url))
     }
 
-    // Admin-only routes - users management
-    if (pathname.startsWith("/dashboard/users") && role !== "ADMIN") {
+    // Settings routes - HALL_OWNER and SUPER_ADMIN only
+    if (pathname.startsWith("/dashboard/settings") &&
+        role !== "HALL_OWNER" && role !== "SUPER_ADMIN") {
         return NextResponse.redirect(new URL("/dashboard", req.url))
     }
 
-    // Finance routes - Admin and Accountant only
+    // Users management routes - HALL_OWNER and SUPER_ADMIN only
+    if (pathname.startsWith("/dashboard/users") &&
+        role !== "HALL_OWNER" && role !== "SUPER_ADMIN") {
+        return NextResponse.redirect(new URL("/dashboard", req.url))
+    }
+
+    // Finance routes - HALL_OWNER, SUPER_ADMIN and Accountant
     if (pathname.startsWith("/dashboard/finance") &&
-        role !== "ADMIN" &&
+        role !== "HALL_OWNER" &&
+        role !== "SUPER_ADMIN" &&
         role !== "ACCOUNTANT") {
         return NextResponse.redirect(new URL("/dashboard", req.url))
     }
@@ -47,6 +58,7 @@ export default auth((req) => {
 export const config = {
     matcher: [
         "/dashboard/:path*",
-        "/login"
+        "/login",
+        "/signup"
     ]
 }

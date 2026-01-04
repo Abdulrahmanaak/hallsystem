@@ -1,18 +1,26 @@
 import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
+import { auth } from '@/lib/auth'
 
-// GET settings
+// GET settings for current owner
 export async function GET() {
     try {
+        const session = await auth()
+        if (!session?.user) {
+            return NextResponse.json({ error: 'غير مصرح' }, { status: 401 })
+        }
+
+        const ownerId = session.user.ownerId
+
         let settings = await prisma.settings.findUnique({
-            where: { id: 'system' }
+            where: { ownerId }
         })
 
         // Create default settings if not exists
         if (!settings) {
             settings = await prisma.settings.create({
                 data: {
-                    id: 'system',
+                    ownerId,
                     companyNameAr: 'نظام إدارة القاعات',
                     vatPercentage: 15,
                     qoyodEnabled: false
@@ -42,9 +50,20 @@ export async function GET() {
     }
 }
 
-// PUT - Update settings
+// PUT - Update settings for current owner
 export async function PUT(request: Request) {
     try {
+        const session = await auth()
+        if (!session?.user) {
+            return NextResponse.json({ error: 'غير مصرح' }, { status: 401 })
+        }
+
+        // Only HALL_OWNER and SUPER_ADMIN can update settings
+        if (session.user.role !== 'HALL_OWNER' && session.user.role !== 'SUPER_ADMIN') {
+            return NextResponse.json({ error: 'ليس لديك صلاحية' }, { status: 403 })
+        }
+
+        const ownerId = session.user.ownerId
         const body = await request.json()
 
         const updateData: Record<string, unknown> = {}
@@ -63,11 +82,11 @@ export async function PUT(request: Request) {
             updateData.qoyodApiKey = body.qoyodApiKey
         }
 
-        const settings = await prisma.settings.upsert({
-            where: { id: 'system' },
+        await prisma.settings.upsert({
+            where: { ownerId },
             update: updateData,
             create: {
-                id: 'system',
+                ownerId,
                 ...updateData
             }
         })

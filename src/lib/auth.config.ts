@@ -16,6 +16,9 @@ export const authConfig = {
                 token.username = user.username
                 token.nameAr = user.nameAr
                 token.role = user.role
+                // Store resolved ownerId in token
+                // For HALL_OWNER: their own ID, for team: owner's ID, for SUPER_ADMIN: null
+                token.ownerId = user.ownerId
             }
             return token
         },
@@ -25,6 +28,11 @@ export const authConfig = {
                 session.user.username = token.username as string
                 session.user.nameAr = token.nameAr as string
                 session.user.role = token.role as UserRole
+                // Resolve ownerId for session:
+                // For HALL_OWNER: their own user ID
+                // For team members: their owner's ID
+                // For SUPER_ADMIN: null (will bypass filters)
+                session.user.ownerId = (token.ownerId as string) || token.id as string
             }
             return session
         },

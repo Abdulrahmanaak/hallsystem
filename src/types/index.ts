@@ -1,4 +1,4 @@
-export type Role = 'ADMIN' | 'ROOM_SUPERVISOR' | 'ACCOUNTANT' | 'EMPLOYEE';
+export type Role = 'SUPER_ADMIN' | 'HALL_OWNER' | 'ROOM_SUPERVISOR' | 'ACCOUNTANT' | 'EMPLOYEE';
 
 import type {
   User,

@@ -11,6 +11,7 @@ export interface User {
     nameAr: string
     role: UserRole
     email?: string | null
+    ownerId: string | null // For HALL_OWNER: null (they ARE the owner), for team: their owner's ID
 }
 
 declare module "next-auth" {
@@ -20,6 +21,7 @@ declare module "next-auth" {
         nameAr: string
         role: UserRole
         email?: string | null
+        ownerId: string | null
     }
 
     interface Session {
@@ -29,6 +31,7 @@ declare module "next-auth" {
             nameAr: string
             role: UserRole
             email?: string | null
+            ownerId: string // Resolved owner ID for all users
         }
     }
 
@@ -37,6 +40,7 @@ declare module "next-auth" {
         username: string
         nameAr: string
         role: UserRole
+        ownerId: string
     }
 }
 
@@ -60,46 +64,6 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
                     console.log("❌ Missing credentials");
                     throw new Error("يرجى إدخال اسم المستخدم وكلمة المرور")
                 }
-
-                // ===============================================
-                // TEMPORARY MOCK LOGIN BYPASS (Netlify DB Issue)
-                // ===============================================
-                const mockUsers: Record<string, any> = {
-                    'mock_admin': {
-                        id: 'mock_admin_1',
-                        username: 'mock_admin',
-                        nameAr: 'مدير النظام (مؤقت)',
-                        role: 'ADMIN',
-                        email: 'admin@mock.com'
-                    },
-                    'mock_supervisor': {
-                        id: 'mock_sup_1',
-                        username: 'mock_supervisor',
-                        nameAr: 'مشرف القاعات (مؤقت)',
-                        role: 'ROOM_SUPERVISOR',
-                        email: 'sup@mock.com'
-                    },
-                    'mock_accountant': {
-                        id: 'mock_acct_1',
-                        username: 'mock_accountant',
-                        nameAr: 'محاسب (مؤقت)',
-                        role: 'ACCOUNTANT',
-                        email: 'acct@mock.com'
-                    },
-                    'mock_employee': {
-                        id: 'mock_emp_1',
-                        username: 'mock_employee',
-                        nameAr: 'موظف (مؤقت)',
-                        role: 'EMPLOYEE',
-                        email: 'emp@mock.com'
-                    }
-                }
-
-                if (credentials?.username && mockUsers[credentials.username as string]) {
-                    console.log("⚠️ USING MOCK USER BYPASS FOR:", credentials.username);
-                    return mockUsers[credentials.username as string];
-                }
-                // ===============================================
 
                 try {
                     const user = await prisma.user.findFirst({
@@ -134,18 +98,33 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
                         data: { lastLogin: new Date() }
                     })
 
-                    console.log("✅ Login successful, returning user object");
+                    // Determine the ownerId for tenant isolation:
+                    // - SUPER_ADMIN: keep as null (has access to all)
+                    // - HALL_OWNER: their own ID (they are the owner)
+                    // - Team members: their owner's ID
+                    let resolvedOwnerId: string | null = null
+
+                    if (user.role === 'SUPER_ADMIN') {
+                        resolvedOwnerId = null // Super admin sees all
+                    } else if (user.role === 'HALL_OWNER') {
+                        resolvedOwnerId = user.id // Hall owner IS the owner
+                    } else {
+                        resolvedOwnerId = user.ownerId // Team member uses their owner's ID
+                    }
+
+                    console.log("✅ Login successful, resolved ownerId:", resolvedOwnerId);
 
                     return {
                         id: user.id,
                         username: user.username,
                         nameAr: user.nameAr,
-                        role: user.role as UserRole, // Cast string from DB to UserRole
-                        email: user.email
+                        role: user.role as UserRole,
+                        email: user.email,
+                        ownerId: resolvedOwnerId
                     }
                 } catch (error) {
                     console.error("🔥 Auth error:", error);
-                    throw error; // Re-throw to be handled by NextAuth
+                    throw error;
                 }
             }
         })

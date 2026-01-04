@@ -36,6 +36,7 @@ export type SettingsSumAggregateOutputType = {
 
 export type SettingsMinAggregateOutputType = {
   id: string | null
+  ownerId: string | null
   companyNameAr: string | null
   companyLogo: string | null
   companyPhone: string | null
@@ -53,6 +54,7 @@ export type SettingsMinAggregateOutputType = {
 
 export type SettingsMaxAggregateOutputType = {
   id: string | null
+  ownerId: string | null
   companyNameAr: string | null
   companyLogo: string | null
   companyPhone: string | null
@@ -70,6 +72,7 @@ export type SettingsMaxAggregateOutputType = {
 
 export type SettingsCountAggregateOutputType = {
   id: number
+  ownerId: number
   companyNameAr: number
   companyLogo: number
   companyPhone: number
@@ -97,6 +100,7 @@ export type SettingsSumAggregateInputType = {
 
 export type SettingsMinAggregateInputType = {
   id?: true
+  ownerId?: true
   companyNameAr?: true
   companyLogo?: true
   companyPhone?: true
@@ -114,6 +118,7 @@ export type SettingsMinAggregateInputType = {
 
 export type SettingsMaxAggregateInputType = {
   id?: true
+  ownerId?: true
   companyNameAr?: true
   companyLogo?: true
   companyPhone?: true
@@ -131,6 +136,7 @@ export type SettingsMaxAggregateInputType = {
 
 export type SettingsCountAggregateInputType = {
   id?: true
+  ownerId?: true
   companyNameAr?: true
   companyLogo?: true
   companyPhone?: true
@@ -235,6 +241,7 @@ export type SettingsGroupByArgs<ExtArgs extends runtime.Types.Extensions.Interna
 
 export type SettingsGroupByOutputType = {
   id: string
+  ownerId: string
   companyNameAr: string
   companyLogo: string | null
   companyPhone: string | null
@@ -275,6 +282,7 @@ export type SettingsWhereInput = {
   OR?: Prisma.SettingsWhereInput[]
   NOT?: Prisma.SettingsWhereInput | Prisma.SettingsWhereInput[]
   id?: Prisma.StringFilter<"Settings"> | string
+  ownerId?: Prisma.StringFilter<"Settings"> | string
   companyNameAr?: Prisma.StringFilter<"Settings"> | string
   companyLogo?: Prisma.StringNullableFilter<"Settings"> | string | null
   companyPhone?: Prisma.StringNullableFilter<"Settings"> | string | null
@@ -288,10 +296,12 @@ export type SettingsWhereInput = {
   qoyodApiSecret?: Prisma.StringNullableFilter<"Settings"> | string | null
   qoyodEnabled?: Prisma.BoolFilter<"Settings"> | boolean
   updatedAt?: Prisma.DateTimeFilter<"Settings"> | Date | string
+  owner?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
 }
 
 export type SettingsOrderByWithRelationInput = {
   id?: Prisma.SortOrder
+  ownerId?: Prisma.SortOrder
   companyNameAr?: Prisma.SortOrder
   companyLogo?: Prisma.SortOrderInput | Prisma.SortOrder
   companyPhone?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -305,10 +315,12 @@ export type SettingsOrderByWithRelationInput = {
   qoyodApiSecret?: Prisma.SortOrderInput | Prisma.SortOrder
   qoyodEnabled?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+  owner?: Prisma.UserOrderByWithRelationInput
 }
 
 export type SettingsWhereUniqueInput = Prisma.AtLeast<{
   id?: string
+  ownerId?: string
   AND?: Prisma.SettingsWhereInput | Prisma.SettingsWhereInput[]
   OR?: Prisma.SettingsWhereInput[]
   NOT?: Prisma.SettingsWhereInput | Prisma.SettingsWhereInput[]
@@ -325,10 +337,12 @@ export type SettingsWhereUniqueInput = Prisma.AtLeast<{
   qoyodApiSecret?: Prisma.StringNullableFilter<"Settings"> | string | null
   qoyodEnabled?: Prisma.BoolFilter<"Settings"> | boolean
   updatedAt?: Prisma.DateTimeFilter<"Settings"> | Date | string
-}, "id">
+  owner?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
+}, "id" | "ownerId">
 
 export type SettingsOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
+  ownerId?: Prisma.SortOrder
   companyNameAr?: Prisma.SortOrder
   companyLogo?: Prisma.SortOrderInput | Prisma.SortOrder
   companyPhone?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -354,6 +368,7 @@ export type SettingsScalarWhereWithAggregatesInput = {
   OR?: Prisma.SettingsScalarWhereWithAggregatesInput[]
   NOT?: Prisma.SettingsScalarWhereWithAggregatesInput | Prisma.SettingsScalarWhereWithAggregatesInput[]
   id?: Prisma.StringWithAggregatesFilter<"Settings"> | string
+  ownerId?: Prisma.StringWithAggregatesFilter<"Settings"> | string
   companyNameAr?: Prisma.StringWithAggregatesFilter<"Settings"> | string
   companyLogo?: Prisma.StringNullableWithAggregatesFilter<"Settings"> | string | null
   companyPhone?: Prisma.StringNullableWithAggregatesFilter<"Settings"> | string | null
@@ -384,10 +399,12 @@ export type SettingsCreateInput = {
   qoyodApiSecret?: string | null
   qoyodEnabled?: boolean
   updatedAt?: Date | string
+  owner: Prisma.UserCreateNestedOneWithoutOwnedSettingsInput
 }
 
 export type SettingsUncheckedCreateInput = {
   id?: string
+  ownerId: string
   companyNameAr?: string
   companyLogo?: string | null
   companyPhone?: string | null
@@ -418,10 +435,12 @@ export type SettingsUpdateInput = {
   qoyodApiSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   qoyodEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  owner?: Prisma.UserUpdateOneRequiredWithoutOwnedSettingsNestedInput
 }
 
 export type SettingsUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  ownerId?: Prisma.StringFieldUpdateOperationsInput | string
   companyNameAr?: Prisma.StringFieldUpdateOperationsInput | string
   companyLogo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   companyPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -439,6 +458,7 @@ export type SettingsUncheckedUpdateInput = {
 
 export type SettingsCreateManyInput = {
   id?: string
+  ownerId: string
   companyNameAr?: string
   companyLogo?: string | null
   companyPhone?: string | null
@@ -473,6 +493,7 @@ export type SettingsUpdateManyMutationInput = {
 
 export type SettingsUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  ownerId?: Prisma.StringFieldUpdateOperationsInput | string
   companyNameAr?: Prisma.StringFieldUpdateOperationsInput | string
   companyLogo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   companyPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -488,8 +509,14 @@ export type SettingsUncheckedUpdateManyInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
+export type SettingsNullableScalarRelationFilter = {
+  is?: Prisma.SettingsWhereInput | null
+  isNot?: Prisma.SettingsWhereInput | null
+}
+
 export type SettingsCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
+  ownerId?: Prisma.SortOrder
   companyNameAr?: Prisma.SortOrder
   companyLogo?: Prisma.SortOrder
   companyPhone?: Prisma.SortOrder
@@ -511,6 +538,7 @@ export type SettingsAvgOrderByAggregateInput = {
 
 export type SettingsMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
+  ownerId?: Prisma.SortOrder
   companyNameAr?: Prisma.SortOrder
   companyLogo?: Prisma.SortOrder
   companyPhone?: Prisma.SortOrder
@@ -528,6 +556,7 @@ export type SettingsMaxOrderByAggregateInput = {
 
 export type SettingsMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
+  ownerId?: Prisma.SortOrder
   companyNameAr?: Prisma.SortOrder
   companyLogo?: Prisma.SortOrder
   companyPhone?: Prisma.SortOrder
@@ -547,10 +576,127 @@ export type SettingsSumOrderByAggregateInput = {
   vatPercentage?: Prisma.SortOrder
 }
 
+export type SettingsCreateNestedOneWithoutOwnerInput = {
+  create?: Prisma.XOR<Prisma.SettingsCreateWithoutOwnerInput, Prisma.SettingsUncheckedCreateWithoutOwnerInput>
+  connectOrCreate?: Prisma.SettingsCreateOrConnectWithoutOwnerInput
+  connect?: Prisma.SettingsWhereUniqueInput
+}
+
+export type SettingsUncheckedCreateNestedOneWithoutOwnerInput = {
+  create?: Prisma.XOR<Prisma.SettingsCreateWithoutOwnerInput, Prisma.SettingsUncheckedCreateWithoutOwnerInput>
+  connectOrCreate?: Prisma.SettingsCreateOrConnectWithoutOwnerInput
+  connect?: Prisma.SettingsWhereUniqueInput
+}
+
+export type SettingsUpdateOneWithoutOwnerNestedInput = {
+  create?: Prisma.XOR<Prisma.SettingsCreateWithoutOwnerInput, Prisma.SettingsUncheckedCreateWithoutOwnerInput>
+  connectOrCreate?: Prisma.SettingsCreateOrConnectWithoutOwnerInput
+  upsert?: Prisma.SettingsUpsertWithoutOwnerInput
+  disconnect?: Prisma.SettingsWhereInput | boolean
+  delete?: Prisma.SettingsWhereInput | boolean
+  connect?: Prisma.SettingsWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.SettingsUpdateToOneWithWhereWithoutOwnerInput, Prisma.SettingsUpdateWithoutOwnerInput>, Prisma.SettingsUncheckedUpdateWithoutOwnerInput>
+}
+
+export type SettingsUncheckedUpdateOneWithoutOwnerNestedInput = {
+  create?: Prisma.XOR<Prisma.SettingsCreateWithoutOwnerInput, Prisma.SettingsUncheckedCreateWithoutOwnerInput>
+  connectOrCreate?: Prisma.SettingsCreateOrConnectWithoutOwnerInput
+  upsert?: Prisma.SettingsUpsertWithoutOwnerInput
+  disconnect?: Prisma.SettingsWhereInput | boolean
+  delete?: Prisma.SettingsWhereInput | boolean
+  connect?: Prisma.SettingsWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.SettingsUpdateToOneWithWhereWithoutOwnerInput, Prisma.SettingsUpdateWithoutOwnerInput>, Prisma.SettingsUncheckedUpdateWithoutOwnerInput>
+}
+
+export type SettingsCreateWithoutOwnerInput = {
+  id?: string
+  companyNameAr?: string
+  companyLogo?: string | null
+  companyPhone?: string | null
+  companyEmail?: string | null
+  companyAddress?: string | null
+  companyAddressLine2?: string | null
+  commercialRegNo?: string | null
+  vatRegNo?: string | null
+  vatPercentage?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  qoyodApiKey?: string | null
+  qoyodApiSecret?: string | null
+  qoyodEnabled?: boolean
+  updatedAt?: Date | string
+}
+
+export type SettingsUncheckedCreateWithoutOwnerInput = {
+  id?: string
+  companyNameAr?: string
+  companyLogo?: string | null
+  companyPhone?: string | null
+  companyEmail?: string | null
+  companyAddress?: string | null
+  companyAddressLine2?: string | null
+  commercialRegNo?: string | null
+  vatRegNo?: string | null
+  vatPercentage?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  qoyodApiKey?: string | null
+  qoyodApiSecret?: string | null
+  qoyodEnabled?: boolean
+  updatedAt?: Date | string
+}
+
+export type SettingsCreateOrConnectWithoutOwnerInput = {
+  where: Prisma.SettingsWhereUniqueInput
+  create: Prisma.XOR<Prisma.SettingsCreateWithoutOwnerInput, Prisma.SettingsUncheckedCreateWithoutOwnerInput>
+}
+
+export type SettingsUpsertWithoutOwnerInput = {
+  update: Prisma.XOR<Prisma.SettingsUpdateWithoutOwnerInput, Prisma.SettingsUncheckedUpdateWithoutOwnerInput>
+  create: Prisma.XOR<Prisma.SettingsCreateWithoutOwnerInput, Prisma.SettingsUncheckedCreateWithoutOwnerInput>
+  where?: Prisma.SettingsWhereInput
+}
+
+export type SettingsUpdateToOneWithWhereWithoutOwnerInput = {
+  where?: Prisma.SettingsWhereInput
+  data: Prisma.XOR<Prisma.SettingsUpdateWithoutOwnerInput, Prisma.SettingsUncheckedUpdateWithoutOwnerInput>
+}
+
+export type SettingsUpdateWithoutOwnerInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  companyNameAr?: Prisma.StringFieldUpdateOperationsInput | string
+  companyLogo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  companyPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  companyEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  companyAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  companyAddressLine2?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  commercialRegNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  vatRegNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  vatPercentage?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  qoyodApiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  qoyodApiSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  qoyodEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type SettingsUncheckedUpdateWithoutOwnerInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  companyNameAr?: Prisma.StringFieldUpdateOperationsInput | string
+  companyLogo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  companyPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  companyEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  companyAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  companyAddressLine2?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  commercialRegNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  vatRegNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  vatPercentage?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  qoyodApiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  qoyodApiSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  qoyodEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
 
 
 export type SettingsSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
+  ownerId?: boolean
   companyNameAr?: boolean
   companyLogo?: boolean
   companyPhone?: boolean
@@ -564,10 +710,12 @@ export type SettingsSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs
   qoyodApiSecret?: boolean
   qoyodEnabled?: boolean
   updatedAt?: boolean
+  owner?: boolean | Prisma.UserDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["settings"]>
 
 export type SettingsSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
+  ownerId?: boolean
   companyNameAr?: boolean
   companyLogo?: boolean
   companyPhone?: boolean
@@ -581,10 +729,12 @@ export type SettingsSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exte
   qoyodApiSecret?: boolean
   qoyodEnabled?: boolean
   updatedAt?: boolean
+  owner?: boolean | Prisma.UserDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["settings"]>
 
 export type SettingsSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
+  ownerId?: boolean
   companyNameAr?: boolean
   companyLogo?: boolean
   companyPhone?: boolean
@@ -598,10 +748,12 @@ export type SettingsSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exte
   qoyodApiSecret?: boolean
   qoyodEnabled?: boolean
   updatedAt?: boolean
+  owner?: boolean | Prisma.UserDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["settings"]>
 
 export type SettingsSelectScalar = {
   id?: boolean
+  ownerId?: boolean
   companyNameAr?: boolean
   companyLogo?: boolean
   companyPhone?: boolean
@@ -617,13 +769,25 @@ export type SettingsSelectScalar = {
   updatedAt?: boolean
 }
 
-export type SettingsOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "companyNameAr" | "companyLogo" | "companyPhone" | "companyEmail" | "companyAddress" | "companyAddressLine2" | "commercialRegNo" | "vatRegNo" | "vatPercentage" | "qoyodApiKey" | "qoyodApiSecret" | "qoyodEnabled" | "updatedAt", ExtArgs["result"]["settings"]>
+export type SettingsOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "ownerId" | "companyNameAr" | "companyLogo" | "companyPhone" | "companyEmail" | "companyAddress" | "companyAddressLine2" | "commercialRegNo" | "vatRegNo" | "vatPercentage" | "qoyodApiKey" | "qoyodApiSecret" | "qoyodEnabled" | "updatedAt", ExtArgs["result"]["settings"]>
+export type SettingsInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  owner?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+}
+export type SettingsIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  owner?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+}
+export type SettingsIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  owner?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+}
 
 export type $SettingsPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "Settings"
-  objects: {}
+  objects: {
+    owner: Prisma.$UserPayload<ExtArgs>
+  }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
+    ownerId: string
     companyNameAr: string
     companyLogo: string | null
     companyPhone: string | null
@@ -1031,6 +1195,7 @@ readonly fields: SettingsFieldRefs;
  */
 export interface Prisma__SettingsClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
+  owner<T extends Prisma.UserDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.UserDefaultArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1061,6 +1226,7 @@ export interface Prisma__SettingsClient<T, Null = never, ExtArgs extends runtime
  */
 export interface SettingsFieldRefs {
   readonly id: Prisma.FieldRef<"Settings", 'String'>
+  readonly ownerId: Prisma.FieldRef<"Settings", 'String'>
   readonly companyNameAr: Prisma.FieldRef<"Settings", 'String'>
   readonly companyLogo: Prisma.FieldRef<"Settings", 'String'>
   readonly companyPhone: Prisma.FieldRef<"Settings", 'String'>
@@ -1091,6 +1257,10 @@ export type SettingsFindUniqueArgs<ExtArgs extends runtime.Types.Extensions.Inte
    */
   omit?: Prisma.SettingsOmit<ExtArgs> | null
   /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.SettingsInclude<ExtArgs> | null
+  /**
    * Filter, which Settings to fetch.
    */
   where: Prisma.SettingsWhereUniqueInput
@@ -1109,6 +1279,10 @@ export type SettingsFindUniqueOrThrowArgs<ExtArgs extends runtime.Types.Extensio
    */
   omit?: Prisma.SettingsOmit<ExtArgs> | null
   /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.SettingsInclude<ExtArgs> | null
+  /**
    * Filter, which Settings to fetch.
    */
   where: Prisma.SettingsWhereUniqueInput
@@ -1126,6 +1300,10 @@ export type SettingsFindFirstArgs<ExtArgs extends runtime.Types.Extensions.Inter
    * Omit specific fields from the Settings
    */
   omit?: Prisma.SettingsOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.SettingsInclude<ExtArgs> | null
   /**
    * Filter, which Settings to fetch.
    */
@@ -1175,6 +1353,10 @@ export type SettingsFindFirstOrThrowArgs<ExtArgs extends runtime.Types.Extension
    */
   omit?: Prisma.SettingsOmit<ExtArgs> | null
   /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.SettingsInclude<ExtArgs> | null
+  /**
    * Filter, which Settings to fetch.
    */
   where?: Prisma.SettingsWhereInput
@@ -1223,6 +1405,10 @@ export type SettingsFindManyArgs<ExtArgs extends runtime.Types.Extensions.Intern
    */
   omit?: Prisma.SettingsOmit<ExtArgs> | null
   /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.SettingsInclude<ExtArgs> | null
+  /**
    * Filter, which Settings to fetch.
    */
   where?: Prisma.SettingsWhereInput
@@ -1266,6 +1452,10 @@ export type SettingsCreateArgs<ExtArgs extends runtime.Types.Extensions.Internal
    */
   omit?: Prisma.SettingsOmit<ExtArgs> | null
   /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.SettingsInclude<ExtArgs> | null
+  /**
    * The data needed to create a Settings.
    */
   data: Prisma.XOR<Prisma.SettingsCreateInput, Prisma.SettingsUncheckedCreateInput>
@@ -1299,6 +1489,10 @@ export type SettingsCreateManyAndReturnArgs<ExtArgs extends runtime.Types.Extens
    */
   data: Prisma.SettingsCreateManyInput | Prisma.SettingsCreateManyInput[]
   skipDuplicates?: boolean
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.SettingsIncludeCreateManyAndReturn<ExtArgs> | null
 }
 
 /**
@@ -1313,6 +1507,10 @@ export type SettingsUpdateArgs<ExtArgs extends runtime.Types.Extensions.Internal
    * Omit specific fields from the Settings
    */
   omit?: Prisma.SettingsOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.SettingsInclude<ExtArgs> | null
   /**
    * The data needed to update a Settings.
    */
@@ -1365,6 +1563,10 @@ export type SettingsUpdateManyAndReturnArgs<ExtArgs extends runtime.Types.Extens
    * Limit how many Settings to update.
    */
   limit?: number
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.SettingsIncludeUpdateManyAndReturn<ExtArgs> | null
 }
 
 /**
@@ -1379,6 +1581,10 @@ export type SettingsUpsertArgs<ExtArgs extends runtime.Types.Extensions.Internal
    * Omit specific fields from the Settings
    */
   omit?: Prisma.SettingsOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.SettingsInclude<ExtArgs> | null
   /**
    * The filter to search for the Settings to update in case it exists.
    */
@@ -1405,6 +1611,10 @@ export type SettingsDeleteArgs<ExtArgs extends runtime.Types.Extensions.Internal
    * Omit specific fields from the Settings
    */
   omit?: Prisma.SettingsOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.SettingsInclude<ExtArgs> | null
   /**
    * Filter which Settings to delete.
    */
@@ -1437,4 +1647,8 @@ export type SettingsDefaultArgs<ExtArgs extends runtime.Types.Extensions.Interna
    * Omit specific fields from the Settings
    */
   omit?: Prisma.SettingsOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.SettingsInclude<ExtArgs> | null
 }

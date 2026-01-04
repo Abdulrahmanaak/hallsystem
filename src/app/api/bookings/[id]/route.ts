@@ -162,7 +162,7 @@ export async function PATCH(
 
         // Get admin user
         const adminUser = await prisma.user.findFirst({
-            where: { role: 'ADMIN', status: 'ACTIVE' },
+            where: { role: 'HALL_OWNER', status: 'ACTIVE' },
             select: { id: true }
         })
 

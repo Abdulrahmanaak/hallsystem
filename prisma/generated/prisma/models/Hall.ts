@@ -64,6 +64,7 @@ export type HallMinAggregateOutputType = {
   location: string | null
   description: string | null
   status: string | null
+  ownerId: string | null
   defaultCoffeeServers: number | null
   defaultSacrifices: number | null
   defaultWaterCartons: number | null
@@ -90,6 +91,7 @@ export type HallMaxAggregateOutputType = {
   location: string | null
   description: string | null
   status: string | null
+  ownerId: string | null
   defaultCoffeeServers: number | null
   defaultSacrifices: number | null
   defaultWaterCartons: number | null
@@ -116,6 +118,7 @@ export type HallCountAggregateOutputType = {
   location: number
   description: number
   status: number
+  ownerId: number
   defaultCoffeeServers: number
   defaultSacrifices: number
   defaultWaterCartons: number
@@ -172,6 +175,7 @@ export type HallMinAggregateInputType = {
   location?: true
   description?: true
   status?: true
+  ownerId?: true
   defaultCoffeeServers?: true
   defaultSacrifices?: true
   defaultWaterCartons?: true
@@ -198,6 +202,7 @@ export type HallMaxAggregateInputType = {
   location?: true
   description?: true
   status?: true
+  ownerId?: true
   defaultCoffeeServers?: true
   defaultSacrifices?: true
   defaultWaterCartons?: true
@@ -224,6 +229,7 @@ export type HallCountAggregateInputType = {
   location?: true
   description?: true
   status?: true
+  ownerId?: true
   defaultCoffeeServers?: true
   defaultSacrifices?: true
   defaultWaterCartons?: true
@@ -337,6 +343,7 @@ export type HallGroupByOutputType = {
   location: string | null
   description: string | null
   status: string
+  ownerId: string
   defaultCoffeeServers: number | null
   defaultSacrifices: number | null
   defaultWaterCartons: number | null
@@ -386,6 +393,7 @@ export type HallWhereInput = {
   location?: Prisma.StringNullableFilter<"Hall"> | string | null
   description?: Prisma.StringNullableFilter<"Hall"> | string | null
   status?: Prisma.StringFilter<"Hall"> | string
+  ownerId?: Prisma.StringFilter<"Hall"> | string
   defaultCoffeeServers?: Prisma.IntNullableFilter<"Hall"> | number | null
   defaultSacrifices?: Prisma.IntNullableFilter<"Hall"> | number | null
   defaultWaterCartons?: Prisma.IntNullableFilter<"Hall"> | number | null
@@ -400,6 +408,7 @@ export type HallWhereInput = {
   deletedAt?: Prisma.DateTimeNullableFilter<"Hall"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"Hall"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Hall"> | Date | string
+  owner?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
   bookings?: Prisma.BookingListRelationFilter
 }
 
@@ -413,6 +422,7 @@ export type HallOrderByWithRelationInput = {
   location?: Prisma.SortOrderInput | Prisma.SortOrder
   description?: Prisma.SortOrderInput | Prisma.SortOrder
   status?: Prisma.SortOrder
+  ownerId?: Prisma.SortOrder
   defaultCoffeeServers?: Prisma.SortOrderInput | Prisma.SortOrder
   defaultSacrifices?: Prisma.SortOrderInput | Prisma.SortOrder
   defaultWaterCartons?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -427,6 +437,7 @@ export type HallOrderByWithRelationInput = {
   deletedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+  owner?: Prisma.UserOrderByWithRelationInput
   bookings?: Prisma.BookingOrderByRelationAggregateInput
 }
 
@@ -443,6 +454,7 @@ export type HallWhereUniqueInput = Prisma.AtLeast<{
   location?: Prisma.StringNullableFilter<"Hall"> | string | null
   description?: Prisma.StringNullableFilter<"Hall"> | string | null
   status?: Prisma.StringFilter<"Hall"> | string
+  ownerId?: Prisma.StringFilter<"Hall"> | string
   defaultCoffeeServers?: Prisma.IntNullableFilter<"Hall"> | number | null
   defaultSacrifices?: Prisma.IntNullableFilter<"Hall"> | number | null
   defaultWaterCartons?: Prisma.IntNullableFilter<"Hall"> | number | null
@@ -457,6 +469,7 @@ export type HallWhereUniqueInput = Prisma.AtLeast<{
   deletedAt?: Prisma.DateTimeNullableFilter<"Hall"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"Hall"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Hall"> | Date | string
+  owner?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
   bookings?: Prisma.BookingListRelationFilter
 }, "id">
 
@@ -470,6 +483,7 @@ export type HallOrderByWithAggregationInput = {
   location?: Prisma.SortOrderInput | Prisma.SortOrder
   description?: Prisma.SortOrderInput | Prisma.SortOrder
   status?: Prisma.SortOrder
+  ownerId?: Prisma.SortOrder
   defaultCoffeeServers?: Prisma.SortOrderInput | Prisma.SortOrder
   defaultSacrifices?: Prisma.SortOrderInput | Prisma.SortOrder
   defaultWaterCartons?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -504,6 +518,7 @@ export type HallScalarWhereWithAggregatesInput = {
   location?: Prisma.StringNullableWithAggregatesFilter<"Hall"> | string | null
   description?: Prisma.StringNullableWithAggregatesFilter<"Hall"> | string | null
   status?: Prisma.StringWithAggregatesFilter<"Hall"> | string
+  ownerId?: Prisma.StringWithAggregatesFilter<"Hall"> | string
   defaultCoffeeServers?: Prisma.IntNullableWithAggregatesFilter<"Hall"> | number | null
   defaultSacrifices?: Prisma.IntNullableWithAggregatesFilter<"Hall"> | number | null
   defaultWaterCartons?: Prisma.IntNullableWithAggregatesFilter<"Hall"> | number | null
@@ -544,6 +559,7 @@ export type HallCreateInput = {
   deletedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  owner: Prisma.UserCreateNestedOneWithoutOwnedHallsInput
   bookings?: Prisma.BookingCreateNestedManyWithoutHallInput
 }
 
@@ -557,6 +573,7 @@ export type HallUncheckedCreateInput = {
   location?: string | null
   description?: string | null
   status?: string
+  ownerId: string
   defaultCoffeeServers?: number | null
   defaultSacrifices?: number | null
   defaultWaterCartons?: number | null
@@ -598,6 +615,7 @@ export type HallUpdateInput = {
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  owner?: Prisma.UserUpdateOneRequiredWithoutOwnedHallsNestedInput
   bookings?: Prisma.BookingUpdateManyWithoutHallNestedInput
 }
 
@@ -611,6 +629,7 @@ export type HallUncheckedUpdateInput = {
   location?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.StringFieldUpdateOperationsInput | string
+  ownerId?: Prisma.StringFieldUpdateOperationsInput | string
   defaultCoffeeServers?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   defaultSacrifices?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   defaultWaterCartons?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -638,6 +657,7 @@ export type HallCreateManyInput = {
   location?: string | null
   description?: string | null
   status?: string
+  ownerId: string
   defaultCoffeeServers?: number | null
   defaultSacrifices?: number | null
   defaultWaterCartons?: number | null
@@ -690,6 +710,7 @@ export type HallUncheckedUpdateManyInput = {
   location?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.StringFieldUpdateOperationsInput | string
+  ownerId?: Prisma.StringFieldUpdateOperationsInput | string
   defaultCoffeeServers?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   defaultSacrifices?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   defaultWaterCartons?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -706,6 +727,16 @@ export type HallUncheckedUpdateManyInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
+export type HallListRelationFilter = {
+  every?: Prisma.HallWhereInput
+  some?: Prisma.HallWhereInput
+  none?: Prisma.HallWhereInput
+}
+
+export type HallOrderByRelationAggregateInput = {
+  _count?: Prisma.SortOrder
+}
+
 export type HallCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   nameAr?: Prisma.SortOrder
@@ -716,6 +747,7 @@ export type HallCountOrderByAggregateInput = {
   location?: Prisma.SortOrder
   description?: Prisma.SortOrder
   status?: Prisma.SortOrder
+  ownerId?: Prisma.SortOrder
   defaultCoffeeServers?: Prisma.SortOrder
   defaultSacrifices?: Prisma.SortOrder
   defaultWaterCartons?: Prisma.SortOrder
@@ -756,6 +788,7 @@ export type HallMaxOrderByAggregateInput = {
   location?: Prisma.SortOrder
   description?: Prisma.SortOrder
   status?: Prisma.SortOrder
+  ownerId?: Prisma.SortOrder
   defaultCoffeeServers?: Prisma.SortOrder
   defaultSacrifices?: Prisma.SortOrder
   defaultWaterCartons?: Prisma.SortOrder
@@ -782,6 +815,7 @@ export type HallMinOrderByAggregateInput = {
   location?: Prisma.SortOrder
   description?: Prisma.SortOrder
   status?: Prisma.SortOrder
+  ownerId?: Prisma.SortOrder
   defaultCoffeeServers?: Prisma.SortOrder
   defaultSacrifices?: Prisma.SortOrder
   defaultWaterCartons?: Prisma.SortOrder
@@ -815,6 +849,48 @@ export type HallSumOrderByAggregateInput = {
 export type HallScalarRelationFilter = {
   is?: Prisma.HallWhereInput
   isNot?: Prisma.HallWhereInput
+}
+
+export type HallCreateNestedManyWithoutOwnerInput = {
+  create?: Prisma.XOR<Prisma.HallCreateWithoutOwnerInput, Prisma.HallUncheckedCreateWithoutOwnerInput> | Prisma.HallCreateWithoutOwnerInput[] | Prisma.HallUncheckedCreateWithoutOwnerInput[]
+  connectOrCreate?: Prisma.HallCreateOrConnectWithoutOwnerInput | Prisma.HallCreateOrConnectWithoutOwnerInput[]
+  createMany?: Prisma.HallCreateManyOwnerInputEnvelope
+  connect?: Prisma.HallWhereUniqueInput | Prisma.HallWhereUniqueInput[]
+}
+
+export type HallUncheckedCreateNestedManyWithoutOwnerInput = {
+  create?: Prisma.XOR<Prisma.HallCreateWithoutOwnerInput, Prisma.HallUncheckedCreateWithoutOwnerInput> | Prisma.HallCreateWithoutOwnerInput[] | Prisma.HallUncheckedCreateWithoutOwnerInput[]
+  connectOrCreate?: Prisma.HallCreateOrConnectWithoutOwnerInput | Prisma.HallCreateOrConnectWithoutOwnerInput[]
+  createMany?: Prisma.HallCreateManyOwnerInputEnvelope
+  connect?: Prisma.HallWhereUniqueInput | Prisma.HallWhereUniqueInput[]
+}
+
+export type HallUpdateManyWithoutOwnerNestedInput = {
+  create?: Prisma.XOR<Prisma.HallCreateWithoutOwnerInput, Prisma.HallUncheckedCreateWithoutOwnerInput> | Prisma.HallCreateWithoutOwnerInput[] | Prisma.HallUncheckedCreateWithoutOwnerInput[]
+  connectOrCreate?: Prisma.HallCreateOrConnectWithoutOwnerInput | Prisma.HallCreateOrConnectWithoutOwnerInput[]
+  upsert?: Prisma.HallUpsertWithWhereUniqueWithoutOwnerInput | Prisma.HallUpsertWithWhereUniqueWithoutOwnerInput[]
+  createMany?: Prisma.HallCreateManyOwnerInputEnvelope
+  set?: Prisma.HallWhereUniqueInput | Prisma.HallWhereUniqueInput[]
+  disconnect?: Prisma.HallWhereUniqueInput | Prisma.HallWhereUniqueInput[]
+  delete?: Prisma.HallWhereUniqueInput | Prisma.HallWhereUniqueInput[]
+  connect?: Prisma.HallWhereUniqueInput | Prisma.HallWhereUniqueInput[]
+  update?: Prisma.HallUpdateWithWhereUniqueWithoutOwnerInput | Prisma.HallUpdateWithWhereUniqueWithoutOwnerInput[]
+  updateMany?: Prisma.HallUpdateManyWithWhereWithoutOwnerInput | Prisma.HallUpdateManyWithWhereWithoutOwnerInput[]
+  deleteMany?: Prisma.HallScalarWhereInput | Prisma.HallScalarWhereInput[]
+}
+
+export type HallUncheckedUpdateManyWithoutOwnerNestedInput = {
+  create?: Prisma.XOR<Prisma.HallCreateWithoutOwnerInput, Prisma.HallUncheckedCreateWithoutOwnerInput> | Prisma.HallCreateWithoutOwnerInput[] | Prisma.HallUncheckedCreateWithoutOwnerInput[]
+  connectOrCreate?: Prisma.HallCreateOrConnectWithoutOwnerInput | Prisma.HallCreateOrConnectWithoutOwnerInput[]
+  upsert?: Prisma.HallUpsertWithWhereUniqueWithoutOwnerInput | Prisma.HallUpsertWithWhereUniqueWithoutOwnerInput[]
+  createMany?: Prisma.HallCreateManyOwnerInputEnvelope
+  set?: Prisma.HallWhereUniqueInput | Prisma.HallWhereUniqueInput[]
+  disconnect?: Prisma.HallWhereUniqueInput | Prisma.HallWhereUniqueInput[]
+  delete?: Prisma.HallWhereUniqueInput | Prisma.HallWhereUniqueInput[]
+  connect?: Prisma.HallWhereUniqueInput | Prisma.HallWhereUniqueInput[]
+  update?: Prisma.HallUpdateWithWhereUniqueWithoutOwnerInput | Prisma.HallUpdateWithWhereUniqueWithoutOwnerInput[]
+  updateMany?: Prisma.HallUpdateManyWithWhereWithoutOwnerInput | Prisma.HallUpdateManyWithWhereWithoutOwnerInput[]
+  deleteMany?: Prisma.HallScalarWhereInput | Prisma.HallScalarWhereInput[]
 }
 
 export type IntFieldUpdateOperationsInput = {
@@ -863,6 +939,116 @@ export type HallUpdateOneRequiredWithoutBookingsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.HallUpdateToOneWithWhereWithoutBookingsInput, Prisma.HallUpdateWithoutBookingsInput>, Prisma.HallUncheckedUpdateWithoutBookingsInput>
 }
 
+export type HallCreateWithoutOwnerInput = {
+  id?: string
+  nameAr: string
+  capacity: number
+  basePrice: runtime.Decimal | runtime.DecimalJsLike | number | string
+  hourlyRate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  amenities?: string | null
+  location?: string | null
+  description?: string | null
+  status?: string
+  defaultCoffeeServers?: number | null
+  defaultSacrifices?: number | null
+  defaultWaterCartons?: number | null
+  coffeeServerPrice?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  sacrificePrice?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  waterCartonPrice?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  extraSectionPrice?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  defaultGuestCount?: number | null
+  defaultSectionType?: string | null
+  mealPrices?: string | null
+  isDeleted?: boolean
+  deletedAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  bookings?: Prisma.BookingCreateNestedManyWithoutHallInput
+}
+
+export type HallUncheckedCreateWithoutOwnerInput = {
+  id?: string
+  nameAr: string
+  capacity: number
+  basePrice: runtime.Decimal | runtime.DecimalJsLike | number | string
+  hourlyRate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  amenities?: string | null
+  location?: string | null
+  description?: string | null
+  status?: string
+  defaultCoffeeServers?: number | null
+  defaultSacrifices?: number | null
+  defaultWaterCartons?: number | null
+  coffeeServerPrice?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  sacrificePrice?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  waterCartonPrice?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  extraSectionPrice?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  defaultGuestCount?: number | null
+  defaultSectionType?: string | null
+  mealPrices?: string | null
+  isDeleted?: boolean
+  deletedAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  bookings?: Prisma.BookingUncheckedCreateNestedManyWithoutHallInput
+}
+
+export type HallCreateOrConnectWithoutOwnerInput = {
+  where: Prisma.HallWhereUniqueInput
+  create: Prisma.XOR<Prisma.HallCreateWithoutOwnerInput, Prisma.HallUncheckedCreateWithoutOwnerInput>
+}
+
+export type HallCreateManyOwnerInputEnvelope = {
+  data: Prisma.HallCreateManyOwnerInput | Prisma.HallCreateManyOwnerInput[]
+  skipDuplicates?: boolean
+}
+
+export type HallUpsertWithWhereUniqueWithoutOwnerInput = {
+  where: Prisma.HallWhereUniqueInput
+  update: Prisma.XOR<Prisma.HallUpdateWithoutOwnerInput, Prisma.HallUncheckedUpdateWithoutOwnerInput>
+  create: Prisma.XOR<Prisma.HallCreateWithoutOwnerInput, Prisma.HallUncheckedCreateWithoutOwnerInput>
+}
+
+export type HallUpdateWithWhereUniqueWithoutOwnerInput = {
+  where: Prisma.HallWhereUniqueInput
+  data: Prisma.XOR<Prisma.HallUpdateWithoutOwnerInput, Prisma.HallUncheckedUpdateWithoutOwnerInput>
+}
+
+export type HallUpdateManyWithWhereWithoutOwnerInput = {
+  where: Prisma.HallScalarWhereInput
+  data: Prisma.XOR<Prisma.HallUpdateManyMutationInput, Prisma.HallUncheckedUpdateManyWithoutOwnerInput>
+}
+
+export type HallScalarWhereInput = {
+  AND?: Prisma.HallScalarWhereInput | Prisma.HallScalarWhereInput[]
+  OR?: Prisma.HallScalarWhereInput[]
+  NOT?: Prisma.HallScalarWhereInput | Prisma.HallScalarWhereInput[]
+  id?: Prisma.StringFilter<"Hall"> | string
+  nameAr?: Prisma.StringFilter<"Hall"> | string
+  capacity?: Prisma.IntFilter<"Hall"> | number
+  basePrice?: Prisma.DecimalFilter<"Hall"> | runtime.Decimal | runtime.DecimalJsLike | number | string
+  hourlyRate?: Prisma.DecimalNullableFilter<"Hall"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  amenities?: Prisma.StringNullableFilter<"Hall"> | string | null
+  location?: Prisma.StringNullableFilter<"Hall"> | string | null
+  description?: Prisma.StringNullableFilter<"Hall"> | string | null
+  status?: Prisma.StringFilter<"Hall"> | string
+  ownerId?: Prisma.StringFilter<"Hall"> | string
+  defaultCoffeeServers?: Prisma.IntNullableFilter<"Hall"> | number | null
+  defaultSacrifices?: Prisma.IntNullableFilter<"Hall"> | number | null
+  defaultWaterCartons?: Prisma.IntNullableFilter<"Hall"> | number | null
+  coffeeServerPrice?: Prisma.DecimalNullableFilter<"Hall"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  sacrificePrice?: Prisma.DecimalNullableFilter<"Hall"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  waterCartonPrice?: Prisma.DecimalNullableFilter<"Hall"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  extraSectionPrice?: Prisma.DecimalNullableFilter<"Hall"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  defaultGuestCount?: Prisma.IntNullableFilter<"Hall"> | number | null
+  defaultSectionType?: Prisma.StringNullableFilter<"Hall"> | string | null
+  mealPrices?: Prisma.StringNullableFilter<"Hall"> | string | null
+  isDeleted?: Prisma.BoolFilter<"Hall"> | boolean
+  deletedAt?: Prisma.DateTimeNullableFilter<"Hall"> | Date | string | null
+  createdAt?: Prisma.DateTimeFilter<"Hall"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"Hall"> | Date | string
+}
+
 export type HallCreateWithoutBookingsInput = {
   id?: string
   nameAr: string
@@ -887,6 +1073,7 @@ export type HallCreateWithoutBookingsInput = {
   deletedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  owner: Prisma.UserCreateNestedOneWithoutOwnedHallsInput
 }
 
 export type HallUncheckedCreateWithoutBookingsInput = {
@@ -899,6 +1086,7 @@ export type HallUncheckedCreateWithoutBookingsInput = {
   location?: string | null
   description?: string | null
   status?: string
+  ownerId: string
   defaultCoffeeServers?: number | null
   defaultSacrifices?: number | null
   defaultWaterCartons?: number | null
@@ -955,9 +1143,117 @@ export type HallUpdateWithoutBookingsInput = {
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  owner?: Prisma.UserUpdateOneRequiredWithoutOwnedHallsNestedInput
 }
 
 export type HallUncheckedUpdateWithoutBookingsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  nameAr?: Prisma.StringFieldUpdateOperationsInput | string
+  capacity?: Prisma.IntFieldUpdateOperationsInput | number
+  basePrice?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  hourlyRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  amenities?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  location?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  ownerId?: Prisma.StringFieldUpdateOperationsInput | string
+  defaultCoffeeServers?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  defaultSacrifices?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  defaultWaterCartons?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  coffeeServerPrice?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  sacrificePrice?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  waterCartonPrice?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  extraSectionPrice?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  defaultGuestCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  defaultSectionType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  mealPrices?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type HallCreateManyOwnerInput = {
+  id?: string
+  nameAr: string
+  capacity: number
+  basePrice: runtime.Decimal | runtime.DecimalJsLike | number | string
+  hourlyRate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  amenities?: string | null
+  location?: string | null
+  description?: string | null
+  status?: string
+  defaultCoffeeServers?: number | null
+  defaultSacrifices?: number | null
+  defaultWaterCartons?: number | null
+  coffeeServerPrice?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  sacrificePrice?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  waterCartonPrice?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  extraSectionPrice?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  defaultGuestCount?: number | null
+  defaultSectionType?: string | null
+  mealPrices?: string | null
+  isDeleted?: boolean
+  deletedAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type HallUpdateWithoutOwnerInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  nameAr?: Prisma.StringFieldUpdateOperationsInput | string
+  capacity?: Prisma.IntFieldUpdateOperationsInput | number
+  basePrice?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  hourlyRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  amenities?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  location?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  defaultCoffeeServers?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  defaultSacrifices?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  defaultWaterCartons?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  coffeeServerPrice?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  sacrificePrice?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  waterCartonPrice?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  extraSectionPrice?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  defaultGuestCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  defaultSectionType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  mealPrices?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  bookings?: Prisma.BookingUpdateManyWithoutHallNestedInput
+}
+
+export type HallUncheckedUpdateWithoutOwnerInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  nameAr?: Prisma.StringFieldUpdateOperationsInput | string
+  capacity?: Prisma.IntFieldUpdateOperationsInput | number
+  basePrice?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  hourlyRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  amenities?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  location?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  defaultCoffeeServers?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  defaultSacrifices?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  defaultWaterCartons?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  coffeeServerPrice?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  sacrificePrice?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  waterCartonPrice?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  extraSectionPrice?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  defaultGuestCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  defaultSectionType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  mealPrices?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  bookings?: Prisma.BookingUncheckedUpdateManyWithoutHallNestedInput
+}
+
+export type HallUncheckedUpdateManyWithoutOwnerInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   nameAr?: Prisma.StringFieldUpdateOperationsInput | string
   capacity?: Prisma.IntFieldUpdateOperationsInput | number
@@ -1024,6 +1320,7 @@ export type HallSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   location?: boolean
   description?: boolean
   status?: boolean
+  ownerId?: boolean
   defaultCoffeeServers?: boolean
   defaultSacrifices?: boolean
   defaultWaterCartons?: boolean
@@ -1038,6 +1335,7 @@ export type HallSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   deletedAt?: boolean
   createdAt?: boolean
   updatedAt?: boolean
+  owner?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   bookings?: boolean | Prisma.Hall$bookingsArgs<ExtArgs>
   _count?: boolean | Prisma.HallCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["hall"]>
@@ -1052,6 +1350,7 @@ export type HallSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   location?: boolean
   description?: boolean
   status?: boolean
+  ownerId?: boolean
   defaultCoffeeServers?: boolean
   defaultSacrifices?: boolean
   defaultWaterCartons?: boolean
@@ -1066,6 +1365,7 @@ export type HallSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   deletedAt?: boolean
   createdAt?: boolean
   updatedAt?: boolean
+  owner?: boolean | Prisma.UserDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["hall"]>
 
 export type HallSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -1078,6 +1378,7 @@ export type HallSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   location?: boolean
   description?: boolean
   status?: boolean
+  ownerId?: boolean
   defaultCoffeeServers?: boolean
   defaultSacrifices?: boolean
   defaultWaterCartons?: boolean
@@ -1092,6 +1393,7 @@ export type HallSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   deletedAt?: boolean
   createdAt?: boolean
   updatedAt?: boolean
+  owner?: boolean | Prisma.UserDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["hall"]>
 
 export type HallSelectScalar = {
@@ -1104,6 +1406,7 @@ export type HallSelectScalar = {
   location?: boolean
   description?: boolean
   status?: boolean
+  ownerId?: boolean
   defaultCoffeeServers?: boolean
   defaultSacrifices?: boolean
   defaultWaterCartons?: boolean
@@ -1120,17 +1423,23 @@ export type HallSelectScalar = {
   updatedAt?: boolean
 }
 
-export type HallOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "nameAr" | "capacity" | "basePrice" | "hourlyRate" | "amenities" | "location" | "description" | "status" | "defaultCoffeeServers" | "defaultSacrifices" | "defaultWaterCartons" | "coffeeServerPrice" | "sacrificePrice" | "waterCartonPrice" | "extraSectionPrice" | "defaultGuestCount" | "defaultSectionType" | "mealPrices" | "isDeleted" | "deletedAt" | "createdAt" | "updatedAt", ExtArgs["result"]["hall"]>
+export type HallOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "nameAr" | "capacity" | "basePrice" | "hourlyRate" | "amenities" | "location" | "description" | "status" | "ownerId" | "defaultCoffeeServers" | "defaultSacrifices" | "defaultWaterCartons" | "coffeeServerPrice" | "sacrificePrice" | "waterCartonPrice" | "extraSectionPrice" | "defaultGuestCount" | "defaultSectionType" | "mealPrices" | "isDeleted" | "deletedAt" | "createdAt" | "updatedAt", ExtArgs["result"]["hall"]>
 export type HallInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  owner?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   bookings?: boolean | Prisma.Hall$bookingsArgs<ExtArgs>
   _count?: boolean | Prisma.HallCountOutputTypeDefaultArgs<ExtArgs>
 }
-export type HallIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
-export type HallIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
+export type HallIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  owner?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+}
+export type HallIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  owner?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+}
 
 export type $HallPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "Hall"
   objects: {
+    owner: Prisma.$UserPayload<ExtArgs>
     bookings: Prisma.$BookingPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
@@ -1143,6 +1452,7 @@ export type $HallPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     location: string | null
     description: string | null
     status: string
+    ownerId: string
     defaultCoffeeServers: number | null
     defaultSacrifices: number | null
     defaultWaterCartons: number | null
@@ -1551,6 +1861,7 @@ readonly fields: HallFieldRefs;
  */
 export interface Prisma__HallClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
+  owner<T extends Prisma.UserDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.UserDefaultArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   bookings<T extends Prisma.Hall$bookingsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Hall$bookingsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$BookingPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
@@ -1590,6 +1901,7 @@ export interface HallFieldRefs {
   readonly location: Prisma.FieldRef<"Hall", 'String'>
   readonly description: Prisma.FieldRef<"Hall", 'String'>
   readonly status: Prisma.FieldRef<"Hall", 'String'>
+  readonly ownerId: Prisma.FieldRef<"Hall", 'String'>
   readonly defaultCoffeeServers: Prisma.FieldRef<"Hall", 'Int'>
   readonly defaultSacrifices: Prisma.FieldRef<"Hall", 'Int'>
   readonly defaultWaterCartons: Prisma.FieldRef<"Hall", 'Int'>
@@ -1853,6 +2165,10 @@ export type HallCreateManyAndReturnArgs<ExtArgs extends runtime.Types.Extensions
    */
   data: Prisma.HallCreateManyInput | Prisma.HallCreateManyInput[]
   skipDuplicates?: boolean
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.HallIncludeCreateManyAndReturn<ExtArgs> | null
 }
 
 /**
@@ -1923,6 +2239,10 @@ export type HallUpdateManyAndReturnArgs<ExtArgs extends runtime.Types.Extensions
    * Limit how many Halls to update.
    */
   limit?: number
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.HallIncludeUpdateManyAndReturn<ExtArgs> | null
 }
 
 /**

@@ -1,10 +1,35 @@
 import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
+import { auth } from '@/lib/auth'
+
+// Helper to get owner filter based on user role
+async function getOwnerFilter() {
+    const session = await auth()
+    if (!session?.user) {
+        return { error: 'غير مصرح', status: 401 }
+    }
+
+    // SUPER_ADMIN sees all data
+    if (session.user.role === 'SUPER_ADMIN') {
+        return { filter: {} }
+    }
+
+    // All other users see only their owner's data
+    return { filter: { ownerId: session.user.ownerId } }
+}
 
 export async function GET() {
     try {
+        const ownerResult = await getOwnerFilter()
+        if ('error' in ownerResult) {
+            return NextResponse.json({ error: ownerResult.error }, { status: ownerResult.status })
+        }
+
         const halls = await prisma.hall.findMany({
-            where: { isDeleted: false },
+            where: {
+                isDeleted: false,
+                ...ownerResult.filter
+            },
             orderBy: { createdAt: 'desc' }
         })
 
@@ -59,6 +84,16 @@ export async function GET() {
 // POST - Create new hall
 export async function POST(request: Request) {
     try {
+        const session = await auth()
+        if (!session?.user) {
+            return NextResponse.json({ error: 'غير مصرح' }, { status: 401 })
+        }
+
+        // Only HALL_OWNER and SUPER_ADMIN can create halls
+        if (session.user.role !== 'HALL_OWNER' && session.user.role !== 'SUPER_ADMIN') {
+            return NextResponse.json({ error: 'ليس لديك صلاحية لإضافة قاعات' }, { status: 403 })
+        }
+
         const body = await request.json()
 
         const hall = await prisma.hall.create({
@@ -71,6 +106,7 @@ export async function POST(request: Request) {
                 location: body.location || null,
                 description: body.description || null,
                 status: body.status || 'ACTIVE',
+                ownerId: session.user.ownerId, // Tenant isolation
                 defaultCoffeeServers: body.defaultCoffeeServers ? parseInt(body.defaultCoffeeServers) : 0,
                 defaultSacrifices: body.defaultSacrifices ? parseInt(body.defaultSacrifices) : 0,
                 defaultWaterCartons: body.defaultWaterCartons ? parseInt(body.defaultWaterCartons) : 0,
@@ -97,11 +133,26 @@ export async function POST(request: Request) {
 // PUT - Update existing hall
 export async function PUT(request: Request) {
     try {
+        const session = await auth()
+        if (!session?.user) {
+            return NextResponse.json({ error: 'غير مصرح' }, { status: 401 })
+        }
+
         const body = await request.json()
         const { id, ...updateData } = body
 
         if (!id) {
             return NextResponse.json({ error: 'Hall ID required' }, { status: 400 })
+        }
+
+        // Verify ownership (unless SUPER_ADMIN)
+        if (session.user.role !== 'SUPER_ADMIN') {
+            const existingHall = await prisma.hall.findFirst({
+                where: { id, ownerId: session.user.ownerId }
+            })
+            if (!existingHall) {
+                return NextResponse.json({ error: 'القاعة غير موجودة أو ليس لديك صلاحية' }, { status: 404 })
+            }
         }
 
         const hall = await prisma.hall.update({

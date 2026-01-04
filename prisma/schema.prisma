@@ -1,5 +1,5 @@
 // Prisma Schema for Hall Management System
-// Sprint 1 MVP - Arabic Hall Management with Qoyod Integration
+// Multi-tenant Hall Management with Qoyod Integration
 
 generator client {
   provider = "prisma-client"
@@ -11,55 +11,58 @@ datasource db {
 }
 
 // ============================================
-// User Management
+// User Management (Multi-Tenant)
 // ============================================
 
-// Enums handled as Strings for SQLite compatibility
-// enum UserRole {
-//   ADMIN
-//   ROOM_SUPERVISOR
-//   ACCOUNTANT
-//   EMPLOYEE
-// }
-
-// enum UserStatus {
-//   ACTIVE
-//   INACTIVE
-// }
+// Roles: SUPER_ADMIN, HALL_OWNER, ROOM_SUPERVISOR, ACCOUNTANT, EMPLOYEE
 
 model User {
   id        String     @id @default(cuid())
   username  String     @unique
   password  String     // bcrypt hashed
-  nameAr    String     // Arabic name: الاسم
+  nameAr    String     // Arabic name: الاسم / Company name for hall owners
   email     String?    @unique
   phone     String?
-  role      String     // UserRole
+  role      String     // UserRole: SUPER_ADMIN, HALL_OWNER, ROOM_SUPERVISOR, ACCOUNTANT, EMPLOYEE
   status    String     @default("ACTIVE") // UserStatus
+  
+  // Multi-tenant: For HALL_OWNER, ownerId is null (they are the owner)
+  // For team members (ROOM_SUPERVISOR, ACCOUNTANT, EMPLOYEE), ownerId points to their hall owner
+  ownerId   String?
+  owner     User?      @relation("TenantOwner", fields: [ownerId], references: [id])
+  teamMembers User[]   @relation("TenantOwner")
+  
+  // Hall Owner specific fields (populated when role = HALL_OWNER)
+  commercialRegNo String?  // رقم السجل التجاري
+  vatRegNo        String?  // رقم التسجيل الضريبي
   
   // Audit trail
   createdAt DateTime   @default(now())
   updatedAt DateTime   @updatedAt
   lastLogin DateTime?
   
-  // Relations
+  // Relations for created/updated records
   createdBookings   Booking[]  @relation("BookingCreatedBy")
   updatedBookings   Booking[]  @relation("BookingUpdatedBy")
   createdCustomers  Customer[] @relation("CustomerCreatedBy")
   createdInvoices   Invoice[]  @relation("InvoiceCreatedBy")
   createdPayments   Payment[]  @relation("PaymentCreatedBy")
   
+  // Relations for owned data (tenant isolation)
+  ownedHalls      Hall[]     @relation("HallOwner")
+  ownedBookings   Booking[]  @relation("BookingOwner")
+  ownedCustomers  Customer[] @relation("CustomerOwner")
+  ownedInvoices   Invoice[]  @relation("InvoiceOwner")
+  ownedPayments   Payment[]  @relation("PaymentOwner")
+  ownedSettings   Settings?  @relation("SettingsOwner")
+  
+  @@index([ownerId])
   @@map("users")
 }
 
 // ============================================
 // Customer Management
 // ============================================
-
-// enum CustomerType {
-//   INDIVIDUAL
-//   COMPANY
-// }
 
 model Customer {
   id            String       @id @default(cuid())
@@ -70,6 +73,10 @@ model Customer {
   address       String?      // العنوان
   customerType  String       @default("INDIVIDUAL") // CustomerType
   notes         String?      // ملاحظات
+  
+  // Multi-tenant
+  ownerId       String
+  owner         User         @relation("CustomerOwner", fields: [ownerId], references: [id])
   
   // Soft delete
   isDeleted     Boolean      @default(false)
@@ -87,18 +94,13 @@ model Customer {
   
   @@index([phone])
   @@index([isDeleted])
+  @@index([ownerId])
   @@map("customers")
 }
 
 // ============================================
 // Hall/Room Management
 // ============================================
-
-// enum HallStatus {
-//   ACTIVE
-//   INACTIVE
-//   MAINTENANCE
-// }
 
 model Hall {
   id            String     @id @default(cuid())
@@ -107,12 +109,16 @@ model Hall {
   basePrice     Decimal    // Base rental price
   hourlyRate    Decimal?   // Optional hourly rate
   
-  // Amenities (stored as JSON string for SQLite)
+  // Amenities (stored as JSON string)
   amenities     String?    // JSON string: {chairs: true, tables: true...}
   
   location      String?    // Location/floor
   description   String?    // وصف القاعة
   status        String     @default("ACTIVE") // HallStatus
+  
+  // Multi-tenant
+  ownerId       String
+  owner         User       @relation("HallOwner", fields: [ownerId], references: [id])
   
   // Service Defaults
   defaultCoffeeServers  Int?      @default(0)
@@ -143,28 +149,13 @@ model Hall {
   
   @@index([status])
   @@index([isDeleted])
+  @@index([ownerId])
   @@map("halls")
 }
 
 // ============================================
 // Booking Management
 // ============================================
-
-// enum BookingStatus {
-//   PENDING
-//   CONFIRMED
-//   CANCELLED
-//   COMPLETED
-// }
-
-// enum EventType {
-//   WEDDING
-//   ENGAGEMENT
-//   BIRTHDAY
-//   CONFERENCE
-//   GRADUATION
-//   OTHER
-// }
 
 model Booking {
   id              String        @id @default(cuid())
@@ -175,6 +166,10 @@ model Booking {
   customer        Customer      @relation(fields: [customerId], references: [id])
   hallId          String
   hall            Hall          @relation(fields: [hallId], references: [id])
+  
+  // Multi-tenant
+  ownerId         String
+  owner           User          @relation("BookingOwner", fields: [ownerId], references: [id])
   
   // Event Details
   eventType       String        // EventType
@@ -225,6 +220,7 @@ model Booking {
   @@index([customerId])
   @@index([hallId])
   @@index([isDeleted])
+  @@index([ownerId])
   @@map("bookings")
 }
 
@@ -249,13 +245,6 @@ model BookingStatusHistory {
 // Financial Management - Basic Tracking
 // ============================================
 
-// enum InvoiceStatus {
-//   UNPAID
-//   PARTIALLY_PAID
-//   PAID
-//   CANCELLED
-// }
-
 model Invoice {
   id              String        @id @default(cuid())
   invoiceNumber   String        @unique // Auto-generated: INV-2025-0001
@@ -265,6 +254,10 @@ model Invoice {
   booking         Booking       @relation(fields: [bookingId], references: [id])
   customerId      String
   customer        Customer      @relation(fields: [customerId], references: [id])
+  
+  // Multi-tenant
+  ownerId         String
+  owner           User          @relation("InvoiceOwner", fields: [ownerId], references: [id])
   
   // Amounts
   subtotal        Decimal       
@@ -306,18 +299,13 @@ model Invoice {
   @@index([dueDate])
   @@index([syncedToQoyod])
   @@index([isDeleted])
+  @@index([ownerId])
   @@map("invoices")
 }
 
 // ============================================
 // Payment Tracking
 // ============================================
-
-// enum PaymentMethod {
-//   CASH
-//   CARD
-//   BANK_TRANSFER
-// }
 
 model Payment {
   id              String        @id @default(cuid())
@@ -328,6 +316,10 @@ model Payment {
   booking         Booking       @relation(fields: [bookingId], references: [id])
   invoiceId       String?
   invoice         Invoice?      @relation(fields: [invoiceId], references: [id])
+  
+  // Multi-tenant
+  ownerId         String
+  owner           User          @relation("PaymentOwner", fields: [ownerId], references: [id])
   
   // Payment Details
   amount          Decimal       
@@ -354,15 +346,20 @@ model Payment {
   @@index([paymentDate])
   @@index([syncedToQoyod])
   @@index([isDeleted])
+  @@index([ownerId])
   @@map("payments")
 }
 
 // ============================================
-// Settings & Configuration
+// Settings & Configuration (Per Tenant)
 // ============================================
 
 model Settings {
-  id                String   @id @default("system") // Single row
+  id                String   @id @default(cuid())
+  
+  // Multi-tenant - one settings per hall owner
+  ownerId           String   @unique
+  owner             User     @relation("SettingsOwner", fields: [ownerId], references: [id])
   
   // Company Information
   companyNameAr     String   @default("نظام إدارة القاعات")
@@ -391,19 +388,6 @@ model Settings {
 // ============================================
 // Accounting Sync Log (Qoyod POC)
 // ============================================
-
-// enum SyncType {
-//   CUSTOMER
-//   INVOICE
-//   PAYMENT
-//   GENERAL
-// }
-
-// enum SyncStatus {
-//   PENDING
-//   SUCCESS
-//   FAILED
-// }
 
 model AccountingSync {
   id              String     @id @default(cuid())

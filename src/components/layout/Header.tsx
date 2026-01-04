@@ -13,7 +13,8 @@ interface HeaderProps {
 }
 
 const roleNames: Record<UserRole, string> = {
-    ADMIN: 'مدير النظام',
+    SUPER_ADMIN: 'مدير عام',
+    HALL_OWNER: 'صاحب قاعة',
     ROOM_SUPERVISOR: 'مشرف القاعات',
     ACCOUNTANT: 'محاسب',
     EMPLOYEE: 'موظف'

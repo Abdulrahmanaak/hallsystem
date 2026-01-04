@@ -1,11 +1,35 @@
 import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
+import { auth } from '@/lib/auth'
+
+// Helper to get owner filter based on user role
+async function getOwnerFilter() {
+    const session = await auth()
+    if (!session?.user) {
+        return { error: 'غير مصرح', status: 401 }
+    }
+
+    // SUPER_ADMIN sees all data
+    if (session.user.role === 'SUPER_ADMIN') {
+        return { filter: {}, session }
+    }
+
+    return { filter: { ownerId: session.user.ownerId }, session }
+}
 
 // GET - Fetch all bookings
 export async function GET() {
     try {
+        const ownerResult = await getOwnerFilter()
+        if ('error' in ownerResult) {
+            return NextResponse.json({ error: ownerResult.error }, { status: ownerResult.status })
+        }
+
         const bookings = await prisma.booking.findMany({
-            where: { isDeleted: false },
+            where: {
+                isDeleted: false,
+                ...ownerResult.filter
+            },
             include: {
                 customer: { select: { id: true, nameAr: true, phone: true, idNumber: true } },
                 hall: { select: { id: true, nameAr: true } }
@@ -79,43 +103,53 @@ async function generateBookingNumber(): Promise<string> {
 // POST - Create new booking
 export async function POST(request: Request) {
     try {
+        const session = await auth()
+        if (!session?.user) {
+            return NextResponse.json({ error: 'غير مصرح' }, { status: 401 })
+        }
+
+        const ownerId = session.user.ownerId
         const body = await request.json()
 
         // Find or Create Customer
         let customerId = body.customerId
 
         if (!customerId && body.customerName && body.customerPhone) {
-            // Check if customer exists by ID Number or Phone
+            // Check if customer exists by ID Number or Phone within this owner's data
             let existingCustomer = null
 
             if (body.customerIdNumber) {
                 existingCustomer = await prisma.customer.findFirst({
-                    where: { idNumber: body.customerIdNumber, isDeleted: false }
+                    where: {
+                        idNumber: body.customerIdNumber,
+                        isDeleted: false,
+                        ownerId: ownerId
+                    }
                 })
             }
 
             if (!existingCustomer) {
                 existingCustomer = await prisma.customer.findFirst({
-                    where: { phone: body.customerPhone, isDeleted: false }
+                    where: {
+                        phone: body.customerPhone,
+                        isDeleted: false,
+                        ownerId: ownerId
+                    }
                 })
             }
 
             if (existingCustomer) {
                 customerId = existingCustomer.id
             } else {
-                // Get admin user for createdById
-                const adminUser = await prisma.user.findFirst({
-                    where: { role: 'ADMIN', status: 'ACTIVE' }
-                })
-
-                // Create new customer
+                // Create new customer with tenant isolation
                 const newCustomer = await prisma.customer.create({
                     data: {
                         nameAr: body.customerName,
                         phone: body.customerPhone,
                         idNumber: body.customerIdNumber || null,
                         email: body.customerEmail || null,
-                        createdById: adminUser?.id || (await ensureSystemUser())
+                        ownerId: ownerId,
+                        createdById: session.user.id
                     }
                 })
                 customerId = newCustomer.id
@@ -148,17 +182,12 @@ export async function POST(request: Request) {
         const endTime = new Date(eventDate)
         endTime.setHours(endHours, endMinutes, 0, 0)
 
-        // Get admin user
-        const adminUser = await prisma.user.findFirst({
-            where: { role: 'ADMIN', status: 'ACTIVE' },
-            select: { id: true }
-        }) || { id: await ensureSystemUser() }
-
         const booking = await prisma.booking.create({
             data: {
                 bookingNumber,
                 customerId,
                 hallId: body.hallId,
+                ownerId: ownerId, // Tenant isolation
                 eventType: body.eventType,
                 eventDate,
                 startTime,
@@ -179,7 +208,7 @@ export async function POST(request: Request) {
                 servicesBreakdown: body.servicesBreakdown || null,
                 status: body.status || "TENTATIVE",
                 notes: body.notes || null,
-                createdById: adminUser.id
+                createdById: session.user.id
             },
             include: {
                 customer: { select: { nameAr: true } },
@@ -191,27 +220,5 @@ export async function POST(request: Request) {
     } catch (error) {
         console.error('Error creating booking:', error)
         return NextResponse.json({ error: 'Database operation failed', details: String(error) }, { status: 500 })
-    }
-}
-
-// Helper to ensure a user exists for foreign keys
-async function ensureSystemUser(): Promise<string> {
-    try {
-        const user = await prisma.user.findFirst()
-        if (user) return user.id
-
-        // Create system user if none exists
-        const newUser = await prisma.user.create({
-            data: {
-                username: 'system',
-                password: 'hashedpassword',
-                nameAr: 'النظام',
-                role: 'ADMIN'
-            }
-        })
-        return newUser.id
-    } catch (error) {
-        console.error('Error ensuring system user:', error)
-        return 'system'
     }
 }

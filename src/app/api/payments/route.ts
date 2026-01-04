@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
+import { auth } from '@/lib/auth'
 
 // Generate payment number: PAY-2025-0001
 async function generatePaymentNumber(): Promise<string> {
@@ -61,9 +62,18 @@ async function updateInvoiceStatus(invoiceId: string) {
 // GET all payments
 export async function GET() {
     try {
+        const session = await auth()
+        if (!session?.user) {
+            return NextResponse.json({ error: 'غير مصرح' }, { status: 401 })
+        }
+
+        // Filter by owner (SUPER_ADMIN sees all)
+        const ownerFilter = session.user.role === 'SUPER_ADMIN' ? {} : { ownerId: session.user.ownerId }
+
         const payments = await prisma.payment.findMany({
             where: {
-                isDeleted: false
+                isDeleted: false,
+                ...ownerFilter
             },
             include: {
                 booking: {
@@ -114,20 +124,12 @@ export async function GET() {
 // POST - Record new payment
 export async function POST(request: Request) {
     try {
-        const body = await request.json()
-
-        // Get admin user
-        const adminUser = await prisma.user.findFirst({
-            where: { role: 'ADMIN', status: 'ACTIVE' },
-            select: { id: true }
-        })
-
-        if (!adminUser) {
-            return NextResponse.json(
-                { error: 'No valid user found' },
-                { status: 400 }
-            )
+        const session = await auth()
+        if (!session?.user) {
+            return NextResponse.json({ error: 'غير مصرح' }, { status: 401 })
         }
+
+        const body = await request.json()
 
         const paymentNumber = await generatePaymentNumber()
 
@@ -136,11 +138,12 @@ export async function POST(request: Request) {
                 paymentNumber,
                 bookingId: body.bookingId,
                 invoiceId: body.invoiceId || null,
+                ownerId: session.user.ownerId, // Tenant isolation
                 amount: parseFloat(body.amount),
                 paymentMethod: body.paymentMethod || 'CASH',
                 paymentDate: body.paymentDate ? new Date(body.paymentDate) : new Date(),
                 notes: body.notes || null,
-                createdById: adminUser.id
+                createdById: session.user.id
             },
             include: {
                 booking: {

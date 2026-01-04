@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
+import { auth } from '@/lib/auth'
 
 // Configuration
 const QOYOD_API_BASE = 'https://www.qoyod.com/api/2.0'
@@ -13,18 +14,23 @@ interface QoyodConfig {
 
 // 1. Configuration & Auth
 async function getQoyodConfig(): Promise<QoyodConfig | null> {
+    const session = await auth()
+    if (!session?.user?.ownerId) {
+        return null
+    }
+
     let settings = await prisma.settings.findUnique({
-        where: { id: 'system' }
+        where: { ownerId: session.user.ownerId }
     })
 
     // Auto-configure if simulation was running or key missing but we have it
     if (!settings?.qoyodApiKey && FALLBACK_API_KEY) {
         console.log('Applying fallback Qoyod API key...')
         settings = await prisma.settings.upsert({
-            where: { id: 'system' },
+            where: { ownerId: session.user.ownerId },
             update: { qoyodEnabled: true, qoyodApiKey: FALLBACK_API_KEY },
             create: {
-                id: 'system',
+                ownerId: session.user.ownerId,
                 companyNameAr: 'نظام إدارة القاعات',
                 qoyodEnabled: true,
                 qoyodApiKey: FALLBACK_API_KEY,

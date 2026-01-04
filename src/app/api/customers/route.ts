@@ -1,11 +1,34 @@
 import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
+import { auth } from '@/lib/auth'
+
+// Helper to get owner filter based on user role
+async function getOwnerFilter() {
+    const session = await auth()
+    if (!session?.user) {
+        return { error: 'غير مصرح', status: 401 }
+    }
+
+    if (session.user.role === 'SUPER_ADMIN') {
+        return { filter: {}, session }
+    }
+
+    return { filter: { ownerId: session.user.ownerId }, session }
+}
 
 // GET all customers
 export async function GET() {
     try {
+        const ownerResult = await getOwnerFilter()
+        if ('error' in ownerResult) {
+            return NextResponse.json({ error: ownerResult.error }, { status: ownerResult.status })
+        }
+
         const customers = await prisma.customer.findMany({
-            where: { isDeleted: false },
+            where: {
+                isDeleted: false,
+                ...ownerResult.filter
+            },
             include: {
                 _count: {
                     select: {
@@ -50,31 +73,12 @@ export async function GET() {
 // POST - Create new customer
 export async function POST(request: Request) {
     try {
+        const session = await auth()
+        if (!session?.user) {
+            return NextResponse.json({ error: 'غير مصرح' }, { status: 401 })
+        }
+
         const body = await request.json()
-
-        // Get a valid user ID for createdById
-        let createdById = body.createdById
-
-        if (!createdById || createdById === 'system') {
-            const adminUser = await prisma.user.findFirst({
-                where: { role: 'ADMIN', status: 'ACTIVE' },
-                select: { id: true }
-            })
-            createdById = adminUser?.id
-        }
-
-        if (!createdById) {
-            // Create system user if none exists
-            const newUser = await prisma.user.create({
-                data: {
-                    username: 'system',
-                    password: 'hashedpassword',
-                    nameAr: 'النظام',
-                    role: 'ADMIN'
-                }
-            })
-            createdById = newUser.id
-        }
 
         const customer = await prisma.customer.create({
             data: {
@@ -85,7 +89,8 @@ export async function POST(request: Request) {
                 address: body.address || null,
                 customerType: body.customerType || 'INDIVIDUAL',
                 notes: body.notes || null,
-                createdById: createdById
+                ownerId: session.user.ownerId, // Tenant isolation
+                createdById: session.user.id
             }
         })
 
