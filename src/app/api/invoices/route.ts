@@ -170,6 +170,29 @@ export async function POST(request: Request) {
             }
         })
 
+        // Auto-sync to Qoyod if enabled
+        try {
+            const settings = await prisma.settings.findUnique({
+                where: { ownerId: session.user.ownerId }
+            })
+
+            if (settings?.qoyodEnabled && settings?.qoyodAutoSync) {
+                // Trigger sync in background (don't block response)
+                const baseUrl = process.env.NEXTAUTH_URL || process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
+                fetch(`${baseUrl}/api/qoyod`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Cookie': request.headers.get('cookie') || ''
+                    },
+                    body: JSON.stringify({ type: 'invoice', id: invoice.id })
+                }).catch(err => console.error('Auto-sync to Qoyod failed:', err))
+            }
+        } catch (syncError) {
+            // Don't fail invoice creation if sync check fails
+            console.error('Error checking Qoyod auto-sync:', syncError)
+        }
+
         return NextResponse.json(invoice, { status: 201 })
     } catch (error) {
         console.error('Error creating invoice:', error)

@@ -544,6 +544,7 @@ export default function FinancePage() {
                                         <th>المبلغ</th>
                                         <th>المدفوع</th>
                                         <th>الحالة</th>
+                                        <th>قيود</th>
                                         <th>الإجراءات</th>
                                     </tr>
                                 </thead>
@@ -565,6 +566,24 @@ export default function FinancePage() {
                                                 </span>
                                             </td>
                                             <td>
+                                                {invoice.syncedToQoyod ? (
+                                                    <span className="inline-flex items-center gap-1 text-green-600" title="تمت المزامنة مع قيود">
+                                                        <CheckCircle size={16} />
+                                                        <span className="text-xs">تم</span>
+                                                    </span>
+                                                ) : (
+                                                    <button
+                                                        onClick={() => handleSyncToQoyod('invoice', invoice.id)}
+                                                        className="inline-flex items-center gap-1 text-yellow-600 hover:text-blue-600"
+                                                        title="مزامنة مع قيود"
+                                                        disabled={saving}
+                                                    >
+                                                        <RefreshCw size={16} className={saving ? 'animate-spin' : ''} />
+                                                        <span className="text-xs">مزامنة</span>
+                                                    </button>
+                                                )}
+                                            </td>
+                                            <td>
                                                 <div className="flex gap-1">
                                                     <button
                                                         onClick={() => setShowViewInvoice(invoice)}
@@ -580,20 +599,6 @@ export default function FinancePage() {
                                                     >
                                                         <Printer size={16} className="text-gray-500" />
                                                     </button>
-                                                    {!invoice.syncedToQoyod ? (
-                                                        <button
-                                                            onClick={() => handleSyncToQoyod('invoice', invoice.id)}
-                                                            className="p-2 hover:bg-blue-50 rounded-md"
-                                                            title="مزامنة مع قيود"
-                                                            disabled={saving}
-                                                        >
-                                                            <RefreshCw size={16} className={`text-blue-600 ${saving ? 'animate-spin' : ''}`} />
-                                                        </button>
-                                                    ) : (
-                                                        <div className="p-2" title="تمت المزامنة">
-                                                            <Link2 size={16} className="text-green-600" />
-                                                        </div>
-                                                    )}
                                                 </div>
                                             </td>
                                         </tr>
@@ -626,6 +631,7 @@ export default function FinancePage() {
                                         <th>المبلغ</th>
                                         <th>طريقة الدفع</th>
                                         <th>التاريخ</th>
+                                        <th>قيود</th>
                                         <th>الإجراءات</th>
                                     </tr>
                                 </thead>
@@ -638,6 +644,24 @@ export default function FinancePage() {
                                             <td className="font-bold text-green-600">{payment.amount.toLocaleString()} ر.س</td>
                                             <td>{PAYMENT_METHODS[payment.paymentMethod] || payment.paymentMethod}</td>
                                             <td>{new Date(payment.paymentDate).toLocaleDateString('ar-SA')}</td>
+                                            <td>
+                                                {payment.syncedToQoyod ? (
+                                                    <span className="inline-flex items-center gap-1 text-green-600" title="تمت المزامنة مع قيود">
+                                                        <CheckCircle size={16} />
+                                                        <span className="text-xs">تم</span>
+                                                    </span>
+                                                ) : (
+                                                    <button
+                                                        onClick={() => handleSyncToQoyod('payment', payment.id)}
+                                                        className="inline-flex items-center gap-1 text-yellow-600 hover:text-blue-600"
+                                                        title="مزامنة مع قيود"
+                                                        disabled={saving}
+                                                    >
+                                                        <RefreshCw size={16} className={saving ? 'animate-spin' : ''} />
+                                                        <span className="text-xs">مزامنة</span>
+                                                    </button>
+                                                )}
+                                            </td>
                                             <td>
                                                 <div className="flex gap-1">
                                                     <button
@@ -654,20 +678,6 @@ export default function FinancePage() {
                                                     >
                                                         <Printer size={16} className="text-gray-500" />
                                                     </button>
-                                                    {!payment.syncedToQoyod ? (
-                                                        <button
-                                                            onClick={() => handleSyncToQoyod('payment', payment.id)}
-                                                            className="p-2 hover:bg-blue-50 rounded-md"
-                                                            title="مزامنة مع قيود"
-                                                            disabled={saving}
-                                                        >
-                                                            <RefreshCw size={16} className={`text-blue-600 ${saving ? 'animate-spin' : ''}`} />
-                                                        </button>
-                                                    ) : (
-                                                        <div className="p-2" title="تمت المزامنة">
-                                                            <Link2 size={16} className="text-green-600" />
-                                                        </div>
-                                                    )}
                                                 </div>
                                             </td>
                                         </tr>

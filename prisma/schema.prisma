@@ -78,6 +78,11 @@ model Customer {
   ownerId       String
   owner         User         @relation("CustomerOwner", fields: [ownerId], references: [id])
   
+  // Qoyod Integration
+  qoyodCustomerId String?    // ID from Qoyod system
+  syncedToQoyod   Boolean    @default(false)
+  lastSyncAt      DateTime?
+  
   // Soft delete
   isDeleted     Boolean      @default(false)
   deletedAt     DateTime?
@@ -95,6 +100,7 @@ model Customer {
   @@index([phone])
   @@index([isDeleted])
   @@index([ownerId])
+  @@index([syncedToQoyod])
   @@map("customers")
 }
 
@@ -375,9 +381,12 @@ model Settings {
   vatPercentage     Decimal  @default(15) 
   
   // Qoyod Integration
-  qoyodApiKey       String?
-  qoyodApiSecret    String?
-  qoyodEnabled      Boolean  @default(false)
+  qoyodApiKey               String?
+  qoyodApiSecret            String?
+  qoyodEnabled              Boolean  @default(false)
+  qoyodDefaultBankAccountId String?  // For payment deposits (Cash/Bank account)
+  qoyodDefaultSalesAccountId String? // For revenue recording
+  qoyodAutoSync             Boolean  @default(true)  // Auto-sync on creation
   
   // Audit trail
   updatedAt         DateTime @updatedAt

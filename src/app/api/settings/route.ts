@@ -39,7 +39,10 @@ export async function GET() {
             vatRegNo: settings.vatRegNo,
             vatPercentage: Number(settings.vatPercentage),
             qoyodEnabled: settings.qoyodEnabled,
-            qoyodApiKey: settings.qoyodApiKey ? '********' : null // Don't expose full key
+            qoyodApiKey: settings.qoyodApiKey ? '********' : null, // Don't expose full key
+            qoyodDefaultBankAccountId: settings.qoyodDefaultBankAccountId,
+            qoyodDefaultSalesAccountId: settings.qoyodDefaultSalesAccountId,
+            qoyodAutoSync: settings.qoyodAutoSync ?? true
         })
     } catch (error) {
         console.error('Error fetching settings:', error)
@@ -81,6 +84,9 @@ export async function PUT(request: Request) {
         if (body.qoyodApiKey !== undefined && body.qoyodApiKey !== '********') {
             updateData.qoyodApiKey = body.qoyodApiKey
         }
+        if (body.qoyodDefaultBankAccountId !== undefined) updateData.qoyodDefaultBankAccountId = body.qoyodDefaultBankAccountId
+        if (body.qoyodDefaultSalesAccountId !== undefined) updateData.qoyodDefaultSalesAccountId = body.qoyodDefaultSalesAccountId
+        if (body.qoyodAutoSync !== undefined) updateData.qoyodAutoSync = body.qoyodAutoSync
 
         await prisma.settings.upsert({
             where: { ownerId },

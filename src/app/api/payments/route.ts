@@ -151,6 +151,12 @@ export async function POST(request: Request) {
                         bookingNumber: true,
                         customer: { select: { nameAr: true } }
                     }
+                },
+                invoice: {
+                    select: {
+                        qoyodInvoiceId: true,
+                        syncedToQoyod: true
+                    }
                 }
             }
         })
@@ -158,6 +164,31 @@ export async function POST(request: Request) {
         // Update invoice status if linked
         if (body.invoiceId) {
             await updateInvoiceStatus(body.invoiceId)
+        }
+
+        // Auto-sync to Qoyod if enabled and invoice is synced
+        try {
+            const settings = await prisma.settings.findUnique({
+                where: { ownerId: session.user.ownerId }
+            })
+
+            // Only sync if Qoyod is enabled, autoSync is on, and the invoice has been synced
+            if (settings?.qoyodEnabled && settings?.qoyodAutoSync &&
+                payment.invoice?.syncedToQoyod && payment.invoice?.qoyodInvoiceId) {
+                // Trigger sync in background (don't block response)
+                const baseUrl = process.env.NEXTAUTH_URL || process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
+                fetch(`${baseUrl}/api/qoyod`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Cookie': request.headers.get('cookie') || ''
+                    },
+                    body: JSON.stringify({ type: 'payment', id: payment.id })
+                }).catch(err => console.error('Auto-sync payment to Qoyod failed:', err))
+            }
+        } catch (syncError) {
+            // Don't fail payment creation if sync check fails
+            console.error('Error checking Qoyod auto-sync for payment:', syncError)
         }
 
         return NextResponse.json(payment, { status: 201 })

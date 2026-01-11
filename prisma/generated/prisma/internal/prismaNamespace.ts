@@ -1147,6 +1147,9 @@ export const CustomerScalarFieldEnum = {
   customerType: 'customerType',
   notes: 'notes',
   ownerId: 'ownerId',
+  qoyodCustomerId: 'qoyodCustomerId',
+  syncedToQoyod: 'syncedToQoyod',
+  lastSyncAt: 'lastSyncAt',
   isDeleted: 'isDeleted',
   deletedAt: 'deletedAt',
   createdAt: 'createdAt',
@@ -1303,6 +1306,9 @@ export const SettingsScalarFieldEnum = {
   qoyodApiKey: 'qoyodApiKey',
   qoyodApiSecret: 'qoyodApiSecret',
   qoyodEnabled: 'qoyodEnabled',
+  qoyodDefaultBankAccountId: 'qoyodDefaultBankAccountId',
+  qoyodDefaultSalesAccountId: 'qoyodDefaultSalesAccountId',
+  qoyodAutoSync: 'qoyodAutoSync',
   updatedAt: 'updatedAt'
 } as const
 

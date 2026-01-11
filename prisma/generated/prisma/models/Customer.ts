@@ -34,6 +34,9 @@ export type CustomerMinAggregateOutputType = {
   customerType: string | null
   notes: string | null
   ownerId: string | null
+  qoyodCustomerId: string | null
+  syncedToQoyod: boolean | null
+  lastSyncAt: Date | null
   isDeleted: boolean | null
   deletedAt: Date | null
   createdAt: Date | null
@@ -51,6 +54,9 @@ export type CustomerMaxAggregateOutputType = {
   customerType: string | null
   notes: string | null
   ownerId: string | null
+  qoyodCustomerId: string | null
+  syncedToQoyod: boolean | null
+  lastSyncAt: Date | null
   isDeleted: boolean | null
   deletedAt: Date | null
   createdAt: Date | null
@@ -68,6 +74,9 @@ export type CustomerCountAggregateOutputType = {
   customerType: number
   notes: number
   ownerId: number
+  qoyodCustomerId: number
+  syncedToQoyod: number
+  lastSyncAt: number
   isDeleted: number
   deletedAt: number
   createdAt: number
@@ -87,6 +96,9 @@ export type CustomerMinAggregateInputType = {
   customerType?: true
   notes?: true
   ownerId?: true
+  qoyodCustomerId?: true
+  syncedToQoyod?: true
+  lastSyncAt?: true
   isDeleted?: true
   deletedAt?: true
   createdAt?: true
@@ -104,6 +116,9 @@ export type CustomerMaxAggregateInputType = {
   customerType?: true
   notes?: true
   ownerId?: true
+  qoyodCustomerId?: true
+  syncedToQoyod?: true
+  lastSyncAt?: true
   isDeleted?: true
   deletedAt?: true
   createdAt?: true
@@ -121,6 +136,9 @@ export type CustomerCountAggregateInputType = {
   customerType?: true
   notes?: true
   ownerId?: true
+  qoyodCustomerId?: true
+  syncedToQoyod?: true
+  lastSyncAt?: true
   isDeleted?: true
   deletedAt?: true
   createdAt?: true
@@ -211,6 +229,9 @@ export type CustomerGroupByOutputType = {
   customerType: string
   notes: string | null
   ownerId: string
+  qoyodCustomerId: string | null
+  syncedToQoyod: boolean
+  lastSyncAt: Date | null
   isDeleted: boolean
   deletedAt: Date | null
   createdAt: Date
@@ -249,6 +270,9 @@ export type CustomerWhereInput = {
   customerType?: Prisma.StringFilter<"Customer"> | string
   notes?: Prisma.StringNullableFilter<"Customer"> | string | null
   ownerId?: Prisma.StringFilter<"Customer"> | string
+  qoyodCustomerId?: Prisma.StringNullableFilter<"Customer"> | string | null
+  syncedToQoyod?: Prisma.BoolFilter<"Customer"> | boolean
+  lastSyncAt?: Prisma.DateTimeNullableFilter<"Customer"> | Date | string | null
   isDeleted?: Prisma.BoolFilter<"Customer"> | boolean
   deletedAt?: Prisma.DateTimeNullableFilter<"Customer"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"Customer"> | Date | string
@@ -270,6 +294,9 @@ export type CustomerOrderByWithRelationInput = {
   customerType?: Prisma.SortOrder
   notes?: Prisma.SortOrderInput | Prisma.SortOrder
   ownerId?: Prisma.SortOrder
+  qoyodCustomerId?: Prisma.SortOrderInput | Prisma.SortOrder
+  syncedToQoyod?: Prisma.SortOrder
+  lastSyncAt?: Prisma.SortOrderInput | Prisma.SortOrder
   isDeleted?: Prisma.SortOrder
   deletedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -294,6 +321,9 @@ export type CustomerWhereUniqueInput = Prisma.AtLeast<{
   customerType?: Prisma.StringFilter<"Customer"> | string
   notes?: Prisma.StringNullableFilter<"Customer"> | string | null
   ownerId?: Prisma.StringFilter<"Customer"> | string
+  qoyodCustomerId?: Prisma.StringNullableFilter<"Customer"> | string | null
+  syncedToQoyod?: Prisma.BoolFilter<"Customer"> | boolean
+  lastSyncAt?: Prisma.DateTimeNullableFilter<"Customer"> | Date | string | null
   isDeleted?: Prisma.BoolFilter<"Customer"> | boolean
   deletedAt?: Prisma.DateTimeNullableFilter<"Customer"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"Customer"> | Date | string
@@ -315,6 +345,9 @@ export type CustomerOrderByWithAggregationInput = {
   customerType?: Prisma.SortOrder
   notes?: Prisma.SortOrderInput | Prisma.SortOrder
   ownerId?: Prisma.SortOrder
+  qoyodCustomerId?: Prisma.SortOrderInput | Prisma.SortOrder
+  syncedToQoyod?: Prisma.SortOrder
+  lastSyncAt?: Prisma.SortOrderInput | Prisma.SortOrder
   isDeleted?: Prisma.SortOrder
   deletedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -338,6 +371,9 @@ export type CustomerScalarWhereWithAggregatesInput = {
   customerType?: Prisma.StringWithAggregatesFilter<"Customer"> | string
   notes?: Prisma.StringNullableWithAggregatesFilter<"Customer"> | string | null
   ownerId?: Prisma.StringWithAggregatesFilter<"Customer"> | string
+  qoyodCustomerId?: Prisma.StringNullableWithAggregatesFilter<"Customer"> | string | null
+  syncedToQoyod?: Prisma.BoolWithAggregatesFilter<"Customer"> | boolean
+  lastSyncAt?: Prisma.DateTimeNullableWithAggregatesFilter<"Customer"> | Date | string | null
   isDeleted?: Prisma.BoolWithAggregatesFilter<"Customer"> | boolean
   deletedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"Customer"> | Date | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Customer"> | Date | string
@@ -354,6 +390,9 @@ export type CustomerCreateInput = {
   address?: string | null
   customerType?: string
   notes?: string | null
+  qoyodCustomerId?: string | null
+  syncedToQoyod?: boolean
+  lastSyncAt?: Date | string | null
   isDeleted?: boolean
   deletedAt?: Date | string | null
   createdAt?: Date | string
@@ -374,6 +413,9 @@ export type CustomerUncheckedCreateInput = {
   customerType?: string
   notes?: string | null
   ownerId: string
+  qoyodCustomerId?: string | null
+  syncedToQoyod?: boolean
+  lastSyncAt?: Date | string | null
   isDeleted?: boolean
   deletedAt?: Date | string | null
   createdAt?: Date | string
@@ -392,6 +434,9 @@ export type CustomerUpdateInput = {
   address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customerType?: Prisma.StringFieldUpdateOperationsInput | string
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  qoyodCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  syncedToQoyod?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  lastSyncAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -412,6 +457,9 @@ export type CustomerUncheckedUpdateInput = {
   customerType?: Prisma.StringFieldUpdateOperationsInput | string
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   ownerId?: Prisma.StringFieldUpdateOperationsInput | string
+  qoyodCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  syncedToQoyod?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  lastSyncAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -431,6 +479,9 @@ export type CustomerCreateManyInput = {
   customerType?: string
   notes?: string | null
   ownerId: string
+  qoyodCustomerId?: string | null
+  syncedToQoyod?: boolean
+  lastSyncAt?: Date | string | null
   isDeleted?: boolean
   deletedAt?: Date | string | null
   createdAt?: Date | string
@@ -447,6 +498,9 @@ export type CustomerUpdateManyMutationInput = {
   address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customerType?: Prisma.StringFieldUpdateOperationsInput | string
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  qoyodCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  syncedToQoyod?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  lastSyncAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -463,6 +517,9 @@ export type CustomerUncheckedUpdateManyInput = {
   customerType?: Prisma.StringFieldUpdateOperationsInput | string
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   ownerId?: Prisma.StringFieldUpdateOperationsInput | string
+  qoyodCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  syncedToQoyod?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  lastSyncAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -490,6 +547,9 @@ export type CustomerCountOrderByAggregateInput = {
   customerType?: Prisma.SortOrder
   notes?: Prisma.SortOrder
   ownerId?: Prisma.SortOrder
+  qoyodCustomerId?: Prisma.SortOrder
+  syncedToQoyod?: Prisma.SortOrder
+  lastSyncAt?: Prisma.SortOrder
   isDeleted?: Prisma.SortOrder
   deletedAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -507,6 +567,9 @@ export type CustomerMaxOrderByAggregateInput = {
   customerType?: Prisma.SortOrder
   notes?: Prisma.SortOrder
   ownerId?: Prisma.SortOrder
+  qoyodCustomerId?: Prisma.SortOrder
+  syncedToQoyod?: Prisma.SortOrder
+  lastSyncAt?: Prisma.SortOrder
   isDeleted?: Prisma.SortOrder
   deletedAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -524,6 +587,9 @@ export type CustomerMinOrderByAggregateInput = {
   customerType?: Prisma.SortOrder
   notes?: Prisma.SortOrder
   ownerId?: Prisma.SortOrder
+  qoyodCustomerId?: Prisma.SortOrder
+  syncedToQoyod?: Prisma.SortOrder
+  lastSyncAt?: Prisma.SortOrder
   isDeleted?: Prisma.SortOrder
   deletedAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -661,6 +727,9 @@ export type CustomerCreateWithoutCreatedByInput = {
   address?: string | null
   customerType?: string
   notes?: string | null
+  qoyodCustomerId?: string | null
+  syncedToQoyod?: boolean
+  lastSyncAt?: Date | string | null
   isDeleted?: boolean
   deletedAt?: Date | string | null
   createdAt?: Date | string
@@ -680,6 +749,9 @@ export type CustomerUncheckedCreateWithoutCreatedByInput = {
   customerType?: string
   notes?: string | null
   ownerId: string
+  qoyodCustomerId?: string | null
+  syncedToQoyod?: boolean
+  lastSyncAt?: Date | string | null
   isDeleted?: boolean
   deletedAt?: Date | string | null
   createdAt?: Date | string
@@ -707,6 +779,9 @@ export type CustomerCreateWithoutOwnerInput = {
   address?: string | null
   customerType?: string
   notes?: string | null
+  qoyodCustomerId?: string | null
+  syncedToQoyod?: boolean
+  lastSyncAt?: Date | string | null
   isDeleted?: boolean
   deletedAt?: Date | string | null
   createdAt?: Date | string
@@ -725,6 +800,9 @@ export type CustomerUncheckedCreateWithoutOwnerInput = {
   address?: string | null
   customerType?: string
   notes?: string | null
+  qoyodCustomerId?: string | null
+  syncedToQoyod?: boolean
+  lastSyncAt?: Date | string | null
   isDeleted?: boolean
   deletedAt?: Date | string | null
   createdAt?: Date | string
@@ -773,6 +851,9 @@ export type CustomerScalarWhereInput = {
   customerType?: Prisma.StringFilter<"Customer"> | string
   notes?: Prisma.StringNullableFilter<"Customer"> | string | null
   ownerId?: Prisma.StringFilter<"Customer"> | string
+  qoyodCustomerId?: Prisma.StringNullableFilter<"Customer"> | string | null
+  syncedToQoyod?: Prisma.BoolFilter<"Customer"> | boolean
+  lastSyncAt?: Prisma.DateTimeNullableFilter<"Customer"> | Date | string | null
   isDeleted?: Prisma.BoolFilter<"Customer"> | boolean
   deletedAt?: Prisma.DateTimeNullableFilter<"Customer"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"Customer"> | Date | string
@@ -805,6 +886,9 @@ export type CustomerCreateWithoutBookingsInput = {
   address?: string | null
   customerType?: string
   notes?: string | null
+  qoyodCustomerId?: string | null
+  syncedToQoyod?: boolean
+  lastSyncAt?: Date | string | null
   isDeleted?: boolean
   deletedAt?: Date | string | null
   createdAt?: Date | string
@@ -824,6 +908,9 @@ export type CustomerUncheckedCreateWithoutBookingsInput = {
   customerType?: string
   notes?: string | null
   ownerId: string
+  qoyodCustomerId?: string | null
+  syncedToQoyod?: boolean
+  lastSyncAt?: Date | string | null
   isDeleted?: boolean
   deletedAt?: Date | string | null
   createdAt?: Date | string
@@ -857,6 +944,9 @@ export type CustomerUpdateWithoutBookingsInput = {
   address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customerType?: Prisma.StringFieldUpdateOperationsInput | string
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  qoyodCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  syncedToQoyod?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  lastSyncAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -876,6 +966,9 @@ export type CustomerUncheckedUpdateWithoutBookingsInput = {
   customerType?: Prisma.StringFieldUpdateOperationsInput | string
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   ownerId?: Prisma.StringFieldUpdateOperationsInput | string
+  qoyodCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  syncedToQoyod?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  lastSyncAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -893,6 +986,9 @@ export type CustomerCreateWithoutInvoicesInput = {
   address?: string | null
   customerType?: string
   notes?: string | null
+  qoyodCustomerId?: string | null
+  syncedToQoyod?: boolean
+  lastSyncAt?: Date | string | null
   isDeleted?: boolean
   deletedAt?: Date | string | null
   createdAt?: Date | string
@@ -912,6 +1008,9 @@ export type CustomerUncheckedCreateWithoutInvoicesInput = {
   customerType?: string
   notes?: string | null
   ownerId: string
+  qoyodCustomerId?: string | null
+  syncedToQoyod?: boolean
+  lastSyncAt?: Date | string | null
   isDeleted?: boolean
   deletedAt?: Date | string | null
   createdAt?: Date | string
@@ -945,6 +1044,9 @@ export type CustomerUpdateWithoutInvoicesInput = {
   address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customerType?: Prisma.StringFieldUpdateOperationsInput | string
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  qoyodCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  syncedToQoyod?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  lastSyncAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -964,6 +1066,9 @@ export type CustomerUncheckedUpdateWithoutInvoicesInput = {
   customerType?: Prisma.StringFieldUpdateOperationsInput | string
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   ownerId?: Prisma.StringFieldUpdateOperationsInput | string
+  qoyodCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  syncedToQoyod?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  lastSyncAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -982,6 +1087,9 @@ export type CustomerCreateManyCreatedByInput = {
   customerType?: string
   notes?: string | null
   ownerId: string
+  qoyodCustomerId?: string | null
+  syncedToQoyod?: boolean
+  lastSyncAt?: Date | string | null
   isDeleted?: boolean
   deletedAt?: Date | string | null
   createdAt?: Date | string
@@ -997,6 +1105,9 @@ export type CustomerCreateManyOwnerInput = {
   address?: string | null
   customerType?: string
   notes?: string | null
+  qoyodCustomerId?: string | null
+  syncedToQoyod?: boolean
+  lastSyncAt?: Date | string | null
   isDeleted?: boolean
   deletedAt?: Date | string | null
   createdAt?: Date | string
@@ -1013,6 +1124,9 @@ export type CustomerUpdateWithoutCreatedByInput = {
   address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customerType?: Prisma.StringFieldUpdateOperationsInput | string
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  qoyodCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  syncedToQoyod?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  lastSyncAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1032,6 +1146,9 @@ export type CustomerUncheckedUpdateWithoutCreatedByInput = {
   customerType?: Prisma.StringFieldUpdateOperationsInput | string
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   ownerId?: Prisma.StringFieldUpdateOperationsInput | string
+  qoyodCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  syncedToQoyod?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  lastSyncAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1050,6 +1167,9 @@ export type CustomerUncheckedUpdateManyWithoutCreatedByInput = {
   customerType?: Prisma.StringFieldUpdateOperationsInput | string
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   ownerId?: Prisma.StringFieldUpdateOperationsInput | string
+  qoyodCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  syncedToQoyod?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  lastSyncAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1065,6 +1185,9 @@ export type CustomerUpdateWithoutOwnerInput = {
   address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customerType?: Prisma.StringFieldUpdateOperationsInput | string
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  qoyodCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  syncedToQoyod?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  lastSyncAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1083,6 +1206,9 @@ export type CustomerUncheckedUpdateWithoutOwnerInput = {
   address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customerType?: Prisma.StringFieldUpdateOperationsInput | string
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  qoyodCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  syncedToQoyod?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  lastSyncAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1101,6 +1227,9 @@ export type CustomerUncheckedUpdateManyWithoutOwnerInput = {
   address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customerType?: Prisma.StringFieldUpdateOperationsInput | string
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  qoyodCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  syncedToQoyod?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  lastSyncAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1158,6 +1287,9 @@ export type CustomerSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs
   customerType?: boolean
   notes?: boolean
   ownerId?: boolean
+  qoyodCustomerId?: boolean
+  syncedToQoyod?: boolean
+  lastSyncAt?: boolean
   isDeleted?: boolean
   deletedAt?: boolean
   createdAt?: boolean
@@ -1180,6 +1312,9 @@ export type CustomerSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exte
   customerType?: boolean
   notes?: boolean
   ownerId?: boolean
+  qoyodCustomerId?: boolean
+  syncedToQoyod?: boolean
+  lastSyncAt?: boolean
   isDeleted?: boolean
   deletedAt?: boolean
   createdAt?: boolean
@@ -1199,6 +1334,9 @@ export type CustomerSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exte
   customerType?: boolean
   notes?: boolean
   ownerId?: boolean
+  qoyodCustomerId?: boolean
+  syncedToQoyod?: boolean
+  lastSyncAt?: boolean
   isDeleted?: boolean
   deletedAt?: boolean
   createdAt?: boolean
@@ -1218,6 +1356,9 @@ export type CustomerSelectScalar = {
   customerType?: boolean
   notes?: boolean
   ownerId?: boolean
+  qoyodCustomerId?: boolean
+  syncedToQoyod?: boolean
+  lastSyncAt?: boolean
   isDeleted?: boolean
   deletedAt?: boolean
   createdAt?: boolean
@@ -1225,7 +1366,7 @@ export type CustomerSelectScalar = {
   createdById?: boolean
 }
 
-export type CustomerOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "nameAr" | "phone" | "email" | "idNumber" | "address" | "customerType" | "notes" | "ownerId" | "isDeleted" | "deletedAt" | "createdAt" | "updatedAt" | "createdById", ExtArgs["result"]["customer"]>
+export type CustomerOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "nameAr" | "phone" | "email" | "idNumber" | "address" | "customerType" | "notes" | "ownerId" | "qoyodCustomerId" | "syncedToQoyod" | "lastSyncAt" | "isDeleted" | "deletedAt" | "createdAt" | "updatedAt" | "createdById", ExtArgs["result"]["customer"]>
 export type CustomerInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   owner?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   createdBy?: boolean | Prisma.UserDefaultArgs<ExtArgs>
@@ -1260,6 +1401,9 @@ export type $CustomerPayload<ExtArgs extends runtime.Types.Extensions.InternalAr
     customerType: string
     notes: string | null
     ownerId: string
+    qoyodCustomerId: string | null
+    syncedToQoyod: boolean
+    lastSyncAt: Date | null
     isDeleted: boolean
     deletedAt: Date | null
     createdAt: Date
@@ -1701,6 +1845,9 @@ export interface CustomerFieldRefs {
   readonly customerType: Prisma.FieldRef<"Customer", 'String'>
   readonly notes: Prisma.FieldRef<"Customer", 'String'>
   readonly ownerId: Prisma.FieldRef<"Customer", 'String'>
+  readonly qoyodCustomerId: Prisma.FieldRef<"Customer", 'String'>
+  readonly syncedToQoyod: Prisma.FieldRef<"Customer", 'Boolean'>
+  readonly lastSyncAt: Prisma.FieldRef<"Customer", 'DateTime'>
   readonly isDeleted: Prisma.FieldRef<"Customer", 'Boolean'>
   readonly deletedAt: Prisma.FieldRef<"Customer", 'DateTime'>
   readonly createdAt: Prisma.FieldRef<"Customer", 'DateTime'>

@@ -9,7 +9,9 @@ import {
     RefreshCw,
     CheckCircle,
     XCircle,
-    Link2
+    Link2,
+    Eye,
+    EyeOff
 } from 'lucide-react'
 
 interface SettingsData {
@@ -24,6 +26,16 @@ interface SettingsData {
     vatPercentage: number
     qoyodEnabled: boolean
     qoyodApiKey: string | null
+    qoyodDefaultBankAccountId: string | null
+    qoyodDefaultSalesAccountId: string | null
+    qoyodAutoSync: boolean
+}
+
+interface QoyodAccount {
+    id: number
+    name_ar: string
+    name_en: string
+    type: string
 }
 
 export default function SettingsPage() {
@@ -33,6 +45,9 @@ export default function SettingsPage() {
     const [message, setMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null)
     const [qoyodStatus, setQoyodStatus] = useState<{ connected: boolean; message: string } | null>(null)
     const [testingQoyod, setTestingQoyod] = useState(false)
+    const [showApiKey, setShowApiKey] = useState(false)
+    const [qoyodAccounts, setQoyodAccounts] = useState<{ revenue: QoyodAccount[], asset: QoyodAccount[] }>({ revenue: [], asset: [] })
+    const [loadingAccounts, setLoadingAccounts] = useState(false)
 
     const DEFAULT_SETTINGS: SettingsData = {
         companyNameAr: 'نظام إدارة القاعات',
@@ -45,7 +60,10 @@ export default function SettingsPage() {
         vatRegNo: null,
         vatPercentage: 15,
         qoyodEnabled: false,
-        qoyodApiKey: null
+        qoyodApiKey: null,
+        qoyodDefaultBankAccountId: null,
+        qoyodDefaultSalesAccountId: null,
+        qoyodAutoSync: true
     }
 
     const fetchSettings = async () => {
@@ -110,18 +128,58 @@ export default function SettingsPage() {
     }
 
     const testQoyodConnection = async () => {
+        if (!settings) return
+
         setTestingQoyod(true)
         setQoyodStatus(null)
 
         try {
+            // Save settings first
+            const saveResponse = await fetch('/api/settings', {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(settings)
+            })
+
+            if (!saveResponse.ok) {
+                throw new Error('Failed to save settings')
+            }
+
+            // Then test connection
             const response = await fetch('/api/qoyod')
             const data = await response.json()
             setQoyodStatus(data)
+
+            // If connected, fetch accounts for dropdowns
+            if (data.connected) {
+                await fetchQoyodAccounts()
+            }
+
+            // Update cache
+            localStorage.setItem('settings_cache', JSON.stringify(settings))
         } catch (error) {
             console.error('Error:', error)
             setQoyodStatus({ connected: false, message: 'فشل الاتصال' })
         } finally {
             setTestingQoyod(false)
+        }
+    }
+
+    const fetchQoyodAccounts = async () => {
+        setLoadingAccounts(true)
+        try {
+            const response = await fetch('/api/qoyod?action=accounts')
+            const data = await response.json()
+            if (data.success) {
+                setQoyodAccounts({
+                    revenue: data.revenueAccounts || [],
+                    asset: data.assetAccounts || []
+                })
+            }
+        } catch (error) {
+            console.error('Error fetching Qoyod accounts:', error)
+        } finally {
+            setLoadingAccounts(false)
         }
     }
 
@@ -284,14 +342,23 @@ export default function SettingsPage() {
                         <div className="space-y-4 p-4 bg-gray-50 rounded-lg">
                             <div>
                                 <label className="form-label">مفتاح API</label>
-                                <input
-                                    type="password"
-                                    value={settings.qoyodApiKey || ''}
-                                    onChange={(e) => setSettings({ ...settings, qoyodApiKey: e.target.value })}
-                                    className="form-input w-full"
-                                    placeholder="أدخل مفتاح API من قيود"
-                                    dir="ltr"
-                                />
+                                <div className="relative">
+                                    <input
+                                        type={showApiKey ? 'text' : 'password'}
+                                        value={settings.qoyodApiKey || ''}
+                                        onChange={(e) => setSettings({ ...settings, qoyodApiKey: e.target.value })}
+                                        className="form-input w-full pl-10"
+                                        placeholder="أدخل مفتاح API من قيود"
+                                        dir="ltr"
+                                    />
+                                    <button
+                                        type="button"
+                                        onClick={() => setShowApiKey(!showApiKey)}
+                                        className="absolute left-2 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                                    >
+                                        {showApiKey ? <EyeOff size={18} /> : <Eye size={18} />}
+                                    </button>
+                                </div>
                                 <p className="text-xs text-[var(--text-muted)] mt-1">
                                     يمكنك الحصول على مفتاح API من لوحة تحكم قيود
                                 </p>
@@ -314,6 +381,70 @@ export default function SettingsPage() {
                                         <span>{qoyodStatus.message}</span>
                                     </div>
                                 )}
+                            </div>
+
+                            {/* Account Selection - shown after successful connection */}
+                            {qoyodStatus?.connected && (
+                                <div className="border-t border-[var(--border-color)] pt-4 space-y-4">
+                                    <h4 className="font-medium">إعدادات الحسابات:</h4>
+
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        <div>
+                                            <label className="form-label">حساب الإيرادات</label>
+                                            <select
+                                                value={settings.qoyodDefaultSalesAccountId || ''}
+                                                onChange={(e) => setSettings({ ...settings, qoyodDefaultSalesAccountId: e.target.value || null })}
+                                                className="form-input w-full"
+                                                disabled={loadingAccounts}
+                                            >
+                                                <option value="">اختيار تلقائي</option>
+                                                {qoyodAccounts.revenue.map(acc => (
+                                                    <option key={acc.id} value={acc.id.toString()}>
+                                                        {acc.name_ar || acc.name_en}
+                                                    </option>
+                                                ))}
+                                            </select>
+                                            <p className="text-xs text-[var(--text-muted)] mt-1">
+                                                حساب تسجيل إيرادات الفواتير
+                                            </p>
+                                        </div>
+                                        <div>
+                                            <label className="form-label">حساب البنك/الصندوق</label>
+                                            <select
+                                                value={settings.qoyodDefaultBankAccountId || ''}
+                                                onChange={(e) => setSettings({ ...settings, qoyodDefaultBankAccountId: e.target.value || null })}
+                                                className="form-input w-full"
+                                                disabled={loadingAccounts}
+                                            >
+                                                <option value="">اختيار تلقائي</option>
+                                                {qoyodAccounts.asset.map(acc => (
+                                                    <option key={acc.id} value={acc.id.toString()}>
+                                                        {acc.name_ar || acc.name_en}
+                                                    </option>
+                                                ))}
+                                            </select>
+                                            <p className="text-xs text-[var(--text-muted)] mt-1">
+                                                حساب إيداع المدفوعات
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* Auto-sync toggle */}
+                            <div className="border-t border-[var(--border-color)] pt-4">
+                                <label className="flex items-center gap-2 cursor-pointer">
+                                    <input
+                                        type="checkbox"
+                                        checked={settings.qoyodAutoSync}
+                                        onChange={(e) => setSettings({ ...settings, qoyodAutoSync: e.target.checked })}
+                                        className="w-5 h-5 rounded border-gray-300 text-[var(--primary-600)] focus:ring-[var(--primary-500)]"
+                                    />
+                                    <span className="font-medium">مزامنة تلقائية عند إنشاء الفواتير والمدفوعات</span>
+                                </label>
+                                <p className="text-xs text-[var(--text-muted)] mt-1 mr-7">
+                                    عند التفعيل، سيتم مزامنة الفواتير والمدفوعات مع قيود تلقائياً
+                                </p>
                             </div>
 
                             <div className="border-t border-[var(--border-color)] pt-4">

@@ -2,56 +2,58 @@ import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { auth } from '@/lib/auth'
 
-// Configuration
-const QOYOD_API_BASE = 'https://www.qoyod.com/api/2.0'
-const FALLBACK_API_KEY = process.env.QOYOD_API_KEY || '' // Use environment variable
+// Configuration - only base URL from environment (same for all users)
+// New Qoyod API: https://api.qoyod.com (migrated from www.qoyod.com/api)
+const QOYOD_API_BASE = process.env.QOYOD_BASE_URL || 'https://api.qoyod.com/2.0'
 
 // Types
 interface QoyodConfig {
     apiKey: string
     baseUrl: string
+    defaultBankAccountId?: string | null
+    defaultSalesAccountId?: string | null
+    autoSync?: boolean
 }
 
-// 1. Configuration & Auth
+interface QoyodSettings {
+    qoyodApiKey: string | null
+    qoyodEnabled: boolean
+    qoyodDefaultBankAccountId: string | null
+    qoyodDefaultSalesAccountId: string | null
+    qoyodAutoSync: boolean
+}
+
+// 1. Configuration & Auth - reads from user's settings in database
 async function getQoyodConfig(): Promise<QoyodConfig | null> {
     const session = await auth()
     if (!session?.user?.ownerId) {
         return null
     }
 
-    let settings = await prisma.settings.findUnique({
+    const settings = await prisma.settings.findUnique({
         where: { ownerId: session.user.ownerId }
-    })
+    }) as QoyodSettings | null
 
-    // Auto-configure if simulation was running or key missing but we have it
-    if (!settings?.qoyodApiKey && FALLBACK_API_KEY) {
-        console.log('Applying fallback Qoyod API key...')
-        settings = await prisma.settings.upsert({
-            where: { ownerId: session.user.ownerId },
-            update: { qoyodEnabled: true, qoyodApiKey: FALLBACK_API_KEY },
-            create: {
-                ownerId: session.user.ownerId,
-                companyNameAr: 'نظام إدارة القاعات',
-                qoyodEnabled: true,
-                qoyodApiKey: FALLBACK_API_KEY,
-                vatPercentage: 15
-            }
-        })
-    }
-
+    // User must configure Qoyod in Settings page
     if (!settings?.qoyodEnabled || !settings?.qoyodApiKey) {
         return null
     }
 
     return {
         apiKey: settings.qoyodApiKey,
-        baseUrl: QOYOD_API_BASE
+        baseUrl: QOYOD_API_BASE,
+        defaultBankAccountId: settings.qoyodDefaultBankAccountId,
+        defaultSalesAccountId: settings.qoyodDefaultSalesAccountId,
+        autoSync: settings.qoyodAutoSync
     }
 }
 
 // 2. Helper: API Request
 async function qoyodRequest(endpoint: string, method: string = 'GET', body: any = null, config: QoyodConfig) {
-    const url = `${config.baseUrl}${endpoint}`
+    // Ensure no double slashes in URL
+    const baseUrl = config.baseUrl.replace(/\/+$/, '') // Remove trailing slashes
+    const cleanEndpoint = endpoint.startsWith('/') ? endpoint : `/${endpoint}`
+    const url = `${baseUrl}${cleanEndpoint}`
 
     const headers: HeadersInit = {
         'API-KEY': config.apiKey,
@@ -80,6 +82,11 @@ async function qoyodRequest(endpoint: string, method: string = 'GET', body: any 
 }
 // 2.5 Helper: Get Sales Account ID
 async function getSalesAccountId(config: QoyodConfig): Promise<number> {
+    // Use configured account if available
+    if (config.defaultSalesAccountId) {
+        return parseInt(config.defaultSalesAccountId)
+    }
+
     try {
         // Search for Revenue accounts
         const res = await qoyodRequest('/accounts?q[type_eq]=Revenue', 'GET', null, config)
@@ -94,7 +101,32 @@ async function getSalesAccountId(config: QoyodConfig): Promise<number> {
     return 17 // Fallback to common default
 }
 
-// 2.6 Helper: Get Unit Type ID
+// 2.6 Helper: Get Bank/Cash Account ID for payments
+async function getBankAccountId(config: QoyodConfig): Promise<number> {
+    // Use configured account if available
+    if (config.defaultBankAccountId) {
+        return parseInt(config.defaultBankAccountId)
+    }
+
+    try {
+        const res = await qoyodRequest('/accounts?q[type_eq]=Asset', 'GET', null, config)
+        if (res.accounts && res.accounts.length > 0) {
+            // Prefer Cash or Bank accounts
+            const bankAcc = res.accounts.find((a: any) =>
+                a.name_en?.toLowerCase().includes('cash') ||
+                a.name_en?.toLowerCase().includes('bank') ||
+                a.name_ar?.includes('صندوق') ||
+                a.name_ar?.includes('بنك')
+            )
+            return bankAcc ? bankAcc.id : res.accounts[0].id
+        }
+    } catch (e) {
+        console.warn('Failed to fetch bank accounts, using fallback')
+    }
+    return 1 // Fallback to default
+}
+
+// 2.7 Helper: Get Unit Type ID
 async function getUnitTypeId(config: QoyodConfig): Promise<number> {
     try {
         const res = await qoyodRequest('/product_unit_types', 'GET', null, config)
@@ -113,22 +145,31 @@ async function getUnitTypeId(config: QoyodConfig): Promise<number> {
     return 7 // Fallback
 }
 
+// 2.8 Helper: Get Inventory ID (required for invoices)
+async function getInventoryId(config: QoyodConfig): Promise<number> {
+    try {
+        const res = await qoyodRequest('/inventories', 'GET', null, config)
+        if (res.inventories && res.inventories.length > 0) {
+            // Return first inventory
+            return res.inventories[0].id
+        }
+    } catch (e) {
+        console.warn('Failed to fetch inventories, using fallback')
+    }
+    return 1 // Fallback to default inventory
+}
+
 // 3. Helper: Ensure Product exists (for line items)
 async function getOrCreateServiceProduct(config: QoyodConfig) {
     const productName = 'خدمة حجز قاعة' // Hall Booking Service
-    const productSku = 'HALL-SERVICE'
+    const productSku = 'HALL-SVC-001' // Use a specific SKU for services
 
-    // Search for product by SKU or Name
+    // Search for our specific service product
     let searchRes
     try {
-        // Try searching by SKU first as it's more reliable
         searchRes = await qoyodRequest(`/products?q[sku_eq]=${productSku}`, 'GET', null, config)
-        if (!searchRes.products || searchRes.products.length === 0) {
-            // Fallback to name search
-            searchRes = await qoyodRequest(`/products?q[name_eq]=${encodeURIComponent(productName)}`, 'GET', null, config)
-        }
     } catch (e: any) {
-        if (e.message.includes('404')) {
+        if (e.message.includes('404') || e.message.includes('nothing')) {
             searchRes = { products: [] }
         } else {
             throw e
@@ -138,61 +179,70 @@ async function getOrCreateServiceProduct(config: QoyodConfig) {
     if (searchRes.products && searchRes.products.length > 0) {
         const product = searchRes.products[0]
 
-        // Auto-fix: Ensure track_quantity is false for Service to avoid 'inventory id missing' error
-        // Qoyod might return track_quantity as boolean or string
-        if (product.track_quantity === true || product.track_quantity === 'true' || product.track_quantity === 1) {
-            console.log(`Auto-fixing Product ${product.id}: disabling track_quantity`)
-            try {
-                await qoyodRequest(`/products/${product.id}`, 'PUT', {
-                    product: {
-                        track_quantity: "0",
-                        type: "Service"
-                    }
-                }, config)
-            } catch (e) {
-                console.warn('Failed to auto-fix product:', e)
-                // Proceed anyway, maybe it wasn't critical or user permissions issue
-            }
+        // Check if product has inventory tracking disabled
+        const trackQty = product.track_quantity
+        if (trackQty === false || trackQty === '0' || trackQty === 0 || trackQty === 'false') {
+            // Product is correctly configured as service
+            return product.id
         }
 
-        return product.id
+        // Try to fix the product settings
+        console.log(`Product ${product.id} has track_quantity=${trackQty}, attempting fix...`)
+        try {
+            await qoyodRequest(`/products/${product.id}`, 'PUT', {
+                product: {
+                    track_quantity: false,
+                    type: 'Service'
+                }
+            }, config)
+            console.log('Product settings updated successfully')
+            return product.id
+        } catch (e) {
+            console.warn('Could not update product, will create a new one:', e)
+        }
     }
 
-    // Prepare dependencies
+    // Prepare dependencies for creating new product
     const salesAccountId = await getSalesAccountId(config)
     const unitTypeId = await getUnitTypeId(config)
 
-    // Create product if not exists
-    // Using verified payload structure from docs/testing
+    // Create new service product
+    console.log('Creating new service product in Qoyod...')
     const createRes = await qoyodRequest('/products', 'POST', {
         product: {
             name_ar: productName,
             name_en: 'Hall Booking Service',
             sku: productSku,
-            category_id: 1, // Default category "Accessories" or general
+            category_id: 1,
             type: 'Service',
-            product_unit_type_id: unitTypeId.toString(),
+            product_unit_type_id: unitTypeId,
 
             // Selling configuration
-            sale_item: "1",
-            sales_account_id: salesAccountId.toString(),
-            selling_price: "1.0", // Default price, overridden by invoice
+            sale_item: true,
+            sales_account_id: salesAccountId,
+            selling_price: 1.0,
 
-            // Non-inventory settings
-            purchase_item: "0",
-            track_quantity: "0",
+            // CRITICAL: Disable inventory tracking for services
+            purchase_item: false,
+            track_quantity: false,
 
-            tax_id: "1" // 15% VAT (Standard)
+            tax_id: 1 // 15% VAT
         }
     }, config)
 
+    console.log('Service product created:', createRes.product?.id)
     return createRes.product.id
 }
 
 // 4. Helper: Sync Customer
-async function syncCustomer(customerId: string, config: QoyodConfig) {
+async function syncCustomer(customerId: string, config: QoyodConfig): Promise<number> {
     const customer = await prisma.customer.findUnique({ where: { id: customerId } })
     if (!customer) throw new Error('Customer not found')
+
+    // If already synced, return the existing Qoyod ID
+    if (customer.qoyodCustomerId) {
+        return parseInt(customer.qoyodCustomerId)
+    }
 
     // Prepare Name
     const contactName = customer.nameAr
@@ -210,58 +260,133 @@ async function syncCustomer(customerId: string, config: QoyodConfig) {
         }
     }
 
+    let qoyodCustomerId: number
+
     if (searchRes.customers && searchRes.customers.length > 0) {
-        return searchRes.customers[0].id
+        qoyodCustomerId = searchRes.customers[0].id
+    } else {
+        // 2. Create if not found
+        const createRes = await qoyodRequest('/customers', 'POST', {
+            contact: {
+                name: contactName, // Localised name
+                organization: contactName,
+                email: customer.email || undefined,
+                phone_number: customer.phone,
+                status: 'Active'
+            }
+        }, config)
+        qoyodCustomerId = createRes.contact.id
     }
 
-    // 2. Create if not found
-    const createRes = await qoyodRequest('/customers', 'POST', {
-        contact: {
-            name: contactName, // Localised name
-            organization: contactName,
-            email: customer.email || undefined,
-            phone_number: customer.phone,
-            status: 'Active'
+    // Store Qoyod customer ID in our database
+    await prisma.customer.update({
+        where: { id: customerId },
+        data: {
+            qoyodCustomerId: qoyodCustomerId.toString(),
+            syncedToQoyod: true,
+            lastSyncAt: new Date()
         }
-    }, config)
+    })
 
-    return createRes.contact.id
+    return qoyodCustomerId
 }
 
 // API Route Handlers
 // ============================================
 
-// GET - Test Connection
-export async function GET() {
+// GET - Test Connection or Fetch Accounts
+export async function GET(request: Request) {
     try {
+        const { searchParams } = new URL(request.url)
+        const action = searchParams.get('action')
+
         const config = await getQoyodConfig()
 
         if (!config) {
             return NextResponse.json({
                 connected: false,
-                message: 'Qoyod integration is not configured'
+                message: 'لم يتم تفعيل تكامل قيود'
             })
         }
 
-        // Test by fetching company info (usually /company or just checking valid auth)
-        // We'll try fetching products as a lightweight check
+        // Action: Fetch accounts for settings dropdown
+        if (action === 'accounts') {
+            try {
+                const [revenueRes, assetRes] = await Promise.all([
+                    qoyodRequest('/accounts?q[type_eq]=Revenue', 'GET', null, config),
+                    qoyodRequest('/accounts?q[type_eq]=Asset', 'GET', null, config)
+                ])
+
+                return NextResponse.json({
+                    success: true,
+                    revenueAccounts: revenueRes.accounts || [],
+                    assetAccounts: assetRes.accounts || []
+                })
+            } catch (e: any) {
+                return NextResponse.json({
+                    success: false,
+                    error: e.message || 'Failed to fetch accounts'
+                }, { status: 500 })
+            }
+        }
+
+        // Action: Get sync status
+        if (action === 'sync-status') {
+            const session = await auth()
+            if (!session?.user?.ownerId) {
+                return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+            }
+
+            const [invoiceStats, paymentStats, customerStats] = await Promise.all([
+                prisma.invoice.groupBy({
+                    by: ['syncedToQoyod'],
+                    where: { ownerId: session.user.ownerId, isDeleted: false },
+                    _count: true
+                }),
+                prisma.payment.groupBy({
+                    by: ['syncedToQoyod'],
+                    where: { ownerId: session.user.ownerId, isDeleted: false },
+                    _count: true
+                }),
+                prisma.customer.groupBy({
+                    by: ['syncedToQoyod'],
+                    where: { ownerId: session.user.ownerId, isDeleted: false },
+                    _count: true
+                })
+            ])
+
+            const getStats = (groups: any[]) => {
+                const synced = groups.find(g => g.syncedToQoyod === true)?._count || 0
+                const notSynced = groups.find(g => g.syncedToQoyod === false)?._count || 0
+                return { synced, total: synced + notSynced }
+            }
+
+            return NextResponse.json({
+                invoices: getStats(invoiceStats),
+                payments: getStats(paymentStats),
+                customers: getStats(customerStats),
+                autoSync: config.autoSync
+            })
+        }
+
+        // Default: Test connection
         try {
             const data = await qoyodRequest('/products?limit=1', 'GET', null, config)
             return NextResponse.json({
                 connected: true,
-                message: 'Connected to Qoyod successfully',
-                details: `Found ${data.total || 0} products`
+                message: 'تم الاتصال بقيود بنجاح',
+                details: `عدد المنتجات: ${data.total || 0}`
             })
         } catch (e) {
             return NextResponse.json({
                 connected: false,
-                message: 'Failed to connect with provided API Key'
+                message: 'فشل الاتصال - مفتاح API غير صالح'
             })
         }
     } catch (error) {
         return NextResponse.json({
             connected: false,
-            message: 'Error connecting to Qoyod'
+            message: 'حدث خطأ في الاتصال بقيود'
         })
     }
 }
@@ -292,11 +417,15 @@ export async function POST(request: Request) {
             // 1. Sync Customer
             const contactId = await syncCustomer(invoice.customerId, config)
 
-            // 2. Get Service Product ID
-            const productId = await getOrCreateServiceProduct(config)
+            // 2. Get or create service product (required for line items)
+            const serviceProductId = await getOrCreateServiceProduct(config)
 
-            // 3. Calculate Revenue Split
-            const totalAmount = Number(invoice.subtotal)
+            // 3. Get inventory ID (required for invoices)
+            const inventoryId = await getInventoryId(config)
+
+            // 4. Calculate Revenue - USE TOTAL AMOUNT (VAT already included in Hall System)
+            // Our system includes VAT in the final amount, so we send VAT-inclusive prices
+            const totalAmount = Number(invoice.totalAmount) // Use totalAmount, not subtotal
             const serviceRevenueRaw = Number(invoice.booking.serviceRevenue) || 0
 
             // Edge case: If services cost more than total (heavy discount), cap it
@@ -308,43 +437,44 @@ export async function POST(request: Request) {
                 actualServiceRevenue = totalAmount
             }
 
-            // 4. Build Line Items
+            // 5. Build Line Items (using product_id, required by Qoyod)
+            // NOTE: We set tax_percent: 0 because VAT is already included in our amounts
             const lineItems = []
 
             // Hall Rental Line Item (if there's hall revenue)
             if (hallRevenue > 0) {
                 lineItems.push({
-                    product_id: productId,
+                    product_id: serviceProductId,
                     description: `تأجير قاعة: ${invoice.booking.hall.nameAr} (${invoice.booking.bookingNumber})`,
                     quantity: 1,
                     unit_price: hallRevenue,
-                    tax_percent: 15 // 15% VAT
+                    tax_percent: 0 // VAT already included
                 })
             }
 
             // Services Line Item (if there's service revenue)
             if (actualServiceRevenue > 0) {
                 lineItems.push({
-                    product_id: productId,
+                    product_id: serviceProductId,
                     description: `خدمات إضافية: صبابين، ذبائح، كراتين ماء (${invoice.booking.bookingNumber})`,
                     quantity: 1,
                     unit_price: actualServiceRevenue,
-                    tax_percent: 15 // 15% VAT
+                    tax_percent: 0 // VAT already included
                 })
             }
 
             // Fallback: If no line items (shouldn't happen), add the total
             if (lineItems.length === 0) {
                 lineItems.push({
-                    product_id: productId,
+                    product_id: serviceProductId,
                     description: `حجز قاعة: ${invoice.booking.hall.nameAr} (${invoice.booking.bookingNumber})`,
                     quantity: 1,
                     unit_price: totalAmount,
-                    tax_percent: 15
+                    tax_percent: 0 // VAT already included
                 })
             }
 
-            // 5. Create Invoice in Qoyod
+            // 6. Create Invoice in Qoyod (with required inventory_id)
             const invoicePayload = {
                 invoice: {
                     contact_id: contactId,
@@ -352,6 +482,7 @@ export async function POST(request: Request) {
                     due_date: invoice.dueDate.toISOString().split('T')[0],
                     reference: invoice.invoiceNumber,
                     status: 'Approved',
+                    inventory_id: inventoryId,
                     line_items: lineItems
                 }
             }
@@ -412,17 +543,8 @@ export async function POST(request: Request) {
                     reference: payment.paymentNumber,
                     amount: Number(payment.amount),
                     date: payment.paymentDate.toISOString().split('T')[0],
-                    account_id: 1 // Default treasury/cash account. In real app, this should be configurable
+                    account_id: await getBankAccountId(config)
                 }
-            }
-
-            // We need an account_id (Treasury/Bank). 
-            // For now, we'll try fetching accounts and picking the first 'Cash' or 'Bank' type
-            const accountsRes = await qoyodRequest('/accounts?q[type_eq]=Asset', 'GET', null, config)
-            if (accountsRes.accounts && accountsRes.accounts.length > 0) {
-                // Try to find a reasonable account
-                // Simplified logic: just pick first asset account or defaulting to 1 if risky
-                paymentPayload.invoice_payment.account_id = accountsRes.accounts[0].id
             }
 
             const qoyodRes = await qoyodRequest('/invoice_payments', 'POST', paymentPayload, config)

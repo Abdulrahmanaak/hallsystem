@@ -49,6 +49,9 @@ export type SettingsMinAggregateOutputType = {
   qoyodApiKey: string | null
   qoyodApiSecret: string | null
   qoyodEnabled: boolean | null
+  qoyodDefaultBankAccountId: string | null
+  qoyodDefaultSalesAccountId: string | null
+  qoyodAutoSync: boolean | null
   updatedAt: Date | null
 }
 
@@ -67,6 +70,9 @@ export type SettingsMaxAggregateOutputType = {
   qoyodApiKey: string | null
   qoyodApiSecret: string | null
   qoyodEnabled: boolean | null
+  qoyodDefaultBankAccountId: string | null
+  qoyodDefaultSalesAccountId: string | null
+  qoyodAutoSync: boolean | null
   updatedAt: Date | null
 }
 
@@ -85,6 +91,9 @@ export type SettingsCountAggregateOutputType = {
   qoyodApiKey: number
   qoyodApiSecret: number
   qoyodEnabled: number
+  qoyodDefaultBankAccountId: number
+  qoyodDefaultSalesAccountId: number
+  qoyodAutoSync: number
   updatedAt: number
   _all: number
 }
@@ -113,6 +122,9 @@ export type SettingsMinAggregateInputType = {
   qoyodApiKey?: true
   qoyodApiSecret?: true
   qoyodEnabled?: true
+  qoyodDefaultBankAccountId?: true
+  qoyodDefaultSalesAccountId?: true
+  qoyodAutoSync?: true
   updatedAt?: true
 }
 
@@ -131,6 +143,9 @@ export type SettingsMaxAggregateInputType = {
   qoyodApiKey?: true
   qoyodApiSecret?: true
   qoyodEnabled?: true
+  qoyodDefaultBankAccountId?: true
+  qoyodDefaultSalesAccountId?: true
+  qoyodAutoSync?: true
   updatedAt?: true
 }
 
@@ -149,6 +164,9 @@ export type SettingsCountAggregateInputType = {
   qoyodApiKey?: true
   qoyodApiSecret?: true
   qoyodEnabled?: true
+  qoyodDefaultBankAccountId?: true
+  qoyodDefaultSalesAccountId?: true
+  qoyodAutoSync?: true
   updatedAt?: true
   _all?: true
 }
@@ -254,6 +272,9 @@ export type SettingsGroupByOutputType = {
   qoyodApiKey: string | null
   qoyodApiSecret: string | null
   qoyodEnabled: boolean
+  qoyodDefaultBankAccountId: string | null
+  qoyodDefaultSalesAccountId: string | null
+  qoyodAutoSync: boolean
   updatedAt: Date
   _count: SettingsCountAggregateOutputType | null
   _avg: SettingsAvgAggregateOutputType | null
@@ -295,6 +316,9 @@ export type SettingsWhereInput = {
   qoyodApiKey?: Prisma.StringNullableFilter<"Settings"> | string | null
   qoyodApiSecret?: Prisma.StringNullableFilter<"Settings"> | string | null
   qoyodEnabled?: Prisma.BoolFilter<"Settings"> | boolean
+  qoyodDefaultBankAccountId?: Prisma.StringNullableFilter<"Settings"> | string | null
+  qoyodDefaultSalesAccountId?: Prisma.StringNullableFilter<"Settings"> | string | null
+  qoyodAutoSync?: Prisma.BoolFilter<"Settings"> | boolean
   updatedAt?: Prisma.DateTimeFilter<"Settings"> | Date | string
   owner?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
 }
@@ -314,6 +338,9 @@ export type SettingsOrderByWithRelationInput = {
   qoyodApiKey?: Prisma.SortOrderInput | Prisma.SortOrder
   qoyodApiSecret?: Prisma.SortOrderInput | Prisma.SortOrder
   qoyodEnabled?: Prisma.SortOrder
+  qoyodDefaultBankAccountId?: Prisma.SortOrderInput | Prisma.SortOrder
+  qoyodDefaultSalesAccountId?: Prisma.SortOrderInput | Prisma.SortOrder
+  qoyodAutoSync?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   owner?: Prisma.UserOrderByWithRelationInput
 }
@@ -336,6 +363,9 @@ export type SettingsWhereUniqueInput = Prisma.AtLeast<{
   qoyodApiKey?: Prisma.StringNullableFilter<"Settings"> | string | null
   qoyodApiSecret?: Prisma.StringNullableFilter<"Settings"> | string | null
   qoyodEnabled?: Prisma.BoolFilter<"Settings"> | boolean
+  qoyodDefaultBankAccountId?: Prisma.StringNullableFilter<"Settings"> | string | null
+  qoyodDefaultSalesAccountId?: Prisma.StringNullableFilter<"Settings"> | string | null
+  qoyodAutoSync?: Prisma.BoolFilter<"Settings"> | boolean
   updatedAt?: Prisma.DateTimeFilter<"Settings"> | Date | string
   owner?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
 }, "id" | "ownerId">
@@ -355,6 +385,9 @@ export type SettingsOrderByWithAggregationInput = {
   qoyodApiKey?: Prisma.SortOrderInput | Prisma.SortOrder
   qoyodApiSecret?: Prisma.SortOrderInput | Prisma.SortOrder
   qoyodEnabled?: Prisma.SortOrder
+  qoyodDefaultBankAccountId?: Prisma.SortOrderInput | Prisma.SortOrder
+  qoyodDefaultSalesAccountId?: Prisma.SortOrderInput | Prisma.SortOrder
+  qoyodAutoSync?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.SettingsCountOrderByAggregateInput
   _avg?: Prisma.SettingsAvgOrderByAggregateInput
@@ -381,6 +414,9 @@ export type SettingsScalarWhereWithAggregatesInput = {
   qoyodApiKey?: Prisma.StringNullableWithAggregatesFilter<"Settings"> | string | null
   qoyodApiSecret?: Prisma.StringNullableWithAggregatesFilter<"Settings"> | string | null
   qoyodEnabled?: Prisma.BoolWithAggregatesFilter<"Settings"> | boolean
+  qoyodDefaultBankAccountId?: Prisma.StringNullableWithAggregatesFilter<"Settings"> | string | null
+  qoyodDefaultSalesAccountId?: Prisma.StringNullableWithAggregatesFilter<"Settings"> | string | null
+  qoyodAutoSync?: Prisma.BoolWithAggregatesFilter<"Settings"> | boolean
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"Settings"> | Date | string
 }
 
@@ -398,6 +434,9 @@ export type SettingsCreateInput = {
   qoyodApiKey?: string | null
   qoyodApiSecret?: string | null
   qoyodEnabled?: boolean
+  qoyodDefaultBankAccountId?: string | null
+  qoyodDefaultSalesAccountId?: string | null
+  qoyodAutoSync?: boolean
   updatedAt?: Date | string
   owner: Prisma.UserCreateNestedOneWithoutOwnedSettingsInput
 }
@@ -417,6 +456,9 @@ export type SettingsUncheckedCreateInput = {
   qoyodApiKey?: string | null
   qoyodApiSecret?: string | null
   qoyodEnabled?: boolean
+  qoyodDefaultBankAccountId?: string | null
+  qoyodDefaultSalesAccountId?: string | null
+  qoyodAutoSync?: boolean
   updatedAt?: Date | string
 }
 
@@ -434,6 +476,9 @@ export type SettingsUpdateInput = {
   qoyodApiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   qoyodApiSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   qoyodEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  qoyodDefaultBankAccountId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  qoyodDefaultSalesAccountId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  qoyodAutoSync?: Prisma.BoolFieldUpdateOperationsInput | boolean
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   owner?: Prisma.UserUpdateOneRequiredWithoutOwnedSettingsNestedInput
 }
@@ -453,6 +498,9 @@ export type SettingsUncheckedUpdateInput = {
   qoyodApiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   qoyodApiSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   qoyodEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  qoyodDefaultBankAccountId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  qoyodDefaultSalesAccountId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  qoyodAutoSync?: Prisma.BoolFieldUpdateOperationsInput | boolean
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -471,6 +519,9 @@ export type SettingsCreateManyInput = {
   qoyodApiKey?: string | null
   qoyodApiSecret?: string | null
   qoyodEnabled?: boolean
+  qoyodDefaultBankAccountId?: string | null
+  qoyodDefaultSalesAccountId?: string | null
+  qoyodAutoSync?: boolean
   updatedAt?: Date | string
 }
 
@@ -488,6 +539,9 @@ export type SettingsUpdateManyMutationInput = {
   qoyodApiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   qoyodApiSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   qoyodEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  qoyodDefaultBankAccountId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  qoyodDefaultSalesAccountId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  qoyodAutoSync?: Prisma.BoolFieldUpdateOperationsInput | boolean
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -506,6 +560,9 @@ export type SettingsUncheckedUpdateManyInput = {
   qoyodApiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   qoyodApiSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   qoyodEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  qoyodDefaultBankAccountId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  qoyodDefaultSalesAccountId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  qoyodAutoSync?: Prisma.BoolFieldUpdateOperationsInput | boolean
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -529,6 +586,9 @@ export type SettingsCountOrderByAggregateInput = {
   qoyodApiKey?: Prisma.SortOrder
   qoyodApiSecret?: Prisma.SortOrder
   qoyodEnabled?: Prisma.SortOrder
+  qoyodDefaultBankAccountId?: Prisma.SortOrder
+  qoyodDefaultSalesAccountId?: Prisma.SortOrder
+  qoyodAutoSync?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
 
@@ -551,6 +611,9 @@ export type SettingsMaxOrderByAggregateInput = {
   qoyodApiKey?: Prisma.SortOrder
   qoyodApiSecret?: Prisma.SortOrder
   qoyodEnabled?: Prisma.SortOrder
+  qoyodDefaultBankAccountId?: Prisma.SortOrder
+  qoyodDefaultSalesAccountId?: Prisma.SortOrder
+  qoyodAutoSync?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
 
@@ -569,6 +632,9 @@ export type SettingsMinOrderByAggregateInput = {
   qoyodApiKey?: Prisma.SortOrder
   qoyodApiSecret?: Prisma.SortOrder
   qoyodEnabled?: Prisma.SortOrder
+  qoyodDefaultBankAccountId?: Prisma.SortOrder
+  qoyodDefaultSalesAccountId?: Prisma.SortOrder
+  qoyodAutoSync?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
 
@@ -622,6 +688,9 @@ export type SettingsCreateWithoutOwnerInput = {
   qoyodApiKey?: string | null
   qoyodApiSecret?: string | null
   qoyodEnabled?: boolean
+  qoyodDefaultBankAccountId?: string | null
+  qoyodDefaultSalesAccountId?: string | null
+  qoyodAutoSync?: boolean
   updatedAt?: Date | string
 }
 
@@ -639,6 +708,9 @@ export type SettingsUncheckedCreateWithoutOwnerInput = {
   qoyodApiKey?: string | null
   qoyodApiSecret?: string | null
   qoyodEnabled?: boolean
+  qoyodDefaultBankAccountId?: string | null
+  qoyodDefaultSalesAccountId?: string | null
+  qoyodAutoSync?: boolean
   updatedAt?: Date | string
 }
 
@@ -672,6 +744,9 @@ export type SettingsUpdateWithoutOwnerInput = {
   qoyodApiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   qoyodApiSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   qoyodEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  qoyodDefaultBankAccountId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  qoyodDefaultSalesAccountId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  qoyodAutoSync?: Prisma.BoolFieldUpdateOperationsInput | boolean
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -689,6 +764,9 @@ export type SettingsUncheckedUpdateWithoutOwnerInput = {
   qoyodApiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   qoyodApiSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   qoyodEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  qoyodDefaultBankAccountId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  qoyodDefaultSalesAccountId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  qoyodAutoSync?: Prisma.BoolFieldUpdateOperationsInput | boolean
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -709,6 +787,9 @@ export type SettingsSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs
   qoyodApiKey?: boolean
   qoyodApiSecret?: boolean
   qoyodEnabled?: boolean
+  qoyodDefaultBankAccountId?: boolean
+  qoyodDefaultSalesAccountId?: boolean
+  qoyodAutoSync?: boolean
   updatedAt?: boolean
   owner?: boolean | Prisma.UserDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["settings"]>
@@ -728,6 +809,9 @@ export type SettingsSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exte
   qoyodApiKey?: boolean
   qoyodApiSecret?: boolean
   qoyodEnabled?: boolean
+  qoyodDefaultBankAccountId?: boolean
+  qoyodDefaultSalesAccountId?: boolean
+  qoyodAutoSync?: boolean
   updatedAt?: boolean
   owner?: boolean | Prisma.UserDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["settings"]>
@@ -747,6 +831,9 @@ export type SettingsSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exte
   qoyodApiKey?: boolean
   qoyodApiSecret?: boolean
   qoyodEnabled?: boolean
+  qoyodDefaultBankAccountId?: boolean
+  qoyodDefaultSalesAccountId?: boolean
+  qoyodAutoSync?: boolean
   updatedAt?: boolean
   owner?: boolean | Prisma.UserDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["settings"]>
@@ -766,10 +853,13 @@ export type SettingsSelectScalar = {
   qoyodApiKey?: boolean
   qoyodApiSecret?: boolean
   qoyodEnabled?: boolean
+  qoyodDefaultBankAccountId?: boolean
+  qoyodDefaultSalesAccountId?: boolean
+  qoyodAutoSync?: boolean
   updatedAt?: boolean
 }
 
-export type SettingsOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "ownerId" | "companyNameAr" | "companyLogo" | "companyPhone" | "companyEmail" | "companyAddress" | "companyAddressLine2" | "commercialRegNo" | "vatRegNo" | "vatPercentage" | "qoyodApiKey" | "qoyodApiSecret" | "qoyodEnabled" | "updatedAt", ExtArgs["result"]["settings"]>
+export type SettingsOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "ownerId" | "companyNameAr" | "companyLogo" | "companyPhone" | "companyEmail" | "companyAddress" | "companyAddressLine2" | "commercialRegNo" | "vatRegNo" | "vatPercentage" | "qoyodApiKey" | "qoyodApiSecret" | "qoyodEnabled" | "qoyodDefaultBankAccountId" | "qoyodDefaultSalesAccountId" | "qoyodAutoSync" | "updatedAt", ExtArgs["result"]["settings"]>
 export type SettingsInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   owner?: boolean | Prisma.UserDefaultArgs<ExtArgs>
 }
@@ -800,6 +890,9 @@ export type $SettingsPayload<ExtArgs extends runtime.Types.Extensions.InternalAr
     qoyodApiKey: string | null
     qoyodApiSecret: string | null
     qoyodEnabled: boolean
+    qoyodDefaultBankAccountId: string | null
+    qoyodDefaultSalesAccountId: string | null
+    qoyodAutoSync: boolean
     updatedAt: Date
   }, ExtArgs["result"]["settings"]>
   composites: {}
@@ -1239,6 +1332,9 @@ export interface SettingsFieldRefs {
   readonly qoyodApiKey: Prisma.FieldRef<"Settings", 'String'>
   readonly qoyodApiSecret: Prisma.FieldRef<"Settings", 'String'>
   readonly qoyodEnabled: Prisma.FieldRef<"Settings", 'Boolean'>
+  readonly qoyodDefaultBankAccountId: Prisma.FieldRef<"Settings", 'String'>
+  readonly qoyodDefaultSalesAccountId: Prisma.FieldRef<"Settings", 'String'>
+  readonly qoyodAutoSync: Prisma.FieldRef<"Settings", 'Boolean'>
   readonly updatedAt: Prisma.FieldRef<"Settings", 'DateTime'>
 }
     
