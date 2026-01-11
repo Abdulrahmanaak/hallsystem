@@ -16,7 +16,8 @@ import {
     AlertCircle,
     XCircle,
     RefreshCw,
-    Link2
+    Link2,
+    Trash2
 } from 'lucide-react'
 
 interface Invoice {
@@ -200,6 +201,71 @@ export default function FinancePage() {
         } catch (error) {
             console.error('Sync Error:', error)
             alert('حدث خطأ أثناء المزامنة')
+        } finally {
+            setSaving(false)
+        }
+    }
+
+    // Delete invoice from Qoyod (only works for Draft invoices)
+    const handleDeleteFromQoyod = async (id: string) => {
+        if (!confirm('هل تريد حذف هذه الفاتورة من قيود؟ (يعمل فقط للفواتير بحالة مسودة)')) {
+            return
+        }
+
+        setSaving(true)
+        try {
+            const response = await fetch('/api/qoyod', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ type: 'delete-invoice', id })
+            })
+
+            const data = await response.json()
+
+            if (response.ok) {
+                alert('تم حذف الفاتورة من قيود بنجاح')
+                fetchData()
+            } else {
+                // If delete fails (invoice is approved), suggest cancellation
+                if (data.error?.includes('ZATCA') || data.error?.includes('403')) {
+                    alert('لا يمكن حذف فاتورة معتمدة. استخدم خيار "إلغاء الفاتورة" لإنشاء إشعار دائن.')
+                } else {
+                    alert(data.error || 'فشل حذف الفاتورة من قيود')
+                }
+            }
+        } catch (error) {
+            console.error('Delete Error:', error)
+            alert('حدث خطأ أثناء الحذف من قيود')
+        } finally {
+            setSaving(false)
+        }
+    }
+
+    // Cancel invoice with credit note (for approved invoices)
+    const handleCancelInvoice = async (id: string) => {
+        if (!confirm('هل تريد إلغاء هذه الفاتورة؟ سيتم إنشاء إشعار دائن في قيود لإلغاء الفاتورة.')) {
+            return
+        }
+
+        setSaving(true)
+        try {
+            const response = await fetch('/api/qoyod', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ type: 'cancel-invoice', id })
+            })
+
+            const data = await response.json()
+
+            if (response.ok) {
+                alert(data.message || 'تم إلغاء الفاتورة وإنشاء إشعار دائن بنجاح')
+                fetchData()
+            } else {
+                alert(data.error || 'فشل إلغاء الفاتورة')
+            }
+        } catch (error) {
+            console.error('Cancel Error:', error)
+            alert('حدث خطأ أثناء إلغاء الفاتورة')
         } finally {
             setSaving(false)
         }
@@ -567,10 +633,27 @@ export default function FinancePage() {
                                             </td>
                                             <td>
                                                 {invoice.syncedToQoyod ? (
-                                                    <span className="inline-flex items-center gap-1 text-green-600" title="تمت المزامنة مع قيود">
-                                                        <CheckCircle size={16} />
-                                                        <span className="text-xs">تم</span>
-                                                    </span>
+                                                    <div className="flex items-center gap-1">
+                                                        <span className="inline-flex items-center gap-1 text-green-600" title="تمت المزامنة مع قيود">
+                                                            <CheckCircle size={16} />
+                                                        </span>
+                                                        <button
+                                                            onClick={() => handleDeleteFromQoyod(invoice.id)}
+                                                            className="p-1 text-gray-500 hover:bg-gray-100 rounded"
+                                                            title="حذف من قيود (مسودة فقط)"
+                                                            disabled={saving}
+                                                        >
+                                                            <Trash2 size={14} />
+                                                        </button>
+                                                        <button
+                                                            onClick={() => handleCancelInvoice(invoice.id)}
+                                                            className="p-1 text-red-500 hover:bg-red-50 rounded"
+                                                            title="إلغاء الفاتورة (إشعار دائن)"
+                                                            disabled={saving}
+                                                        >
+                                                            <XCircle size={14} />
+                                                        </button>
+                                                    </div>
                                                 ) : (
                                                     <button
                                                         onClick={() => handleSyncToQoyod('invoice', invoice.id)}

@@ -475,13 +475,14 @@ export async function POST(request: Request) {
             }
 
             // 6. Create Invoice in Qoyod (with required inventory_id)
+            // Status set to 'Draft' to allow deletion if needed before approval
             const invoicePayload = {
                 invoice: {
                     contact_id: contactId,
                     issue_date: invoice.issueDate.toISOString().split('T')[0],
                     due_date: invoice.dueDate.toISOString().split('T')[0],
                     reference: invoice.invoiceNumber,
-                    status: 'Approved',
+                    status: 'Draft',
                     inventory_id: inventoryId,
                     line_items: lineItems
                 }
@@ -574,6 +575,171 @@ export async function POST(request: Request) {
             })
 
             return NextResponse.json({ success: true, qoyodPaymentId })
+        }
+
+        // ====================================================
+        // DEACTIVATE INVOICE (Set to Draft in Qoyod)
+        // ====================================================
+        if (type === 'deactivate-invoice') {
+            const invoice = await prisma.invoice.findUnique({
+                where: { id }
+            })
+
+            if (!invoice) return NextResponse.json({ error: 'Invoice not found' }, { status: 404 })
+            if (!invoice.qoyodInvoiceId) {
+                return NextResponse.json({ error: 'Invoice not synced to Qoyod' }, { status: 400 })
+            }
+
+            // Update invoice status to Draft in Qoyod
+            const updatePayload = {
+                invoice: {
+                    status: 'Draft'
+                }
+            }
+
+            await qoyodRequest(`/invoices/${invoice.qoyodInvoiceId}`, 'PUT', updatePayload, config)
+
+            // Log Success
+            await prisma.accountingSync.create({
+                data: {
+                    syncType: 'UPDATE',
+                    recordType: 'Invoice',
+                    recordId: id,
+                    status: 'SUCCESS',
+                    qoyodId: invoice.qoyodInvoiceId,
+                    requestData: JSON.stringify(updatePayload),
+                    responseData: JSON.stringify({ status: 'Draft' }),
+                    completedAt: new Date()
+                }
+            })
+
+            return NextResponse.json({ success: true, message: 'Invoice deactivated in Qoyod' })
+        }
+
+        // ====================================================
+        // CANCEL INVOICE (Create Credit Note in Qoyod)
+        // ====================================================
+        if (type === 'cancel-invoice') {
+            const invoice = await prisma.invoice.findUnique({
+                where: { id },
+                include: {
+                    customer: true,
+                    booking: { include: { hall: true } }
+                }
+            })
+
+            if (!invoice) return NextResponse.json({ error: 'Invoice not found' }, { status: 404 })
+            if (!invoice.qoyodInvoiceId) {
+                return NextResponse.json({ error: 'Invoice not synced to Qoyod' }, { status: 400 })
+            }
+
+            // Check if invoice has payments
+            if (Number(invoice.paidAmount) > 0) {
+                return NextResponse.json({
+                    error: 'لا يمكن إلغاء فاتورة بها مدفوعات. يجب حذف المدفوعات أولاً.'
+                }, { status: 400 })
+            }
+
+            // Get required IDs for credit note line items
+            const serviceProductId = await getOrCreateServiceProduct(config)
+            const inventoryId = await getInventoryId(config)
+
+            // Create credit note in Qoyod to cancel the invoice
+            const creditNotePayload = {
+                credit_note: {
+                    contact_id: invoice.customer.qoyodCustomerId,
+                    invoice_id: invoice.qoyodInvoiceId,
+                    issue_date: new Date().toISOString().split('T')[0],
+                    reference: `CN-${invoice.invoiceNumber}`,
+                    notes: `إلغاء الفاتورة ${invoice.invoiceNumber}`,
+                    status: 'Approved',
+                    inventory_id: inventoryId,
+                    line_items: [
+                        {
+                            product_id: serviceProductId,
+                            description: `إلغاء فاتورة: ${invoice.invoiceNumber} - ${invoice.booking.hall.nameAr}`,
+                            quantity: 1,
+                            unit_price: Number(invoice.totalAmount),
+                            tax_percent: 0 // VAT already included in our amounts
+                        }
+                    ]
+                }
+            }
+
+            const qoyodRes = await qoyodRequest('/credit_notes', 'POST', creditNotePayload, config)
+            const qoyodCreditNoteId = qoyodRes.credit_note?.id
+
+            // Update local invoice status to CANCELLED
+            await prisma.invoice.update({
+                where: { id },
+                data: {
+                    status: 'CANCELLED',
+                    notes: `${invoice.notes || ''}\nإشعار دائن: ${qoyodCreditNoteId || 'N/A'}`
+                }
+            })
+
+            // Log Success
+            await prisma.accountingSync.create({
+                data: {
+                    syncType: 'CREATE',
+                    recordType: 'CreditNote',
+                    recordId: id,
+                    status: 'SUCCESS',
+                    qoyodId: qoyodCreditNoteId?.toString() || null,
+                    requestData: JSON.stringify(creditNotePayload),
+                    responseData: JSON.stringify(qoyodRes),
+                    completedAt: new Date()
+                }
+            })
+
+            return NextResponse.json({
+                success: true,
+                qoyodCreditNoteId,
+                message: 'تم إلغاء الفاتورة وإنشاء إشعار دائن بنجاح'
+            })
+        }
+
+        // ====================================================
+        // DELETE INVOICE FROM QOYOD (Only works for Draft invoices)
+        // ====================================================
+        if (type === 'delete-invoice') {
+            const invoice = await prisma.invoice.findUnique({
+                where: { id }
+            })
+
+            if (!invoice) return NextResponse.json({ error: 'Invoice not found' }, { status: 404 })
+            if (!invoice.qoyodInvoiceId) {
+                return NextResponse.json({ error: 'Invoice not synced to Qoyod' }, { status: 400 })
+            }
+
+            // Delete the invoice from Qoyod (only works for Draft status)
+            await qoyodRequest(`/invoices/${invoice.qoyodInvoiceId}`, 'DELETE', null, config)
+
+            // Update local database - clear Qoyod reference
+            await prisma.invoice.update({
+                where: { id },
+                data: {
+                    syncedToQoyod: false,
+                    qoyodInvoiceId: null,
+                    lastSyncAt: new Date()
+                }
+            })
+
+            // Log Success
+            await prisma.accountingSync.create({
+                data: {
+                    syncType: 'DELETE',
+                    recordType: 'Invoice',
+                    recordId: id,
+                    status: 'SUCCESS',
+                    qoyodId: invoice.qoyodInvoiceId,
+                    requestData: JSON.stringify({ action: 'delete', invoiceId: invoice.qoyodInvoiceId }),
+                    responseData: JSON.stringify({ deleted: true }),
+                    completedAt: new Date()
+                }
+            })
+
+            return NextResponse.json({ success: true, message: 'تم حذف الفاتورة من قيود بنجاح' })
         }
 
         return NextResponse.json({ error: 'Invalid type' }, { status: 400 })
