@@ -652,7 +652,7 @@ export async function POST(request: Request) {
                     issue_date: new Date().toISOString().split('T')[0],
                     reference: `CN-${invoice.invoiceNumber}`,
                     notes: `إلغاء الفاتورة ${invoice.invoiceNumber}`,
-                    status: 'Approved',
+                    status: 'Draft',
                     inventory_id: inventoryId,
                     line_items: [
                         {
