@@ -23,11 +23,14 @@ import {
     Link2,
     Printer,
     Utensils,
-    Receipt
+    Receipt,
+    Menu,
+    X
 } from 'lucide-react'
 
 // Sticky Navbar Component
 function Navbar({ scrolled }: { scrolled: boolean }) {
+    const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
     return (
         <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${scrolled
             ? 'bg-white shadow-lg py-3'
@@ -55,6 +58,18 @@ function Navbar({ scrolled }: { scrolled: boolean }) {
                         }`}>القاعات</a>
                 </div>
 
+                {/* Mobile Menu Button */}
+                <button
+                    className="md:hidden text-[#2f55d4] p-2"
+                    onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                >
+                    {mobileMenuOpen ? (
+                        <X className={`${scrolled ? 'text-[#161c2d]' : 'text-white'}`} size={24} />
+                    ) : (
+                        <Menu className={`${scrolled ? 'text-[#161c2d]' : 'text-white'}`} size={24} />
+                    )}
+                </button>
+
                 {/* CTA Button */}
                 <Link
                     href="/login"
@@ -66,6 +81,40 @@ function Navbar({ scrolled }: { scrolled: boolean }) {
                     تسجيل الدخول
                 </Link>
             </div>
+
+            {/* Mobile Menu Overlay */}
+            {mobileMenuOpen && (
+                <div className="md:hidden absolute top-full left-0 right-0 bg-white shadow-xl border-t border-gray-100 py-4 px-6 flex flex-col gap-4 animate-in slide-in-from-top-5">
+                    <a
+                        href="#features"
+                        className="text-[#8492a6] hover:text-[#2f55d4] font-medium py-2"
+                        onClick={() => setMobileMenuOpen(false)}
+                    >
+                        المميزات
+                    </a>
+                    <a
+                        href="#how-it-works"
+                        className="text-[#8492a6] hover:text-[#2f55d4] font-medium py-2"
+                        onClick={() => setMobileMenuOpen(false)}
+                    >
+                        كيف يعمل
+                    </a>
+                    <a
+                        href="#halls"
+                        className="text-[#8492a6] hover:text-[#2f55d4] font-medium py-2"
+                        onClick={() => setMobileMenuOpen(false)}
+                    >
+                        القاعات
+                    </a>
+                    <Link
+                        href="/login"
+                        className="bg-[#2f55d4] text-white py-3 rounded-lg text-center font-bold hover:bg-[#2343ab] transition-colors"
+                        onClick={() => setMobileMenuOpen(false)}
+                    >
+                        تسجيل الدخول
+                    </Link>
+                </div>
+            )}
         </nav>
     )
 }
@@ -196,7 +245,7 @@ export default function LandingPage() {
                 <div className="absolute top-20 right-20 w-64 h-64 rounded-full bg-white/5 blur-3xl"></div>
                 <div className="absolute bottom-20 left-20 w-96 h-96 rounded-full bg-blue-400/10 blur-3xl"></div>
 
-                <div className="relative max-w-7xl mx-auto px-6 py-32 grid lg:grid-cols-2 gap-12 items-center">
+                <div className="relative max-w-7xl mx-auto px-6 py-20 lg:py-32 grid lg:grid-cols-2 gap-12 items-center">
                     {/* Text Content */}
                     <div className="text-center lg:text-right">
                         <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm text-white px-4 py-2 rounded-full text-sm font-medium mb-6 border border-white/20">
@@ -234,7 +283,7 @@ export default function LandingPage() {
                     </div>
 
                     {/* Floating Dashboard Mockup */}
-                    <div className="relative hidden lg:block">
+                    <div className="relative block lg:block mt-12 lg:mt-0">
                         <div className="relative bg-white rounded-2xl shadow-2xl p-4 transform rotate-[-2deg] hover:rotate-0 transition-transform duration-500">
                             <div className="bg-gray-100 rounded-xl p-6">
                                 {/* Mock Dashboard Header */}

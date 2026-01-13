@@ -21,7 +21,9 @@ import {
     FileText,
     Link2,
     Printer,
-    Gem
+    Gem,
+    Menu,
+    X
 } from 'lucide-react'
 
 // Theme Colors
@@ -37,6 +39,7 @@ const COLORS = {
 
 // Sticky Navbar Component
 function Navbar({ scrolled }: { scrolled: boolean }) {
+    const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
     return (
         <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${scrolled
             ? 'bg-white shadow-lg py-3'
@@ -64,6 +67,14 @@ function Navbar({ scrolled }: { scrolled: boolean }) {
                     <a href="#halls" className="text-gray-600 hover:text-[#0F4C81] transition-colors font-medium">القاعات</a>
                 </div>
 
+                {/* Mobile Menu Button */}
+                <button
+                    className="md:hidden text-[#0F4C81] p-2"
+                    onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                >
+                    {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
+                </button>
+
                 {/* CTA Button */}
                 <Link
                     href="/login"
@@ -72,6 +83,40 @@ function Navbar({ scrolled }: { scrolled: boolean }) {
                     تسجيل الدخول
                 </Link>
             </div>
+
+            {/* Mobile Menu Overlay */}
+            {mobileMenuOpen && (
+                <div className="md:hidden absolute top-full left-0 right-0 bg-white shadow-xl border-t border-gray-100 py-4 px-6 flex flex-col gap-4 animate-in slide-in-from-top-5">
+                    <a
+                        href="#features"
+                        className="text-gray-600 hover:text-[#0F4C81] font-medium py-2"
+                        onClick={() => setMobileMenuOpen(false)}
+                    >
+                        المميزات
+                    </a>
+                    <a
+                        href="#how-it-works"
+                        className="text-gray-600 hover:text-[#0F4C81] font-medium py-2"
+                        onClick={() => setMobileMenuOpen(false)}
+                    >
+                        كيف يعمل
+                    </a>
+                    <a
+                        href="#halls"
+                        className="text-gray-600 hover:text-[#0F4C81] font-medium py-2"
+                        onClick={() => setMobileMenuOpen(false)}
+                    >
+                        القاعات
+                    </a>
+                    <Link
+                        href="/login"
+                        className="bg-[#0F4C81] text-white py-3 rounded-lg text-center font-bold hover:bg-[#0a3d68] transition-colors"
+                        onClick={() => setMobileMenuOpen(false)}
+                    >
+                        تسجيل الدخول
+                    </Link>
+                </div>
+            )}
         </nav>
     )
 }
@@ -240,7 +285,7 @@ export default function LandingPage2() {
                     </div>
 
                     {/* Hero Image */}
-                    <div className="hidden lg:block relative">
+                    <div className="relative block lg:block mt-12 lg:mt-0">
                         <Image
                             src="/images/hero.png"
                             alt="Hall Management System Dashboard"
