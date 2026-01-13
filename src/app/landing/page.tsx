@@ -18,15 +18,20 @@ import {
     Mail,
     Clock,
     Shield,
-    Zap
+    Zap,
+    FileText,
+    Link2,
+    Printer,
+    Utensils,
+    Receipt
 } from 'lucide-react'
 
 // Sticky Navbar Component
 function Navbar({ scrolled }: { scrolled: boolean }) {
     return (
         <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${scrolled
-                ? 'bg-white shadow-lg py-3'
-                : 'bg-transparent py-5'
+            ? 'bg-white shadow-lg py-3'
+            : 'bg-transparent py-5'
             }`}>
             <div className="max-w-7xl mx-auto px-6 flex items-center justify-between">
                 {/* Logo */}
@@ -54,8 +59,8 @@ function Navbar({ scrolled }: { scrolled: boolean }) {
                 <Link
                     href="/login"
                     className={`px-6 py-2.5 rounded-full font-bold transition-all duration-300 ${scrolled
-                            ? 'bg-[#2f55d4] text-white hover:bg-[#2343ab] shadow-lg'
-                            : 'bg-white text-[#2f55d4] hover:bg-white/90'
+                        ? 'bg-[#2f55d4] text-white hover:bg-[#2343ab] shadow-lg'
+                        : 'bg-white text-[#2f55d4] hover:bg-white/90'
                         }`}
                 >
                     تسجيل الدخول
@@ -195,18 +200,18 @@ export default function LandingPage() {
                     {/* Text Content */}
                     <div className="text-center lg:text-right">
                         <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm text-white px-4 py-2 rounded-full text-sm font-medium mb-6 border border-white/20">
-                            <Zap size={16} />
-                            <span>الحل الأمثل لإدارة القاعات</span>
+                            <Calendar size={16} />
+                            <span>يدعم التقويم الهجري والميلادي</span>
                         </div>
 
                         <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-6 leading-tight">
-                            نظام إدارة القاعات
-                            <span className="block text-blue-200">المتكامل</span>
+                            أتمت إدارة قاعتك
+                            <span className="block text-blue-200">بالكامل</span>
                         </h1>
 
                         <p className="text-xl text-white/80 max-w-xl mb-10 leading-relaxed lg:mx-0 mx-auto">
-                            أدر حجوزات القاعات والمناسبات بكفاءة عالية مع نظام شامل
-                            يدعم إدارة الخدمات والتقارير المالية
+                            من الحجز إلى التحصيل - كل شيء في منصة واحدة.
+                            الحجوزات، الفواتير، المدفوعات، والمزامنة مع قيود تلقائياً.
                         </p>
 
                         <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
@@ -292,97 +297,149 @@ export default function LandingPage() {
                     <div className="text-center mb-16">
                         <span className="text-[#2f55d4] font-bold text-sm tracking-wider uppercase">كيف يعمل النظام</span>
                         <h2 className="text-3xl md:text-4xl font-bold text-[#161c2d] mt-3 mb-4">
-                            ثلاث خطوات بسيطة
+                            أربع خطوات للأتمتة الكاملة
                         </h2>
                         <p className="text-lg text-[#8492a6] max-w-2xl mx-auto">
-                            ابدأ في إدارة قاعاتك بكفاءة في دقائق معدودة
+                            من إعداد القاعات إلى المحاسبة - كل شيء مؤتمت
                         </p>
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
                         <ProcessCard
                             icon={Building2}
                             step={1}
-                            title="أضف قاعاتك"
-                            description="سجل معلومات القاعات والأسعار والخدمات المتاحة بسهولة"
+                            title="أضف قاعاتك وخدماتك"
+                            description="سجل قاعاتك مع الأسعار والخدمات: الوجبات، القهوجية، الذبائح"
                         />
                         <ProcessCard
                             icon={Calendar}
                             step={2}
                             title="استقبل الحجوزات"
-                            description="أدر حجوزات العملاء مع دعم التقويم الهجري والميلادي"
+                            description="نظام حجز ذكي يدعم الهجري والميلادي مع منع التعارضات"
                         />
                         <ProcessCard
-                            icon={BarChart3}
+                            icon={FileText}
                             step={3}
-                            title="تابع التقارير"
-                            description="احصل على تقارير مالية شاملة وإحصائيات الأداء"
+                            title="أصدر العقود والفواتير"
+                            description="عقود جاهزة للطباعة وفواتير ضريبية متوافقة مع الزكاة"
+                        />
+                        <ProcessCard
+                            icon={Link2}
+                            step={4}
+                            title="تزامن مع قيود"
+                            description="مزامنة تلقائية للفواتير والمدفوعات مع نظام قيود المحاسبي"
                         />
                     </div>
                 </div>
             </section>
 
-            {/* Features Section - Alternating */}
+            {/* Features Section - 6 Epic Features */}
             <section id="features" className="py-24 px-6 bg-[#f8f9fa]">
                 <div className="max-w-7xl mx-auto">
-                    {/* Feature 1 - Image Left */}
-                    <div className="grid lg:grid-cols-2 gap-16 items-center mb-24">
-                        <div className="order-2 lg:order-1">
-                            <div className="bg-white rounded-2xl shadow-xl p-8 relative">
-                                <div className="absolute -top-4 -right-4 w-20 h-20 bg-blue-100 rounded-full blur-xl"></div>
-                                <div className="relative bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl p-6 flex items-center justify-center min-h-[300px]">
-                                    <Calendar className="text-[#5576d6]" size={120} />
-                                </div>
-                            </div>
-                        </div>
-                        <div className="order-1 lg:order-2">
-                            <span className="text-[#2f55d4] font-bold text-sm tracking-wider uppercase">إدارة الحجوزات</span>
-                            <h3 className="text-3xl font-bold text-[#161c2d] mt-3 mb-6">
-                                نظام حجوزات متكامل وسهل الاستخدام
-                            </h3>
-                            <p className="text-[#8492a6] text-lg mb-6 leading-relaxed">
-                                تمتع بنظام حجوزات شامل يتيح لك إدارة جميع مناسباتك بكفاءة عالية مع دعم كامل للتقويم الهجري.
-                            </p>
-                            <div className="space-y-1">
-                                <FeatureItem text="دعم التقويم الهجري والميلادي" />
-                                <FeatureItem text="إدارة حالات الحجز المتعددة" />
-                                <FeatureItem text="إشعارات تلقائية للعملاء" />
-                                <FeatureItem text="تقارير الحجوزات اليومية والشهرية" />
-                            </div>
-                            <Link href="/dashboard/bookings" className="inline-flex items-center gap-2 mt-8 px-8 py-3 rounded-full bg-[#2f55d4] text-white font-bold hover:bg-[#2343ab] transition-all shadow-lg">
-                                <span>اكتشف المزيد</span>
-                                <ChevronLeft size={18} />
-                            </Link>
-                        </div>
+                    <div className="text-center mb-16">
+                        <span className="text-[#2f55d4] font-bold text-sm tracking-wider uppercase">المميزات الرئيسية</span>
+                        <h2 className="text-3xl md:text-4xl font-bold text-[#161c2d] mt-3 mb-4">
+                            كل ما تحتاجه لإدارة قاعتك
+                        </h2>
+                        <p className="text-lg text-[#8492a6] max-w-2xl mx-auto">
+                            نظام متكامل يغطي جميع جوانب إدارة القاعات والمناسبات
+                        </p>
                     </div>
 
-                    {/* Feature 2 - Image Right */}
-                    <div className="grid lg:grid-cols-2 gap-16 items-center">
-                        <div>
-                            <span className="text-[#2f55d4] font-bold text-sm tracking-wider uppercase">خدمات إضافية</span>
-                            <h3 className="text-3xl font-bold text-[#161c2d] mt-3 mb-6">
-                                إدارة الضيافة والوجبات والذبائح
-                            </h3>
-                            <p className="text-[#8492a6] text-lg mb-6 leading-relaxed">
-                                نظام متكامل لإدارة جميع الخدمات الإضافية مع حساب التكاليف تلقائياً وربطها بالحجوزات.
-                            </p>
-                            <div className="space-y-1">
-                                <FeatureItem text="إدارة عمال الضيافة (القهوجية)" />
-                                <FeatureItem text="إدارة الوجبات والتكاليف" />
-                                <FeatureItem text="حساب تلقائي للتكاليف الإجمالية" />
-                                <FeatureItem text="فواتير تفصيلية شاملة" />
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                        {/* Feature 1: Calendar */}
+                        <div className="bg-white rounded-2xl p-8 shadow-lg hover:shadow-xl transition-all duration-300 border border-gray-100 group">
+                            <div className="w-14 h-14 rounded-xl bg-blue-100 flex items-center justify-center mb-6 group-hover:bg-blue-200 transition-colors">
+                                <Calendar className="text-[#2f55d4]" size={28} />
                             </div>
-                            <Link href="/dashboard/halls" className="inline-flex items-center gap-2 mt-8 px-8 py-3 rounded-full border-2 border-[#2f55d4] text-[#2f55d4] font-bold hover:bg-[#2f55d4] hover:text-white transition-all">
-                                <span>عرض القاعات</span>
-                                <ChevronLeft size={18} />
-                            </Link>
+                            <h3 className="text-xl font-bold text-[#161c2d] mb-3">التقويم الهجري والميلادي</h3>
+                            <p className="text-[#8492a6] mb-4 leading-relaxed">
+                                احجز بالهجري أو الميلادي مع تحويل تلقائي بينهما. مثالي لحفلات الزفاف والأعياد.
+                            </p>
+                            <div className="space-y-2">
+                                <FeatureItem text="تحويل تلقائي بين التقويمين" />
+                                <FeatureItem text="عرض التاريخ الهجري في العقود" />
+                                <FeatureItem text="تقويم بصري سهل الاستخدام" />
+                            </div>
                         </div>
-                        <div>
-                            <div className="bg-white rounded-2xl shadow-xl p-8 relative">
-                                <div className="absolute -bottom-4 -left-4 w-20 h-20 bg-emerald-100 rounded-full blur-xl"></div>
-                                <div className="relative bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl p-6 flex items-center justify-center min-h-[300px]">
-                                    <Coffee className="text-[#5576d6]" size={120} />
-                                </div>
+
+                        {/* Feature 2: Services */}
+                        <div className="bg-white rounded-2xl p-8 shadow-lg hover:shadow-xl transition-all duration-300 border border-gray-100 group">
+                            <div className="w-14 h-14 rounded-xl bg-emerald-100 flex items-center justify-center mb-6 group-hover:bg-emerald-200 transition-colors">
+                                <Coffee className="text-emerald-600" size={28} />
+                            </div>
+                            <h3 className="text-xl font-bold text-[#161c2d] mb-3">الوجبات والضيافة والذبائح</h3>
+                            <p className="text-[#8492a6] mb-4 leading-relaxed">
+                                نظام متكامل لإدارة كافة الخدمات الإضافية مع حساب التكاليف تلقائياً.
+                            </p>
+                            <div className="space-y-2">
+                                <FeatureItem text="وجبات (فطور/غداء/عشاء/مقبلات)" />
+                                <FeatureItem text="القهوجية والضيافة" />
+                                <FeatureItem text="الذبائح وأدوات المياه" />
+                            </div>
+                        </div>
+
+                        {/* Feature 3: Invoicing */}
+                        <div className="bg-white rounded-2xl p-8 shadow-lg hover:shadow-xl transition-all duration-300 border border-gray-100 group">
+                            <div className="w-14 h-14 rounded-xl bg-purple-100 flex items-center justify-center mb-6 group-hover:bg-purple-200 transition-colors">
+                                <FileText className="text-purple-600" size={28} />
+                            </div>
+                            <h3 className="text-xl font-bold text-[#161c2d] mb-3">فواتير ضريبية متوافقة</h3>
+                            <p className="text-[#8492a6] mb-4 leading-relaxed">
+                                فواتير احترافية مع ضريبة القيمة المضافة (15%) وسندات قبض رسمية.
+                            </p>
+                            <div className="space-y-2">
+                                <FeatureItem text="ضريبة 15% محسوبة تلقائياً" />
+                                <FeatureItem text="طباعة الفواتير والسندات" />
+                                <FeatureItem text="تتبع المدفوعات والمتأخرات" />
+                            </div>
+                        </div>
+
+                        {/* Feature 4: Qoyod */}
+                        <div className="bg-white rounded-2xl p-8 shadow-lg hover:shadow-xl transition-all duration-300 border border-gray-100 group">
+                            <div className="w-14 h-14 rounded-xl bg-orange-100 flex items-center justify-center mb-6 group-hover:bg-orange-200 transition-colors">
+                                <Link2 className="text-orange-600" size={28} />
+                            </div>
+                            <h3 className="text-xl font-bold text-[#161c2d] mb-3">تكامل قيود المحاسبي</h3>
+                            <p className="text-[#8492a6] mb-4 leading-relaxed">
+                                ربط مباشر مع نظام قيود لمزامنة الفواتير والمدفوعات والعملاء تلقائياً.
+                            </p>
+                            <div className="space-y-2">
+                                <FeatureItem text="مزامنة الفواتير والمدفوعات" />
+                                <FeatureItem text="ربط حسابات الإيرادات" />
+                                <FeatureItem text="إنشاء إشعارات دائنة" />
+                            </div>
+                        </div>
+
+                        {/* Feature 5: Contracts */}
+                        <div className="bg-white rounded-2xl p-8 shadow-lg hover:shadow-xl transition-all duration-300 border border-gray-100 group">
+                            <div className="w-14 h-14 rounded-xl bg-rose-100 flex items-center justify-center mb-6 group-hover:bg-rose-200 transition-colors">
+                                <Printer className="text-rose-600" size={28} />
+                            </div>
+                            <h3 className="text-xl font-bold text-[#161c2d] mb-3">عقود جاهزة للطباعة</h3>
+                            <p className="text-[#8492a6] mb-4 leading-relaxed">
+                                عقود مفصلة تتضمن بنود وشروط الحجز مع بيانات الطرفين والمبالغ.
+                            </p>
+                            <div className="space-y-2">
+                                <FeatureItem text="شروط وأحكام واضحة" />
+                                <FeatureItem text="المبلغ بالأرقام والحروف" />
+                                <FeatureItem text="جاهزة للطباعة والتوقيع" />
+                            </div>
+                        </div>
+
+                        {/* Feature 6: Dashboard */}
+                        <div className="bg-white rounded-2xl p-8 shadow-lg hover:shadow-xl transition-all duration-300 border border-gray-100 group">
+                            <div className="w-14 h-14 rounded-xl bg-cyan-100 flex items-center justify-center mb-6 group-hover:bg-cyan-200 transition-colors">
+                                <BarChart3 className="text-cyan-600" size={28} />
+                            </div>
+                            <h3 className="text-xl font-bold text-[#161c2d] mb-3">لوحة تحكم شاملة</h3>
+                            <p className="text-[#8492a6] mb-4 leading-relaxed">
+                                تابع أداء قاعاتك مع إحصائيات الحجوزات والإيرادات في مكان واحد.
+                            </p>
+                            <div className="space-y-2">
+                                <FeatureItem text="إحصائيات الحجوزات" />
+                                <FeatureItem text="تتبع المستحقات" />
+                                <FeatureItem text="تقارير الإيرادات" />
                             </div>
                         </div>
                     </div>
@@ -399,10 +456,10 @@ export default function LandingPage() {
 
                 <div className="max-w-5xl mx-auto relative">
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
-                        <StatItem value="+100" label="حجز ناجح" />
-                        <StatItem value="+10" label="قاعة متاحة" />
-                        <StatItem value="%98" label="رضا العملاء" />
-                        <StatItem value="24/7" label="دعم متواصل" />
+                        <StatItem value="📅" label="تقويم هجري وميلادي" />
+                        <StatItem value="🔗" label="تكامل مع قيود" />
+                        <StatItem value="🧾" label="فواتير ضريبية 15%" />
+                        <StatItem value="☕" label="ضيافة ووجبات وذبائح" />
                     </div>
                 </div>
             </section>
@@ -438,10 +495,10 @@ export default function LandingPage() {
             <section className="py-20 px-6 bg-[#f8f9fa]">
                 <div className="max-w-4xl mx-auto text-center">
                     <h2 className="text-3xl md:text-4xl font-bold text-[#161c2d] mb-6">
-                        جاهز لإدارة قاعاتك بكفاءة؟
+                        جاهز لأتمتة إدارة قاعتك؟
                     </h2>
                     <p className="text-lg text-[#8492a6] mb-10">
-                        ابدأ الآن واستمتع بتجربة إدارة سلسة ومتكاملة
+                        انضم للقاعات التي تثق بنظامنا في إدارة الحجوزات والفوترة والمحاسبة
                     </p>
                     <div className="flex flex-col sm:flex-row gap-4 justify-center">
                         <Link

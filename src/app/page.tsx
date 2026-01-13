@@ -1,6 +1,6 @@
 import { redirect } from 'next/navigation'
 
 export default function HomePage() {
-    // Redirect to dashboard (middleware will handle auth)
-    redirect('/dashboard')
+    // Redirect to the public landing page
+    redirect('/landing')
 }
