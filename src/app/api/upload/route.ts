@@ -1,0 +1,59 @@
+import { auth } from '@/lib/auth'
+import { supabaseAdmin, STORAGE_BUCKET } from '@/lib/supabase'
+import { NextResponse } from 'next/server'
+
+export async function POST(req: Request) {
+    try {
+        const session = await auth()
+        if (!session || !session.user) {
+            return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+        }
+
+        const formData = await req.formData()
+        const file = formData.get('file') as File
+
+        if (!file) {
+            return NextResponse.json({ error: 'No file uploaded' }, { status: 400 })
+        }
+
+        // Validate file type (images and PDFs)
+        if (!file.type.startsWith('image/') && file.type !== 'application/pdf') {
+            return NextResponse.json({ error: 'Only image and PDF files are allowed' }, { status: 400 })
+        }
+
+        // 2MB limit
+        if (file.size > 2 * 1024 * 1024) {
+            return NextResponse.json({ error: 'File size too large (max 2MB)' }, { status: 400 })
+        }
+
+        const buffer = Buffer.from(await file.arrayBuffer())
+        const fileExt = file.name.split('.').pop()
+        const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`
+        const filePath = `expenses/${session.user.id}/${fileName}`
+
+        const { data, error } = await supabaseAdmin
+            .storage
+            .from(STORAGE_BUCKET)
+            .upload(filePath, buffer, {
+                contentType: file.type,
+                upsert: false
+            })
+
+        if (error) {
+            console.error('Supabase upload error:', error)
+            return NextResponse.json({ error: 'Upload failed' }, { status: 500 })
+        }
+
+        // Get public URL
+        const { data: { publicUrl } } = supabaseAdmin
+            .storage
+            .from(STORAGE_BUCKET)
+            .getPublicUrl(filePath)
+
+        return NextResponse.json({ url: publicUrl })
+
+    } catch (error) {
+        console.error('Error uploading file:', error)
+        return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 })
+    }
+}

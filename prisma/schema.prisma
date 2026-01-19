@@ -56,6 +56,10 @@ model User {
   ownedPayments   Payment[]  @relation("PaymentOwner")
   ownedSettings   Settings?  @relation("SettingsOwner")
   
+  // Expense Relations
+  createdExpenses Expense[]  @relation("ExpenseCreatedBy")
+  ownedExpenses   Expense[]  @relation("ExpenseOwner")
+  
   @@index([ownerId])
   @@map("users")
 }
@@ -152,6 +156,7 @@ model Hall {
   
   // Relations
   bookings      Booking[]
+  expenses      Expense[]
   
   @@index([status])
   @@index([isDeleted])
@@ -418,8 +423,37 @@ model AccountingSync {
   createdAt       DateTime   @default(now())
   completedAt     DateTime?
   
-  @@index([recordId])
-  @@index([status])
   @@index([createdAt])
   @@map("accounting_sync_log")
+}
+
+// ============================================
+// Expense Management
+// ============================================
+
+model Expense {
+  id              String       @id @default(cuid())
+  
+  // Details
+  amount          Decimal
+  description     String
+  expenseDate     DateTime     @default(now())
+  category        String?      // e.g. "Maintenence", "Supplies", "Food"
+  imageUrl        String?      // URL of the uploaded invoice photo
+  
+  // Multi-tenant
+  hallId          String?      // Optional: link to specific hall
+  hall            Hall?        @relation(fields: [hallId], references: [id])
+  ownerId         String
+  owner           User         @relation("ExpenseOwner", fields: [ownerId], references: [id])
+  
+  // Audit trail
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
+  createdById     String
+  createdBy       User         @relation("ExpenseCreatedBy", fields: [createdById], references: [id])
+  
+  @@index([expenseDate])
+  @@index([ownerId])
+  @@map("expenses")
 }

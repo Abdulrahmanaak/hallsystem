@@ -59,7 +59,8 @@ export const ModelName = {
   Invoice: 'Invoice',
   Payment: 'Payment',
   Settings: 'Settings',
-  AccountingSync: 'AccountingSync'
+  AccountingSync: 'AccountingSync',
+  Expense: 'Expense'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -291,6 +292,23 @@ export const AccountingSyncScalarFieldEnum = {
 } as const
 
 export type AccountingSyncScalarFieldEnum = (typeof AccountingSyncScalarFieldEnum)[keyof typeof AccountingSyncScalarFieldEnum]
+
+
+export const ExpenseScalarFieldEnum = {
+  id: 'id',
+  amount: 'amount',
+  description: 'description',
+  expenseDate: 'expenseDate',
+  category: 'category',
+  imageUrl: 'imageUrl',
+  hallId: 'hallId',
+  ownerId: 'ownerId',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  createdById: 'createdById'
+} as const
+
+export type ExpenseScalarFieldEnum = (typeof ExpenseScalarFieldEnum)[keyof typeof ExpenseScalarFieldEnum]
 
 
 export const SortOrder = {

@@ -65,6 +65,12 @@ export default function Sidebar({ user, onCloseMobile }: SidebarProps) {
             roles: ['SUPER_ADMIN', 'HALL_OWNER', 'ACCOUNTANT']
         },
         {
+            label: 'المصروفات',
+            icon: <FileText size={20} />,
+            href: '/dashboard/expenses',
+            roles: ['SUPER_ADMIN', 'HALL_OWNER', 'ROOM_SUPERVISOR', 'ACCOUNTANT', 'EMPLOYEE']
+        },
+        {
             label: 'المستخدمين',
             icon: <UserCog size={20} />,
             href: '/dashboard/users',
