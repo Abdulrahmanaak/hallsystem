@@ -1416,6 +1416,9 @@ export const ExpenseScalarFieldEnum = {
   imageUrl: 'imageUrl',
   hallId: 'hallId',
   ownerId: 'ownerId',
+  qoyodExpenseId: 'qoyodExpenseId',
+  syncedToQoyod: 'syncedToQoyod',
+  lastSyncAt: 'lastSyncAt',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt',
   createdById: 'createdById'

@@ -742,6 +742,88 @@ export async function POST(request: Request) {
             return NextResponse.json({ success: true, message: 'تم حذف الفاتورة من قيود بنجاح' })
         }
 
+        // ====================================================
+        // SYNC EXPENSE TO QOYOD
+        // ====================================================
+        if (type === 'expense') {
+            const expense = await prisma.expense.findUnique({
+                where: { id }
+            })
+
+            if (!expense) return NextResponse.json({ error: 'Expense not found' }, { status: 404 })
+
+            // Get expense account (typically an Expense type account)
+            let expenseAccountId: number
+            try {
+                const res = await qoyodRequest('/accounts?q[type_eq]=Expense', 'GET', null, config)
+                if (res.accounts && res.accounts.length > 0) {
+                    // Look for matching category or use default
+                    const categoryMatch = expense.category ? res.accounts.find((a: any) =>
+                        a.name_ar?.includes(expense.category) || a.name_en?.toLowerCase().includes(expense.category?.toLowerCase())
+                    ) : null
+                    expenseAccountId = categoryMatch ? categoryMatch.id : res.accounts[0].id
+                } else {
+                    expenseAccountId = 30 // Fallback expense account
+                }
+            } catch (e) {
+                expenseAccountId = 30 // Fallback
+            }
+
+            // Get bank/cash account for payment
+            const bankAccountId = await getBankAccountId(config)
+
+            // Create expense in Qoyod with Draft status
+            const expensePayload = {
+                expense: {
+                    date: expense.expenseDate.toISOString().split('T')[0],
+                    reference: `EXP-${expense.id.slice(-8).toUpperCase()}`,
+                    status: 'Draft', // Always create as Draft
+                    notes: expense.description,
+                    expense_lines: [
+                        {
+                            account_id: expenseAccountId,
+                            description: expense.description + (expense.category ? ` (${expense.category})` : ''),
+                            amount: Number(expense.amount),
+                            tax_percent: 0 // No VAT on expenses by default
+                        }
+                    ],
+                    payment: {
+                        account_id: bankAccountId,
+                        amount: Number(expense.amount)
+                    }
+                }
+            }
+
+            const qoyodRes = await qoyodRequest('/expenses', 'POST', expensePayload, config)
+            const qoyodExpenseId = qoyodRes.expense?.id
+
+            // Update local DB
+            await prisma.expense.update({
+                where: { id },
+                data: {
+                    syncedToQoyod: true,
+                    lastSyncAt: new Date(),
+                    qoyodExpenseId: qoyodExpenseId?.toString()
+                }
+            })
+
+            // Log Success
+            await prisma.accountingSync.create({
+                data: {
+                    syncType: 'CREATE',
+                    recordType: 'Expense',
+                    recordId: id,
+                    status: 'SUCCESS',
+                    qoyodId: qoyodExpenseId?.toString() || null,
+                    requestData: JSON.stringify(expensePayload),
+                    responseData: JSON.stringify(qoyodRes),
+                    completedAt: new Date()
+                }
+            })
+
+            return NextResponse.json({ success: true, qoyodExpenseId })
+        }
+
         return NextResponse.json({ error: 'Invalid type' }, { status: 400 })
 
     } catch (error: any) {

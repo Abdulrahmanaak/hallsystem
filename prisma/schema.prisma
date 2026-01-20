@@ -447,6 +447,11 @@ model Expense {
   ownerId         String
   owner           User         @relation("ExpenseOwner", fields: [ownerId], references: [id])
   
+  // Qoyod Integration
+  qoyodExpenseId  String?      // ID from Qoyod system
+  syncedToQoyod   Boolean      @default(false)
+  lastSyncAt      DateTime?
+  
   // Audit trail
   createdAt       DateTime     @default(now())
   updatedAt       DateTime     @updatedAt
@@ -455,5 +460,6 @@ model Expense {
   
   @@index([expenseDate])
   @@index([ownerId])
+  @@index([syncedToQoyod])
   @@map("expenses")
 }

@@ -12,7 +12,9 @@ import {
     Image as ImageIcon,
     Calendar,
     Loader2,
-    Trash2
+    Trash2,
+    RefreshCw,
+    CheckCircle2
 } from 'lucide-react'
 
 interface Expense {
@@ -22,6 +24,7 @@ interface Expense {
     expenseDate: string
     category: string | null
     imageUrl: string | null
+    syncedToQoyod: boolean
     createdBy: {
         nameAr: string
         username: string
@@ -226,6 +229,7 @@ export default function ExpensesPage() {
                                     <th>المبلغ</th>
                                     <th>سجل بواسطة</th>
                                     <th>المرفقات</th>
+                                    <th>قيود</th>
                                     <th>إجراءات</th>
                                 </tr>
                             </thead>
@@ -255,6 +259,37 @@ export default function ExpensesPage() {
                                                 >
                                                     <ImageIcon size={16} />
                                                     <span>عرض</span>
+                                                </button>
+                                            )}
+                                        </td>
+                                        <td>
+                                            {expense.syncedToQoyod ? (
+                                                <span className="flex items-center gap-1 text-green-600 text-sm">
+                                                    <CheckCircle2 size={16} />
+                                                    <span>تم</span>
+                                                </span>
+                                            ) : (
+                                                <button
+                                                    onClick={async () => {
+                                                        try {
+                                                            const res = await fetch('/api/qoyod', {
+                                                                method: 'POST',
+                                                                headers: { 'Content-Type': 'application/json' },
+                                                                body: JSON.stringify({ type: 'expense', id: expense.id })
+                                                            })
+                                                            const data = await res.json()
+                                                            if (res.ok) {
+                                                                alert('تم مزامنة المصروف مع قيود بنجاح')
+                                                                fetchData()
+                                                            } else {
+                                                                alert(data.error || 'فشل المزامنة')
+                                                            }
+                                                        } catch { alert('حدث خطأ في الاتصال') }
+                                                    }}
+                                                    className="p-2 text-blue-600 hover:bg-blue-50 rounded-md flex items-center gap-1"
+                                                    title="مزامنة مع قيود"
+                                                >
+                                                    <RefreshCw size={16} />
                                                 </button>
                                             )}
                                         </td>

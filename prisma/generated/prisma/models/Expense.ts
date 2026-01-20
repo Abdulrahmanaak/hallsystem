@@ -43,6 +43,9 @@ export type ExpenseMinAggregateOutputType = {
   imageUrl: string | null
   hallId: string | null
   ownerId: string | null
+  qoyodExpenseId: string | null
+  syncedToQoyod: boolean | null
+  lastSyncAt: Date | null
   createdAt: Date | null
   updatedAt: Date | null
   createdById: string | null
@@ -57,6 +60,9 @@ export type ExpenseMaxAggregateOutputType = {
   imageUrl: string | null
   hallId: string | null
   ownerId: string | null
+  qoyodExpenseId: string | null
+  syncedToQoyod: boolean | null
+  lastSyncAt: Date | null
   createdAt: Date | null
   updatedAt: Date | null
   createdById: string | null
@@ -71,6 +77,9 @@ export type ExpenseCountAggregateOutputType = {
   imageUrl: number
   hallId: number
   ownerId: number
+  qoyodExpenseId: number
+  syncedToQoyod: number
+  lastSyncAt: number
   createdAt: number
   updatedAt: number
   createdById: number
@@ -95,6 +104,9 @@ export type ExpenseMinAggregateInputType = {
   imageUrl?: true
   hallId?: true
   ownerId?: true
+  qoyodExpenseId?: true
+  syncedToQoyod?: true
+  lastSyncAt?: true
   createdAt?: true
   updatedAt?: true
   createdById?: true
@@ -109,6 +121,9 @@ export type ExpenseMaxAggregateInputType = {
   imageUrl?: true
   hallId?: true
   ownerId?: true
+  qoyodExpenseId?: true
+  syncedToQoyod?: true
+  lastSyncAt?: true
   createdAt?: true
   updatedAt?: true
   createdById?: true
@@ -123,6 +138,9 @@ export type ExpenseCountAggregateInputType = {
   imageUrl?: true
   hallId?: true
   ownerId?: true
+  qoyodExpenseId?: true
+  syncedToQoyod?: true
+  lastSyncAt?: true
   createdAt?: true
   updatedAt?: true
   createdById?: true
@@ -224,6 +242,9 @@ export type ExpenseGroupByOutputType = {
   imageUrl: string | null
   hallId: string | null
   ownerId: string
+  qoyodExpenseId: string | null
+  syncedToQoyod: boolean
+  lastSyncAt: Date | null
   createdAt: Date
   updatedAt: Date
   createdById: string
@@ -261,6 +282,9 @@ export type ExpenseWhereInput = {
   imageUrl?: Prisma.StringNullableFilter<"Expense"> | string | null
   hallId?: Prisma.StringNullableFilter<"Expense"> | string | null
   ownerId?: Prisma.StringFilter<"Expense"> | string
+  qoyodExpenseId?: Prisma.StringNullableFilter<"Expense"> | string | null
+  syncedToQoyod?: Prisma.BoolFilter<"Expense"> | boolean
+  lastSyncAt?: Prisma.DateTimeNullableFilter<"Expense"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"Expense"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Expense"> | Date | string
   createdById?: Prisma.StringFilter<"Expense"> | string
@@ -278,6 +302,9 @@ export type ExpenseOrderByWithRelationInput = {
   imageUrl?: Prisma.SortOrderInput | Prisma.SortOrder
   hallId?: Prisma.SortOrderInput | Prisma.SortOrder
   ownerId?: Prisma.SortOrder
+  qoyodExpenseId?: Prisma.SortOrderInput | Prisma.SortOrder
+  syncedToQoyod?: Prisma.SortOrder
+  lastSyncAt?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   createdById?: Prisma.SortOrder
@@ -298,6 +325,9 @@ export type ExpenseWhereUniqueInput = Prisma.AtLeast<{
   imageUrl?: Prisma.StringNullableFilter<"Expense"> | string | null
   hallId?: Prisma.StringNullableFilter<"Expense"> | string | null
   ownerId?: Prisma.StringFilter<"Expense"> | string
+  qoyodExpenseId?: Prisma.StringNullableFilter<"Expense"> | string | null
+  syncedToQoyod?: Prisma.BoolFilter<"Expense"> | boolean
+  lastSyncAt?: Prisma.DateTimeNullableFilter<"Expense"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"Expense"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Expense"> | Date | string
   createdById?: Prisma.StringFilter<"Expense"> | string
@@ -315,6 +345,9 @@ export type ExpenseOrderByWithAggregationInput = {
   imageUrl?: Prisma.SortOrderInput | Prisma.SortOrder
   hallId?: Prisma.SortOrderInput | Prisma.SortOrder
   ownerId?: Prisma.SortOrder
+  qoyodExpenseId?: Prisma.SortOrderInput | Prisma.SortOrder
+  syncedToQoyod?: Prisma.SortOrder
+  lastSyncAt?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   createdById?: Prisma.SortOrder
@@ -337,6 +370,9 @@ export type ExpenseScalarWhereWithAggregatesInput = {
   imageUrl?: Prisma.StringNullableWithAggregatesFilter<"Expense"> | string | null
   hallId?: Prisma.StringNullableWithAggregatesFilter<"Expense"> | string | null
   ownerId?: Prisma.StringWithAggregatesFilter<"Expense"> | string
+  qoyodExpenseId?: Prisma.StringNullableWithAggregatesFilter<"Expense"> | string | null
+  syncedToQoyod?: Prisma.BoolWithAggregatesFilter<"Expense"> | boolean
+  lastSyncAt?: Prisma.DateTimeNullableWithAggregatesFilter<"Expense"> | Date | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Expense"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"Expense"> | Date | string
   createdById?: Prisma.StringWithAggregatesFilter<"Expense"> | string
@@ -349,6 +385,9 @@ export type ExpenseCreateInput = {
   expenseDate?: Date | string
   category?: string | null
   imageUrl?: string | null
+  qoyodExpenseId?: string | null
+  syncedToQoyod?: boolean
+  lastSyncAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   hall?: Prisma.HallCreateNestedOneWithoutExpensesInput
@@ -365,6 +404,9 @@ export type ExpenseUncheckedCreateInput = {
   imageUrl?: string | null
   hallId?: string | null
   ownerId: string
+  qoyodExpenseId?: string | null
+  syncedToQoyod?: boolean
+  lastSyncAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   createdById: string
@@ -377,6 +419,9 @@ export type ExpenseUpdateInput = {
   expenseDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  qoyodExpenseId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  syncedToQoyod?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  lastSyncAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   hall?: Prisma.HallUpdateOneWithoutExpensesNestedInput
@@ -393,6 +438,9 @@ export type ExpenseUncheckedUpdateInput = {
   imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   hallId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   ownerId?: Prisma.StringFieldUpdateOperationsInput | string
+  qoyodExpenseId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  syncedToQoyod?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  lastSyncAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   createdById?: Prisma.StringFieldUpdateOperationsInput | string
@@ -407,6 +455,9 @@ export type ExpenseCreateManyInput = {
   imageUrl?: string | null
   hallId?: string | null
   ownerId: string
+  qoyodExpenseId?: string | null
+  syncedToQoyod?: boolean
+  lastSyncAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   createdById: string
@@ -419,6 +470,9 @@ export type ExpenseUpdateManyMutationInput = {
   expenseDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  qoyodExpenseId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  syncedToQoyod?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  lastSyncAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -432,6 +486,9 @@ export type ExpenseUncheckedUpdateManyInput = {
   imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   hallId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   ownerId?: Prisma.StringFieldUpdateOperationsInput | string
+  qoyodExpenseId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  syncedToQoyod?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  lastSyncAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   createdById?: Prisma.StringFieldUpdateOperationsInput | string
@@ -456,6 +513,9 @@ export type ExpenseCountOrderByAggregateInput = {
   imageUrl?: Prisma.SortOrder
   hallId?: Prisma.SortOrder
   ownerId?: Prisma.SortOrder
+  qoyodExpenseId?: Prisma.SortOrder
+  syncedToQoyod?: Prisma.SortOrder
+  lastSyncAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   createdById?: Prisma.SortOrder
@@ -474,6 +534,9 @@ export type ExpenseMaxOrderByAggregateInput = {
   imageUrl?: Prisma.SortOrder
   hallId?: Prisma.SortOrder
   ownerId?: Prisma.SortOrder
+  qoyodExpenseId?: Prisma.SortOrder
+  syncedToQoyod?: Prisma.SortOrder
+  lastSyncAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   createdById?: Prisma.SortOrder
@@ -488,6 +551,9 @@ export type ExpenseMinOrderByAggregateInput = {
   imageUrl?: Prisma.SortOrder
   hallId?: Prisma.SortOrder
   ownerId?: Prisma.SortOrder
+  qoyodExpenseId?: Prisma.SortOrder
+  syncedToQoyod?: Prisma.SortOrder
+  lastSyncAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   createdById?: Prisma.SortOrder
@@ -630,6 +696,9 @@ export type ExpenseCreateWithoutCreatedByInput = {
   expenseDate?: Date | string
   category?: string | null
   imageUrl?: string | null
+  qoyodExpenseId?: string | null
+  syncedToQoyod?: boolean
+  lastSyncAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   hall?: Prisma.HallCreateNestedOneWithoutExpensesInput
@@ -645,6 +714,9 @@ export type ExpenseUncheckedCreateWithoutCreatedByInput = {
   imageUrl?: string | null
   hallId?: string | null
   ownerId: string
+  qoyodExpenseId?: string | null
+  syncedToQoyod?: boolean
+  lastSyncAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -666,6 +738,9 @@ export type ExpenseCreateWithoutOwnerInput = {
   expenseDate?: Date | string
   category?: string | null
   imageUrl?: string | null
+  qoyodExpenseId?: string | null
+  syncedToQoyod?: boolean
+  lastSyncAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   hall?: Prisma.HallCreateNestedOneWithoutExpensesInput
@@ -680,6 +755,9 @@ export type ExpenseUncheckedCreateWithoutOwnerInput = {
   category?: string | null
   imageUrl?: string | null
   hallId?: string | null
+  qoyodExpenseId?: string | null
+  syncedToQoyod?: boolean
+  lastSyncAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   createdById: string
@@ -723,6 +801,9 @@ export type ExpenseScalarWhereInput = {
   imageUrl?: Prisma.StringNullableFilter<"Expense"> | string | null
   hallId?: Prisma.StringNullableFilter<"Expense"> | string | null
   ownerId?: Prisma.StringFilter<"Expense"> | string
+  qoyodExpenseId?: Prisma.StringNullableFilter<"Expense"> | string | null
+  syncedToQoyod?: Prisma.BoolFilter<"Expense"> | boolean
+  lastSyncAt?: Prisma.DateTimeNullableFilter<"Expense"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"Expense"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Expense"> | Date | string
   createdById?: Prisma.StringFilter<"Expense"> | string
@@ -751,6 +832,9 @@ export type ExpenseCreateWithoutHallInput = {
   expenseDate?: Date | string
   category?: string | null
   imageUrl?: string | null
+  qoyodExpenseId?: string | null
+  syncedToQoyod?: boolean
+  lastSyncAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   owner: Prisma.UserCreateNestedOneWithoutOwnedExpensesInput
@@ -765,6 +849,9 @@ export type ExpenseUncheckedCreateWithoutHallInput = {
   category?: string | null
   imageUrl?: string | null
   ownerId: string
+  qoyodExpenseId?: string | null
+  syncedToQoyod?: boolean
+  lastSyncAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   createdById: string
@@ -805,6 +892,9 @@ export type ExpenseCreateManyCreatedByInput = {
   imageUrl?: string | null
   hallId?: string | null
   ownerId: string
+  qoyodExpenseId?: string | null
+  syncedToQoyod?: boolean
+  lastSyncAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -817,6 +907,9 @@ export type ExpenseCreateManyOwnerInput = {
   category?: string | null
   imageUrl?: string | null
   hallId?: string | null
+  qoyodExpenseId?: string | null
+  syncedToQoyod?: boolean
+  lastSyncAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   createdById: string
@@ -829,6 +922,9 @@ export type ExpenseUpdateWithoutCreatedByInput = {
   expenseDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  qoyodExpenseId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  syncedToQoyod?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  lastSyncAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   hall?: Prisma.HallUpdateOneWithoutExpensesNestedInput
@@ -844,6 +940,9 @@ export type ExpenseUncheckedUpdateWithoutCreatedByInput = {
   imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   hallId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   ownerId?: Prisma.StringFieldUpdateOperationsInput | string
+  qoyodExpenseId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  syncedToQoyod?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  lastSyncAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -857,6 +956,9 @@ export type ExpenseUncheckedUpdateManyWithoutCreatedByInput = {
   imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   hallId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   ownerId?: Prisma.StringFieldUpdateOperationsInput | string
+  qoyodExpenseId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  syncedToQoyod?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  lastSyncAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -868,6 +970,9 @@ export type ExpenseUpdateWithoutOwnerInput = {
   expenseDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  qoyodExpenseId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  syncedToQoyod?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  lastSyncAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   hall?: Prisma.HallUpdateOneWithoutExpensesNestedInput
@@ -882,6 +987,9 @@ export type ExpenseUncheckedUpdateWithoutOwnerInput = {
   category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   hallId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  qoyodExpenseId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  syncedToQoyod?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  lastSyncAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   createdById?: Prisma.StringFieldUpdateOperationsInput | string
@@ -895,6 +1003,9 @@ export type ExpenseUncheckedUpdateManyWithoutOwnerInput = {
   category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   hallId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  qoyodExpenseId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  syncedToQoyod?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  lastSyncAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   createdById?: Prisma.StringFieldUpdateOperationsInput | string
@@ -908,6 +1019,9 @@ export type ExpenseCreateManyHallInput = {
   category?: string | null
   imageUrl?: string | null
   ownerId: string
+  qoyodExpenseId?: string | null
+  syncedToQoyod?: boolean
+  lastSyncAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   createdById: string
@@ -920,6 +1034,9 @@ export type ExpenseUpdateWithoutHallInput = {
   expenseDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  qoyodExpenseId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  syncedToQoyod?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  lastSyncAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   owner?: Prisma.UserUpdateOneRequiredWithoutOwnedExpensesNestedInput
@@ -934,6 +1051,9 @@ export type ExpenseUncheckedUpdateWithoutHallInput = {
   category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   ownerId?: Prisma.StringFieldUpdateOperationsInput | string
+  qoyodExpenseId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  syncedToQoyod?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  lastSyncAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   createdById?: Prisma.StringFieldUpdateOperationsInput | string
@@ -947,6 +1067,9 @@ export type ExpenseUncheckedUpdateManyWithoutHallInput = {
   category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   ownerId?: Prisma.StringFieldUpdateOperationsInput | string
+  qoyodExpenseId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  syncedToQoyod?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  lastSyncAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   createdById?: Prisma.StringFieldUpdateOperationsInput | string
@@ -963,6 +1086,9 @@ export type ExpenseSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs 
   imageUrl?: boolean
   hallId?: boolean
   ownerId?: boolean
+  qoyodExpenseId?: boolean
+  syncedToQoyod?: boolean
+  lastSyncAt?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   createdById?: boolean
@@ -980,6 +1106,9 @@ export type ExpenseSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exten
   imageUrl?: boolean
   hallId?: boolean
   ownerId?: boolean
+  qoyodExpenseId?: boolean
+  syncedToQoyod?: boolean
+  lastSyncAt?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   createdById?: boolean
@@ -997,6 +1126,9 @@ export type ExpenseSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exten
   imageUrl?: boolean
   hallId?: boolean
   ownerId?: boolean
+  qoyodExpenseId?: boolean
+  syncedToQoyod?: boolean
+  lastSyncAt?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   createdById?: boolean
@@ -1014,12 +1146,15 @@ export type ExpenseSelectScalar = {
   imageUrl?: boolean
   hallId?: boolean
   ownerId?: boolean
+  qoyodExpenseId?: boolean
+  syncedToQoyod?: boolean
+  lastSyncAt?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   createdById?: boolean
 }
 
-export type ExpenseOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "amount" | "description" | "expenseDate" | "category" | "imageUrl" | "hallId" | "ownerId" | "createdAt" | "updatedAt" | "createdById", ExtArgs["result"]["expense"]>
+export type ExpenseOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "amount" | "description" | "expenseDate" | "category" | "imageUrl" | "hallId" | "ownerId" | "qoyodExpenseId" | "syncedToQoyod" | "lastSyncAt" | "createdAt" | "updatedAt" | "createdById", ExtArgs["result"]["expense"]>
 export type ExpenseInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   hall?: boolean | Prisma.Expense$hallArgs<ExtArgs>
   owner?: boolean | Prisma.UserDefaultArgs<ExtArgs>
@@ -1052,6 +1187,9 @@ export type $ExpensePayload<ExtArgs extends runtime.Types.Extensions.InternalArg
     imageUrl: string | null
     hallId: string | null
     ownerId: string
+    qoyodExpenseId: string | null
+    syncedToQoyod: boolean
+    lastSyncAt: Date | null
     createdAt: Date
     updatedAt: Date
     createdById: string
@@ -1489,6 +1627,9 @@ export interface ExpenseFieldRefs {
   readonly imageUrl: Prisma.FieldRef<"Expense", 'String'>
   readonly hallId: Prisma.FieldRef<"Expense", 'String'>
   readonly ownerId: Prisma.FieldRef<"Expense", 'String'>
+  readonly qoyodExpenseId: Prisma.FieldRef<"Expense", 'String'>
+  readonly syncedToQoyod: Prisma.FieldRef<"Expense", 'Boolean'>
+  readonly lastSyncAt: Prisma.FieldRef<"Expense", 'DateTime'>
   readonly createdAt: Prisma.FieldRef<"Expense", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"Expense", 'DateTime'>
   readonly createdById: Prisma.FieldRef<"Expense", 'String'>
