@@ -47,6 +47,7 @@ model User {
   createdCustomers  Customer[] @relation("CustomerCreatedBy")
   createdInvoices   Invoice[]  @relation("InvoiceCreatedBy")
   createdPayments   Payment[]  @relation("PaymentCreatedBy")
+  createdExpenses   Expense[]  @relation("ExpenseCreatedBy")
   
   // Relations for owned data (tenant isolation)
   ownedHalls      Hall[]     @relation("HallOwner")
@@ -422,4 +423,61 @@ model AccountingSync {
   @@index([status])
   @@index([createdAt])
   @@map("accounting_sync_log")
+}
+
+
+model Expense {
+  id              String   @id @default(cuid())
+  amount          Decimal
+  description     String
+  expenseDate     DateTime
+  category        String?
+  imageUrl        String?
+  
+  // Relations
+  createdById     String
+  createdBy       User     @relation("ExpenseCreatedBy", fields: [createdById], references: [id])
+  
+  ownerId         String?  // For multi-tenancy
+  
+  // Qoyod Sync
+  syncedToQoyod   Boolean  @default(false)
+  qoyodExpenseId  String?
+  lastSyncAt      DateTime?
+
+  // Vendor Link
+  vendorId        String?
+  vendor          Vendor?  @relation(fields: [vendorId], references: [id])
+
+  // Soft Delete
+  isDeleted       Boolean  @default(false)
+  deletedAt       DateTime?
+
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@index([ownerId])
+  @@index([createdById])
+  @@map("expenses")
+}
+
+model Vendor {
+  id              String   @id @default(cuid())
+  nameAr          String
+  nameEn          String?
+  phone           String?
+  email           String?
+  
+  // Qoyod Sync
+  qoyodVendorId   String?  // ID from Qoyod
+  
+  ownerId         String
+  
+  expenses        Expense[]
+
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@index([ownerId])
+  @@map("vendors")
 }
