@@ -25,16 +25,29 @@ interface Expense {
     category: string | null
     imageUrl: string | null
     syncedToQoyod: boolean
+    vendor?: {
+        id: string
+        nameAr: string
+    } | null
     createdBy: {
         nameAr: string
         username: string
     }
 }
 
+interface Vendor {
+    id: string
+    nameAr: string
+}
+
 export default function ExpensesPage() {
     const [expenses, setExpenses] = useState<Expense[]>([])
+    const [vendors, setVendors] = useState<Vendor[]>([])
     const [loading, setLoading] = useState(true)
+    const [syncingVendors, setSyncingVendors] = useState(false)
     const [searchTerm, setSearchTerm] = useState('')
+    const [vendorSearch, setVendorSearch] = useState('')
+    const [showVendorDropdown, setShowVendorDropdown] = useState(false)
 
     // Modal
     const [showModal, setShowModal] = useState(false)
@@ -46,6 +59,7 @@ export default function ExpensesPage() {
         description: '',
         expenseDate: new Date().toISOString().split('T')[0],
         category: '',
+        vendorId: '',
         file: null as File | null
     })
     const [saving, setSaving] = useState(false)
@@ -62,8 +76,38 @@ export default function ExpensesPage() {
         }
     }
 
+    const fetchVendors = async () => {
+        try {
+            const res = await fetch('/api/vendors')
+            const data = await res.json()
+            if (Array.isArray(data)) setVendors(data)
+        } catch (error) {
+            console.error('Error fetching vendors:', error)
+        }
+    }
+
+    const syncVendors = async () => {
+        setSyncingVendors(true)
+        try {
+            const res = await fetch('/api/vendors/sync', { method: 'POST' })
+            const data = await res.json()
+            if (res.ok) {
+                alert(data.message || 'تم مزامنة الموردين')
+                fetchVendors()
+            } else {
+                alert(data.error || 'فشل مزامنة الموردين')
+            }
+        } catch (error) {
+            console.error('Error syncing vendors:', error)
+            alert('حدث خطأ في مزامنة الموردين')
+        } finally {
+            setSyncingVendors(false)
+        }
+    }
+
     useEffect(() => {
         fetchData()
+        fetchVendors()
     }, [])
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -106,6 +150,7 @@ export default function ExpensesPage() {
                     description: formData.description,
                     expenseDate: formData.expenseDate,
                     category: formData.category,
+                    vendorId: formData.vendorId || null,
                     imageUrl
                 })
             })
@@ -117,8 +162,10 @@ export default function ExpensesPage() {
                     description: '',
                     expenseDate: new Date().toISOString().split('T')[0],
                     category: '',
+                    vendorId: '',
                     file: null
                 })
+                setVendorSearch('')
                 fetchData()
             }
         } catch (error) {
@@ -228,9 +275,9 @@ export default function ExpensesPage() {
                                     <th>التصنيف</th>
                                     <th>المبلغ</th>
                                     <th>سجل بواسطة</th>
+                                    <th>المورد</th>
                                     <th>المرفقات</th>
                                     <th>قيود</th>
-                                    <th>إجراءات</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -245,6 +292,7 @@ export default function ExpensesPage() {
                                         </td>
                                         <td className="font-bold text-red-600">{Number(expense.amount).toLocaleString()} ر.س</td>
                                         <td className="text-sm text-gray-500">{expense.createdBy.nameAr}</td>
+                                        <td className="text-sm">{expense.vendor?.nameAr || '-'}</td>
                                         <td>
                                             {expense.imageUrl && (
                                                 <button
@@ -263,51 +311,62 @@ export default function ExpensesPage() {
                                             )}
                                         </td>
                                         <td>
-                                            {expense.syncedToQoyod ? (
-                                                <span className="flex items-center gap-1 text-green-600 text-sm">
-                                                    <CheckCircle2 size={16} />
-                                                    <span>تم</span>
-                                                </span>
-                                            ) : (
-                                                <button
-                                                    onClick={async () => {
-                                                        try {
-                                                            const res = await fetch('/api/qoyod', {
-                                                                method: 'POST',
-                                                                headers: { 'Content-Type': 'application/json' },
-                                                                body: JSON.stringify({ type: 'expense', id: expense.id })
-                                                            })
-                                                            const data = await res.json()
-                                                            if (res.ok) {
-                                                                alert('تم مزامنة المصروف مع قيود بنجاح')
-                                                                fetchData()
-                                                            } else {
-                                                                alert(data.error || 'فشل المزامنة')
-                                                            }
-                                                        } catch { alert('حدث خطأ في الاتصال') }
-                                                    }}
-                                                    className="p-2 text-blue-600 hover:bg-blue-50 rounded-md flex items-center gap-1"
-                                                    title="مزامنة مع قيود"
-                                                >
-                                                    <RefreshCw size={16} />
-                                                </button>
-                                            )}
-                                        </td>
-                                        <td>
-                                            <button
-                                                onClick={async () => {
-                                                    if (!confirm('هل تريد حذف هذا المصروف؟')) return
-                                                    try {
-                                                        const res = await fetch(`/api/expenses/${expense.id}`, { method: 'DELETE' })
-                                                        if (res.ok) fetchData()
-                                                        else alert('فشل حذف المصروف')
-                                                    } catch { alert('حدث خطأ') }
-                                                }}
-                                                className="p-2 text-red-500 hover:bg-red-50 rounded-md"
-                                                title="حذف"
-                                            >
-                                                <Trash2 size={16} />
-                                            </button>
+                                            <div className="flex items-center gap-1">
+                                                {expense.syncedToQoyod ? (
+                                                    <>
+                                                        <span className="flex items-center gap-1 text-green-600 text-sm">
+                                                            <CheckCircle2 size={16} />
+                                                            <span>تم</span>
+                                                        </span>
+                                                        <button
+                                                            onClick={async () => {
+                                                                if (!confirm('هل تريد حذف هذا المصروف من قيود؟')) return
+                                                                try {
+                                                                    const res = await fetch('/api/qoyod', {
+                                                                        method: 'POST',
+                                                                        headers: { 'Content-Type': 'application/json' },
+                                                                        body: JSON.stringify({ type: 'delete-expense', id: expense.id })
+                                                                    })
+                                                                    if (res.ok) {
+                                                                        alert('تم حذف المصروف من قيود بنجاح')
+                                                                        fetchData()
+                                                                    } else {
+                                                                        const data = await res.json()
+                                                                        alert(data.error || 'فشل الحذف من قيود')
+                                                                    }
+                                                                } catch { alert('حدث خطأ') }
+                                                            }}
+                                                            className="p-1 text-red-500 hover:bg-red-50 rounded-md"
+                                                            title="حذف من قيود"
+                                                        >
+                                                            <Trash2 size={14} />
+                                                        </button>
+                                                    </>
+                                                ) : (
+                                                    <button
+                                                        onClick={async () => {
+                                                            try {
+                                                                const res = await fetch('/api/qoyod', {
+                                                                    method: 'POST',
+                                                                    headers: { 'Content-Type': 'application/json' },
+                                                                    body: JSON.stringify({ type: 'expense', id: expense.id })
+                                                                })
+                                                                const data = await res.json()
+                                                                if (res.ok) {
+                                                                    alert('تم مزامنة المصروف مع قيود بنجاح')
+                                                                    fetchData()
+                                                                } else {
+                                                                    alert(data.error || 'فشل المزامنة')
+                                                                }
+                                                            } catch { alert('حدث خطأ في الاتصال') }
+                                                        }}
+                                                        className="p-2 text-blue-600 hover:bg-blue-50 rounded-md flex items-center gap-1"
+                                                        title="مزامنة مع قيود"
+                                                    >
+                                                        <RefreshCw size={16} />
+                                                    </button>
+                                                )}
+                                            </div>
                                         </td>
                                     </tr>
                                 ))}
@@ -347,6 +406,57 @@ export default function ExpensesPage() {
                                     className="form-input w-full"
                                     placeholder="0.00"
                                 />
+                            </div>
+
+                            <div>
+                                <div className="flex items-center justify-between mb-1">
+                                    <label className="form-label mb-0">المورد</label>
+                                    <button
+                                        type="button"
+                                        onClick={syncVendors}
+                                        disabled={syncingVendors}
+                                        className="text-xs text-blue-600 hover:underline flex items-center gap-1"
+                                    >
+                                        {syncingVendors ? <Loader2 size={12} className="animate-spin" /> : <RefreshCw size={12} />}
+                                        مزامنة من قيود
+                                    </button>
+                                </div>
+                                <div className="relative">
+                                    <input
+                                        type="text"
+                                        placeholder="ابحث عن المورد..."
+                                        value={vendorSearch}
+                                        onChange={e => {
+                                            setVendorSearch(e.target.value)
+                                            setShowVendorDropdown(true)
+                                        }}
+                                        onFocus={() => setShowVendorDropdown(true)}
+                                        onBlur={() => setTimeout(() => setShowVendorDropdown(false), 150)}
+                                        className="form-input w-full"
+                                    />
+                                    {showVendorDropdown && (
+                                        <div className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg max-h-48 overflow-y-auto">
+                                            {vendors
+                                                .filter(v => v.nameAr.toLowerCase().includes(vendorSearch.toLowerCase()))
+                                                .map(v => (
+                                                    <div
+                                                        key={v.id}
+                                                        className="px-3 py-2 hover:bg-blue-50 cursor-pointer"
+                                                        onClick={() => {
+                                                            setFormData({ ...formData, vendorId: v.id })
+                                                            setVendorSearch(v.nameAr)
+                                                            setShowVendorDropdown(false)
+                                                        }}
+                                                    >
+                                                        {v.nameAr}
+                                                    </div>
+                                                ))}
+                                            {vendors.filter(v => v.nameAr.toLowerCase().includes(vendorSearch.toLowerCase())).length === 0 && (
+                                                <div className="px-3 py-2 text-gray-500 text-sm">لا توجد نتائج</div>
+                                            )}
+                                        </div>
+                                    )}
+                                </div>
                             </div>
 
                             <div>

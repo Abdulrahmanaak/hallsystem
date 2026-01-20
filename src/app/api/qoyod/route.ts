@@ -742,86 +742,144 @@ export async function POST(request: Request) {
             return NextResponse.json({ success: true, message: 'تم حذف الفاتورة من قيود بنجاح' })
         }
 
+
         // ====================================================
-        // SYNC EXPENSE TO QOYOD
+        // SYNC EXPENSE
         // ====================================================
         if (type === 'expense') {
+            const expense = await prisma.expense.findUnique({
+                where: { id },
+                include: { vendor: true }
+            })
+
+            if (!expense) return NextResponse.json({ error: 'Expense not found' }, { status: 404 })
+
+            // Get IDs
+            const accountId = config.defaultBankAccountId // Paying from this account
+            const categoryId = 1 // Default category ID or map from expense.category? Qoyod usually requires integer ID. 
+            // For now, allow Qoyod to assign default or use a known one if possible.
+            // Or better, don't send category_id and let Qoyod use default 'Uncategorized' or similar.
+
+            // Prepare payload
+            // Note: Qoyod /expenses endpoint struct might vary. Assuming similar to /invoices but simpler.
+            // If we have a vendor with qoyodVendorId, use it.
+
+            const payload: any = {
+                expense: {
+                    reference: expense.description.substring(0, 50),
+                    issue_date: expense.expenseDate.toISOString().split('T')[0],
+                    amount: Number(expense.amount),
+                    description: expense.description,
+                    paid_through_account_id: accountId, // Required: Account ID where money came from
+                    tax_inclusive: true, // Assuming amounts entered are tax inclusive
+                }
+            }
+
+            if (expense.vendor?.qoyodVendorId) {
+                payload.expense.contact_id = expense.vendor.qoyodVendorId
+            }
+
+            // If already synced, update? Qoyod expenses usually editable.
+            // But usually we just create.
+            if (expense.qoyodExpenseId) {
+                // Update
+                await qoyodRequest(`/expenses/${expense.qoyodExpenseId}`, 'PUT', payload, config)
+                await prisma.accountingSync.create({
+                    data: {
+                        syncType: 'UPDATE',
+                        recordType: 'Expense',
+                        recordId: id,
+                        status: 'SUCCESS',
+                        qoyodId: expense.qoyodExpenseId,
+                        requestData: JSON.stringify(payload),
+                        responseData: JSON.stringify({ updated: true }),
+                        completedAt: new Date()
+                    }
+                })
+                return NextResponse.json({ success: true, message: 'تم تحديث المصروف في قيود' })
+            } else {
+                // Create
+                const qoyodRes = await qoyodRequest('/expenses', 'POST', payload, config)
+                const qoyodExpenseId = qoyodRes.expense?.id
+
+                if (qoyodExpenseId) {
+                    await prisma.expense.update({
+                        where: { id },
+                        data: {
+                            syncedToQoyod: true,
+                            qoyodExpenseId: qoyodExpenseId.toString(),
+                            lastSyncAt: new Date()
+                        }
+                    })
+
+                    await prisma.accountingSync.create({
+                        data: {
+                            syncType: 'CREATE',
+                            recordType: 'Expense',
+                            recordId: id,
+                            status: 'SUCCESS',
+                            qoyodId: qoyodExpenseId.toString(),
+                            requestData: JSON.stringify(payload),
+                            responseData: JSON.stringify(qoyodRes),
+                            completedAt: new Date()
+                        }
+                    })
+
+                    return NextResponse.json({ success: true, message: 'تم إضافة المصروف إلى قيود' })
+                } else {
+                    throw new Error('Failed to get ID from Qoyod response')
+                }
+            }
+        }
+
+        // ====================================================
+        // DELETE EXPENSE
+        // ====================================================
+        if (type === 'delete-expense') {
             const expense = await prisma.expense.findUnique({
                 where: { id }
             })
 
             if (!expense) return NextResponse.json({ error: 'Expense not found' }, { status: 404 })
 
-            // Get expense account (typically an Expense type account)
-            let expenseAccountId: number
-            try {
-                const res = await qoyodRequest('/accounts?q[type_eq]=Expense', 'GET', null, config)
-                if (res.accounts && res.accounts.length > 0) {
-                    // Look for matching category or use default
-                    const categoryMatch = expense.category ? res.accounts.find((a: any) =>
-                        a.name_ar?.includes(expense.category) || a.name_en?.toLowerCase().includes(expense.category?.toLowerCase())
-                    ) : null
-                    expenseAccountId = categoryMatch ? categoryMatch.id : res.accounts[0].id
-                } else {
-                    expenseAccountId = 30 // Fallback expense account
-                }
-            } catch (e) {
-                expenseAccountId = 30 // Fallback
-            }
-
-            // Get bank/cash account for payment
-            const bankAccountId = await getBankAccountId(config)
-
-            // Create expense in Qoyod with Draft status
-            const expensePayload = {
-                expense: {
-                    date: expense.expenseDate.toISOString().split('T')[0],
-                    reference: `EXP-${expense.id.slice(-8).toUpperCase()}`,
-                    status: 'Draft', // Always create as Draft
-                    notes: expense.description,
-                    expense_lines: [
-                        {
-                            account_id: expenseAccountId,
-                            description: expense.description + (expense.category ? ` (${expense.category})` : ''),
-                            amount: Number(expense.amount),
-                            tax_percent: 0 // No VAT on expenses by default
-                        }
-                    ],
-                    payment: {
-                        account_id: bankAccountId,
-                        amount: Number(expense.amount)
-                    }
+            // 1. Delete from Qoyod if synced
+            let qoyodDeleted = false
+            if (expense.syncedToQoyod && expense.qoyodExpenseId) {
+                try {
+                    await qoyodRequest(`/expenses/${expense.qoyodExpenseId}`, 'DELETE', null, config)
+                    qoyodDeleted = true
+                } catch (error) {
+                    console.error('Error deleting expense from Qoyod:', error)
+                    // We continue to soft-delete locally even if Qoyod fails (or if already deleted)
                 }
             }
 
-            const qoyodRes = await qoyodRequest('/expenses', 'POST', expensePayload, config)
-            const qoyodExpenseId = qoyodRes.expense?.id
-
-            // Update local DB
+            // 2. Soft delete locally
             await prisma.expense.update({
                 where: { id },
                 data: {
-                    syncedToQoyod: true,
-                    lastSyncAt: new Date(),
-                    qoyodExpenseId: qoyodExpenseId?.toString()
+                    isDeleted: true,
+                    deletedAt: new Date(),
+                    syncedToQoyod: false, // Unlink
+                    qoyodExpenseId: null
                 }
             })
 
             // Log Success
             await prisma.accountingSync.create({
                 data: {
-                    syncType: 'CREATE',
+                    syncType: 'DELETE',
                     recordType: 'Expense',
                     recordId: id,
                     status: 'SUCCESS',
-                    qoyodId: qoyodExpenseId?.toString() || null,
-                    requestData: JSON.stringify(expensePayload),
-                    responseData: JSON.stringify(qoyodRes),
+                    qoyodId: expense.qoyodExpenseId,
+                    requestData: JSON.stringify({ action: 'delete', expenseId: expense.qoyodExpenseId }),
+                    responseData: JSON.stringify({ deleted: qoyodDeleted, localSoftDelete: true }),
                     completedAt: new Date()
                 }
             })
 
-            return NextResponse.json({ success: true, qoyodExpenseId })
+            return NextResponse.json({ success: true, message: 'تم حذف المصروف بنجاح' })
         }
 
         return NextResponse.json({ error: 'Invalid type' }, { status: 400 })

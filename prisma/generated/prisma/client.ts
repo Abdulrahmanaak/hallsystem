@@ -89,3 +89,8 @@ export type AccountingSync = Prisma.AccountingSyncModel
  * 
  */
 export type Expense = Prisma.ExpenseModel
+/**
+ * Model Vendor
+ * 
+ */
+export type Vendor = Prisma.VendorModel
