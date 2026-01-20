@@ -10,7 +10,7 @@ export async function POST(req: Request) {
         }
 
         const body = await req.json()
-        const { amount, description, expenseDate, category, imageUrl, hallId } = body
+        const { amount, description, expenseDate, category, imageUrl, vendorId } = body
 
         if (!amount || !description) {
             return NextResponse.json({ error: 'المبلغ والوصف مطلوبان' }, { status: 400 })
@@ -32,11 +32,12 @@ export async function POST(req: Request) {
                 expenseDate: new Date(expenseDate),
                 category,
                 imageUrl,
-                hallId,
+                vendorId: vendorId || null,
                 ownerId,
                 createdById: session.user.id
             }
         })
+
 
         return NextResponse.json(expense)
 
@@ -77,8 +78,9 @@ export async function GET(req: Request) {
                         username: true
                     }
                 },
-                hall: {
+                vendor: {
                     select: {
+                        id: true,
                         nameAr: true
                     }
                 }
