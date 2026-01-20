@@ -41,17 +41,16 @@ export type ExpenseMinAggregateOutputType = {
   expenseDate: Date | null
   category: string | null
   imageUrl: string | null
-  vendorId: string | null
-  hallId: string | null
+  createdById: string | null
   ownerId: string | null
-  qoyodExpenseId: string | null
   syncedToQoyod: boolean | null
+  qoyodExpenseId: string | null
   lastSyncAt: Date | null
+  vendorId: string | null
   isDeleted: boolean | null
   deletedAt: Date | null
   createdAt: Date | null
   updatedAt: Date | null
-  createdById: string | null
 }
 
 export type ExpenseMaxAggregateOutputType = {
@@ -61,17 +60,16 @@ export type ExpenseMaxAggregateOutputType = {
   expenseDate: Date | null
   category: string | null
   imageUrl: string | null
-  vendorId: string | null
-  hallId: string | null
+  createdById: string | null
   ownerId: string | null
-  qoyodExpenseId: string | null
   syncedToQoyod: boolean | null
+  qoyodExpenseId: string | null
   lastSyncAt: Date | null
+  vendorId: string | null
   isDeleted: boolean | null
   deletedAt: Date | null
   createdAt: Date | null
   updatedAt: Date | null
-  createdById: string | null
 }
 
 export type ExpenseCountAggregateOutputType = {
@@ -81,17 +79,16 @@ export type ExpenseCountAggregateOutputType = {
   expenseDate: number
   category: number
   imageUrl: number
-  vendorId: number
-  hallId: number
+  createdById: number
   ownerId: number
-  qoyodExpenseId: number
   syncedToQoyod: number
+  qoyodExpenseId: number
   lastSyncAt: number
+  vendorId: number
   isDeleted: number
   deletedAt: number
   createdAt: number
   updatedAt: number
-  createdById: number
   _all: number
 }
 
@@ -111,17 +108,16 @@ export type ExpenseMinAggregateInputType = {
   expenseDate?: true
   category?: true
   imageUrl?: true
-  vendorId?: true
-  hallId?: true
+  createdById?: true
   ownerId?: true
-  qoyodExpenseId?: true
   syncedToQoyod?: true
+  qoyodExpenseId?: true
   lastSyncAt?: true
+  vendorId?: true
   isDeleted?: true
   deletedAt?: true
   createdAt?: true
   updatedAt?: true
-  createdById?: true
 }
 
 export type ExpenseMaxAggregateInputType = {
@@ -131,17 +127,16 @@ export type ExpenseMaxAggregateInputType = {
   expenseDate?: true
   category?: true
   imageUrl?: true
-  vendorId?: true
-  hallId?: true
+  createdById?: true
   ownerId?: true
-  qoyodExpenseId?: true
   syncedToQoyod?: true
+  qoyodExpenseId?: true
   lastSyncAt?: true
+  vendorId?: true
   isDeleted?: true
   deletedAt?: true
   createdAt?: true
   updatedAt?: true
-  createdById?: true
 }
 
 export type ExpenseCountAggregateInputType = {
@@ -151,17 +146,16 @@ export type ExpenseCountAggregateInputType = {
   expenseDate?: true
   category?: true
   imageUrl?: true
-  vendorId?: true
-  hallId?: true
+  createdById?: true
   ownerId?: true
-  qoyodExpenseId?: true
   syncedToQoyod?: true
+  qoyodExpenseId?: true
   lastSyncAt?: true
+  vendorId?: true
   isDeleted?: true
   deletedAt?: true
   createdAt?: true
   updatedAt?: true
-  createdById?: true
   _all?: true
 }
 
@@ -258,17 +252,16 @@ export type ExpenseGroupByOutputType = {
   expenseDate: Date
   category: string | null
   imageUrl: string | null
-  vendorId: string | null
-  hallId: string | null
-  ownerId: string
-  qoyodExpenseId: string | null
+  createdById: string
+  ownerId: string | null
   syncedToQoyod: boolean
+  qoyodExpenseId: string | null
   lastSyncAt: Date | null
+  vendorId: string | null
   isDeleted: boolean
   deletedAt: Date | null
   createdAt: Date
   updatedAt: Date
-  createdById: string
   _count: ExpenseCountAggregateOutputType | null
   _avg: ExpenseAvgAggregateOutputType | null
   _sum: ExpenseSumAggregateOutputType | null
@@ -301,21 +294,18 @@ export type ExpenseWhereInput = {
   expenseDate?: Prisma.DateTimeFilter<"Expense"> | Date | string
   category?: Prisma.StringNullableFilter<"Expense"> | string | null
   imageUrl?: Prisma.StringNullableFilter<"Expense"> | string | null
-  vendorId?: Prisma.StringNullableFilter<"Expense"> | string | null
-  hallId?: Prisma.StringNullableFilter<"Expense"> | string | null
-  ownerId?: Prisma.StringFilter<"Expense"> | string
-  qoyodExpenseId?: Prisma.StringNullableFilter<"Expense"> | string | null
+  createdById?: Prisma.StringFilter<"Expense"> | string
+  ownerId?: Prisma.StringNullableFilter<"Expense"> | string | null
   syncedToQoyod?: Prisma.BoolFilter<"Expense"> | boolean
+  qoyodExpenseId?: Prisma.StringNullableFilter<"Expense"> | string | null
   lastSyncAt?: Prisma.DateTimeNullableFilter<"Expense"> | Date | string | null
+  vendorId?: Prisma.StringNullableFilter<"Expense"> | string | null
   isDeleted?: Prisma.BoolFilter<"Expense"> | boolean
   deletedAt?: Prisma.DateTimeNullableFilter<"Expense"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"Expense"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Expense"> | Date | string
-  createdById?: Prisma.StringFilter<"Expense"> | string
-  vendor?: Prisma.XOR<Prisma.VendorNullableScalarRelationFilter, Prisma.VendorWhereInput> | null
-  hall?: Prisma.XOR<Prisma.HallNullableScalarRelationFilter, Prisma.HallWhereInput> | null
-  owner?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
   createdBy?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
+  vendor?: Prisma.XOR<Prisma.VendorNullableScalarRelationFilter, Prisma.VendorWhereInput> | null
 }
 
 export type ExpenseOrderByWithRelationInput = {
@@ -325,21 +315,18 @@ export type ExpenseOrderByWithRelationInput = {
   expenseDate?: Prisma.SortOrder
   category?: Prisma.SortOrderInput | Prisma.SortOrder
   imageUrl?: Prisma.SortOrderInput | Prisma.SortOrder
-  vendorId?: Prisma.SortOrderInput | Prisma.SortOrder
-  hallId?: Prisma.SortOrderInput | Prisma.SortOrder
-  ownerId?: Prisma.SortOrder
-  qoyodExpenseId?: Prisma.SortOrderInput | Prisma.SortOrder
+  createdById?: Prisma.SortOrder
+  ownerId?: Prisma.SortOrderInput | Prisma.SortOrder
   syncedToQoyod?: Prisma.SortOrder
+  qoyodExpenseId?: Prisma.SortOrderInput | Prisma.SortOrder
   lastSyncAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  vendorId?: Prisma.SortOrderInput | Prisma.SortOrder
   isDeleted?: Prisma.SortOrder
   deletedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
-  createdById?: Prisma.SortOrder
-  vendor?: Prisma.VendorOrderByWithRelationInput
-  hall?: Prisma.HallOrderByWithRelationInput
-  owner?: Prisma.UserOrderByWithRelationInput
   createdBy?: Prisma.UserOrderByWithRelationInput
+  vendor?: Prisma.VendorOrderByWithRelationInput
 }
 
 export type ExpenseWhereUniqueInput = Prisma.AtLeast<{
@@ -352,21 +339,18 @@ export type ExpenseWhereUniqueInput = Prisma.AtLeast<{
   expenseDate?: Prisma.DateTimeFilter<"Expense"> | Date | string
   category?: Prisma.StringNullableFilter<"Expense"> | string | null
   imageUrl?: Prisma.StringNullableFilter<"Expense"> | string | null
-  vendorId?: Prisma.StringNullableFilter<"Expense"> | string | null
-  hallId?: Prisma.StringNullableFilter<"Expense"> | string | null
-  ownerId?: Prisma.StringFilter<"Expense"> | string
-  qoyodExpenseId?: Prisma.StringNullableFilter<"Expense"> | string | null
+  createdById?: Prisma.StringFilter<"Expense"> | string
+  ownerId?: Prisma.StringNullableFilter<"Expense"> | string | null
   syncedToQoyod?: Prisma.BoolFilter<"Expense"> | boolean
+  qoyodExpenseId?: Prisma.StringNullableFilter<"Expense"> | string | null
   lastSyncAt?: Prisma.DateTimeNullableFilter<"Expense"> | Date | string | null
+  vendorId?: Prisma.StringNullableFilter<"Expense"> | string | null
   isDeleted?: Prisma.BoolFilter<"Expense"> | boolean
   deletedAt?: Prisma.DateTimeNullableFilter<"Expense"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"Expense"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Expense"> | Date | string
-  createdById?: Prisma.StringFilter<"Expense"> | string
-  vendor?: Prisma.XOR<Prisma.VendorNullableScalarRelationFilter, Prisma.VendorWhereInput> | null
-  hall?: Prisma.XOR<Prisma.HallNullableScalarRelationFilter, Prisma.HallWhereInput> | null
-  owner?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
   createdBy?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
+  vendor?: Prisma.XOR<Prisma.VendorNullableScalarRelationFilter, Prisma.VendorWhereInput> | null
 }, "id">
 
 export type ExpenseOrderByWithAggregationInput = {
@@ -376,17 +360,16 @@ export type ExpenseOrderByWithAggregationInput = {
   expenseDate?: Prisma.SortOrder
   category?: Prisma.SortOrderInput | Prisma.SortOrder
   imageUrl?: Prisma.SortOrderInput | Prisma.SortOrder
-  vendorId?: Prisma.SortOrderInput | Prisma.SortOrder
-  hallId?: Prisma.SortOrderInput | Prisma.SortOrder
-  ownerId?: Prisma.SortOrder
-  qoyodExpenseId?: Prisma.SortOrderInput | Prisma.SortOrder
+  createdById?: Prisma.SortOrder
+  ownerId?: Prisma.SortOrderInput | Prisma.SortOrder
   syncedToQoyod?: Prisma.SortOrder
+  qoyodExpenseId?: Prisma.SortOrderInput | Prisma.SortOrder
   lastSyncAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  vendorId?: Prisma.SortOrderInput | Prisma.SortOrder
   isDeleted?: Prisma.SortOrder
   deletedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
-  createdById?: Prisma.SortOrder
   _count?: Prisma.ExpenseCountOrderByAggregateInput
   _avg?: Prisma.ExpenseAvgOrderByAggregateInput
   _max?: Prisma.ExpenseMaxOrderByAggregateInput
@@ -404,57 +387,54 @@ export type ExpenseScalarWhereWithAggregatesInput = {
   expenseDate?: Prisma.DateTimeWithAggregatesFilter<"Expense"> | Date | string
   category?: Prisma.StringNullableWithAggregatesFilter<"Expense"> | string | null
   imageUrl?: Prisma.StringNullableWithAggregatesFilter<"Expense"> | string | null
-  vendorId?: Prisma.StringNullableWithAggregatesFilter<"Expense"> | string | null
-  hallId?: Prisma.StringNullableWithAggregatesFilter<"Expense"> | string | null
-  ownerId?: Prisma.StringWithAggregatesFilter<"Expense"> | string
-  qoyodExpenseId?: Prisma.StringNullableWithAggregatesFilter<"Expense"> | string | null
+  createdById?: Prisma.StringWithAggregatesFilter<"Expense"> | string
+  ownerId?: Prisma.StringNullableWithAggregatesFilter<"Expense"> | string | null
   syncedToQoyod?: Prisma.BoolWithAggregatesFilter<"Expense"> | boolean
+  qoyodExpenseId?: Prisma.StringNullableWithAggregatesFilter<"Expense"> | string | null
   lastSyncAt?: Prisma.DateTimeNullableWithAggregatesFilter<"Expense"> | Date | string | null
+  vendorId?: Prisma.StringNullableWithAggregatesFilter<"Expense"> | string | null
   isDeleted?: Prisma.BoolWithAggregatesFilter<"Expense"> | boolean
   deletedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"Expense"> | Date | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Expense"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"Expense"> | Date | string
-  createdById?: Prisma.StringWithAggregatesFilter<"Expense"> | string
 }
 
 export type ExpenseCreateInput = {
   id?: string
   amount: runtime.Decimal | runtime.DecimalJsLike | number | string
   description: string
-  expenseDate?: Date | string
+  expenseDate: Date | string
   category?: string | null
   imageUrl?: string | null
-  qoyodExpenseId?: string | null
+  ownerId?: string | null
   syncedToQoyod?: boolean
+  qoyodExpenseId?: string | null
   lastSyncAt?: Date | string | null
   isDeleted?: boolean
   deletedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
-  vendor?: Prisma.VendorCreateNestedOneWithoutExpensesInput
-  hall?: Prisma.HallCreateNestedOneWithoutExpensesInput
-  owner: Prisma.UserCreateNestedOneWithoutOwnedExpensesInput
   createdBy: Prisma.UserCreateNestedOneWithoutCreatedExpensesInput
+  vendor?: Prisma.VendorCreateNestedOneWithoutExpensesInput
 }
 
 export type ExpenseUncheckedCreateInput = {
   id?: string
   amount: runtime.Decimal | runtime.DecimalJsLike | number | string
   description: string
-  expenseDate?: Date | string
+  expenseDate: Date | string
   category?: string | null
   imageUrl?: string | null
-  vendorId?: string | null
-  hallId?: string | null
-  ownerId: string
-  qoyodExpenseId?: string | null
+  createdById: string
+  ownerId?: string | null
   syncedToQoyod?: boolean
+  qoyodExpenseId?: string | null
   lastSyncAt?: Date | string | null
+  vendorId?: string | null
   isDeleted?: boolean
   deletedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
-  createdById: string
 }
 
 export type ExpenseUpdateInput = {
@@ -464,17 +444,16 @@ export type ExpenseUpdateInput = {
   expenseDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  qoyodExpenseId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  ownerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   syncedToQoyod?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  qoyodExpenseId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   lastSyncAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  vendor?: Prisma.VendorUpdateOneWithoutExpensesNestedInput
-  hall?: Prisma.HallUpdateOneWithoutExpensesNestedInput
-  owner?: Prisma.UserUpdateOneRequiredWithoutOwnedExpensesNestedInput
   createdBy?: Prisma.UserUpdateOneRequiredWithoutCreatedExpensesNestedInput
+  vendor?: Prisma.VendorUpdateOneWithoutExpensesNestedInput
 }
 
 export type ExpenseUncheckedUpdateInput = {
@@ -484,37 +463,35 @@ export type ExpenseUncheckedUpdateInput = {
   expenseDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  vendorId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  hallId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  ownerId?: Prisma.StringFieldUpdateOperationsInput | string
-  qoyodExpenseId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdById?: Prisma.StringFieldUpdateOperationsInput | string
+  ownerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   syncedToQoyod?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  qoyodExpenseId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   lastSyncAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  vendorId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  createdById?: Prisma.StringFieldUpdateOperationsInput | string
 }
 
 export type ExpenseCreateManyInput = {
   id?: string
   amount: runtime.Decimal | runtime.DecimalJsLike | number | string
   description: string
-  expenseDate?: Date | string
+  expenseDate: Date | string
   category?: string | null
   imageUrl?: string | null
-  vendorId?: string | null
-  hallId?: string | null
-  ownerId: string
-  qoyodExpenseId?: string | null
+  createdById: string
+  ownerId?: string | null
   syncedToQoyod?: boolean
+  qoyodExpenseId?: string | null
   lastSyncAt?: Date | string | null
+  vendorId?: string | null
   isDeleted?: boolean
   deletedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
-  createdById: string
 }
 
 export type ExpenseUpdateManyMutationInput = {
@@ -524,8 +501,9 @@ export type ExpenseUpdateManyMutationInput = {
   expenseDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  qoyodExpenseId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  ownerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   syncedToQoyod?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  qoyodExpenseId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   lastSyncAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -540,17 +518,16 @@ export type ExpenseUncheckedUpdateManyInput = {
   expenseDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  vendorId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  hallId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  ownerId?: Prisma.StringFieldUpdateOperationsInput | string
-  qoyodExpenseId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdById?: Prisma.StringFieldUpdateOperationsInput | string
+  ownerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   syncedToQoyod?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  qoyodExpenseId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   lastSyncAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  vendorId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  createdById?: Prisma.StringFieldUpdateOperationsInput | string
 }
 
 export type ExpenseListRelationFilter = {
@@ -570,17 +547,16 @@ export type ExpenseCountOrderByAggregateInput = {
   expenseDate?: Prisma.SortOrder
   category?: Prisma.SortOrder
   imageUrl?: Prisma.SortOrder
-  vendorId?: Prisma.SortOrder
-  hallId?: Prisma.SortOrder
+  createdById?: Prisma.SortOrder
   ownerId?: Prisma.SortOrder
-  qoyodExpenseId?: Prisma.SortOrder
   syncedToQoyod?: Prisma.SortOrder
+  qoyodExpenseId?: Prisma.SortOrder
   lastSyncAt?: Prisma.SortOrder
+  vendorId?: Prisma.SortOrder
   isDeleted?: Prisma.SortOrder
   deletedAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
-  createdById?: Prisma.SortOrder
 }
 
 export type ExpenseAvgOrderByAggregateInput = {
@@ -594,17 +570,16 @@ export type ExpenseMaxOrderByAggregateInput = {
   expenseDate?: Prisma.SortOrder
   category?: Prisma.SortOrder
   imageUrl?: Prisma.SortOrder
-  vendorId?: Prisma.SortOrder
-  hallId?: Prisma.SortOrder
+  createdById?: Prisma.SortOrder
   ownerId?: Prisma.SortOrder
-  qoyodExpenseId?: Prisma.SortOrder
   syncedToQoyod?: Prisma.SortOrder
+  qoyodExpenseId?: Prisma.SortOrder
   lastSyncAt?: Prisma.SortOrder
+  vendorId?: Prisma.SortOrder
   isDeleted?: Prisma.SortOrder
   deletedAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
-  createdById?: Prisma.SortOrder
 }
 
 export type ExpenseMinOrderByAggregateInput = {
@@ -614,17 +589,16 @@ export type ExpenseMinOrderByAggregateInput = {
   expenseDate?: Prisma.SortOrder
   category?: Prisma.SortOrder
   imageUrl?: Prisma.SortOrder
-  vendorId?: Prisma.SortOrder
-  hallId?: Prisma.SortOrder
+  createdById?: Prisma.SortOrder
   ownerId?: Prisma.SortOrder
-  qoyodExpenseId?: Prisma.SortOrder
   syncedToQoyod?: Prisma.SortOrder
+  qoyodExpenseId?: Prisma.SortOrder
   lastSyncAt?: Prisma.SortOrder
+  vendorId?: Prisma.SortOrder
   isDeleted?: Prisma.SortOrder
   deletedAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
-  createdById?: Prisma.SortOrder
 }
 
 export type ExpenseSumOrderByAggregateInput = {
@@ -638,24 +612,10 @@ export type ExpenseCreateNestedManyWithoutCreatedByInput = {
   connect?: Prisma.ExpenseWhereUniqueInput | Prisma.ExpenseWhereUniqueInput[]
 }
 
-export type ExpenseCreateNestedManyWithoutOwnerInput = {
-  create?: Prisma.XOR<Prisma.ExpenseCreateWithoutOwnerInput, Prisma.ExpenseUncheckedCreateWithoutOwnerInput> | Prisma.ExpenseCreateWithoutOwnerInput[] | Prisma.ExpenseUncheckedCreateWithoutOwnerInput[]
-  connectOrCreate?: Prisma.ExpenseCreateOrConnectWithoutOwnerInput | Prisma.ExpenseCreateOrConnectWithoutOwnerInput[]
-  createMany?: Prisma.ExpenseCreateManyOwnerInputEnvelope
-  connect?: Prisma.ExpenseWhereUniqueInput | Prisma.ExpenseWhereUniqueInput[]
-}
-
 export type ExpenseUncheckedCreateNestedManyWithoutCreatedByInput = {
   create?: Prisma.XOR<Prisma.ExpenseCreateWithoutCreatedByInput, Prisma.ExpenseUncheckedCreateWithoutCreatedByInput> | Prisma.ExpenseCreateWithoutCreatedByInput[] | Prisma.ExpenseUncheckedCreateWithoutCreatedByInput[]
   connectOrCreate?: Prisma.ExpenseCreateOrConnectWithoutCreatedByInput | Prisma.ExpenseCreateOrConnectWithoutCreatedByInput[]
   createMany?: Prisma.ExpenseCreateManyCreatedByInputEnvelope
-  connect?: Prisma.ExpenseWhereUniqueInput | Prisma.ExpenseWhereUniqueInput[]
-}
-
-export type ExpenseUncheckedCreateNestedManyWithoutOwnerInput = {
-  create?: Prisma.XOR<Prisma.ExpenseCreateWithoutOwnerInput, Prisma.ExpenseUncheckedCreateWithoutOwnerInput> | Prisma.ExpenseCreateWithoutOwnerInput[] | Prisma.ExpenseUncheckedCreateWithoutOwnerInput[]
-  connectOrCreate?: Prisma.ExpenseCreateOrConnectWithoutOwnerInput | Prisma.ExpenseCreateOrConnectWithoutOwnerInput[]
-  createMany?: Prisma.ExpenseCreateManyOwnerInputEnvelope
   connect?: Prisma.ExpenseWhereUniqueInput | Prisma.ExpenseWhereUniqueInput[]
 }
 
@@ -673,20 +633,6 @@ export type ExpenseUpdateManyWithoutCreatedByNestedInput = {
   deleteMany?: Prisma.ExpenseScalarWhereInput | Prisma.ExpenseScalarWhereInput[]
 }
 
-export type ExpenseUpdateManyWithoutOwnerNestedInput = {
-  create?: Prisma.XOR<Prisma.ExpenseCreateWithoutOwnerInput, Prisma.ExpenseUncheckedCreateWithoutOwnerInput> | Prisma.ExpenseCreateWithoutOwnerInput[] | Prisma.ExpenseUncheckedCreateWithoutOwnerInput[]
-  connectOrCreate?: Prisma.ExpenseCreateOrConnectWithoutOwnerInput | Prisma.ExpenseCreateOrConnectWithoutOwnerInput[]
-  upsert?: Prisma.ExpenseUpsertWithWhereUniqueWithoutOwnerInput | Prisma.ExpenseUpsertWithWhereUniqueWithoutOwnerInput[]
-  createMany?: Prisma.ExpenseCreateManyOwnerInputEnvelope
-  set?: Prisma.ExpenseWhereUniqueInput | Prisma.ExpenseWhereUniqueInput[]
-  disconnect?: Prisma.ExpenseWhereUniqueInput | Prisma.ExpenseWhereUniqueInput[]
-  delete?: Prisma.ExpenseWhereUniqueInput | Prisma.ExpenseWhereUniqueInput[]
-  connect?: Prisma.ExpenseWhereUniqueInput | Prisma.ExpenseWhereUniqueInput[]
-  update?: Prisma.ExpenseUpdateWithWhereUniqueWithoutOwnerInput | Prisma.ExpenseUpdateWithWhereUniqueWithoutOwnerInput[]
-  updateMany?: Prisma.ExpenseUpdateManyWithWhereWithoutOwnerInput | Prisma.ExpenseUpdateManyWithWhereWithoutOwnerInput[]
-  deleteMany?: Prisma.ExpenseScalarWhereInput | Prisma.ExpenseScalarWhereInput[]
-}
-
 export type ExpenseUncheckedUpdateManyWithoutCreatedByNestedInput = {
   create?: Prisma.XOR<Prisma.ExpenseCreateWithoutCreatedByInput, Prisma.ExpenseUncheckedCreateWithoutCreatedByInput> | Prisma.ExpenseCreateWithoutCreatedByInput[] | Prisma.ExpenseUncheckedCreateWithoutCreatedByInput[]
   connectOrCreate?: Prisma.ExpenseCreateOrConnectWithoutCreatedByInput | Prisma.ExpenseCreateOrConnectWithoutCreatedByInput[]
@@ -698,62 +644,6 @@ export type ExpenseUncheckedUpdateManyWithoutCreatedByNestedInput = {
   connect?: Prisma.ExpenseWhereUniqueInput | Prisma.ExpenseWhereUniqueInput[]
   update?: Prisma.ExpenseUpdateWithWhereUniqueWithoutCreatedByInput | Prisma.ExpenseUpdateWithWhereUniqueWithoutCreatedByInput[]
   updateMany?: Prisma.ExpenseUpdateManyWithWhereWithoutCreatedByInput | Prisma.ExpenseUpdateManyWithWhereWithoutCreatedByInput[]
-  deleteMany?: Prisma.ExpenseScalarWhereInput | Prisma.ExpenseScalarWhereInput[]
-}
-
-export type ExpenseUncheckedUpdateManyWithoutOwnerNestedInput = {
-  create?: Prisma.XOR<Prisma.ExpenseCreateWithoutOwnerInput, Prisma.ExpenseUncheckedCreateWithoutOwnerInput> | Prisma.ExpenseCreateWithoutOwnerInput[] | Prisma.ExpenseUncheckedCreateWithoutOwnerInput[]
-  connectOrCreate?: Prisma.ExpenseCreateOrConnectWithoutOwnerInput | Prisma.ExpenseCreateOrConnectWithoutOwnerInput[]
-  upsert?: Prisma.ExpenseUpsertWithWhereUniqueWithoutOwnerInput | Prisma.ExpenseUpsertWithWhereUniqueWithoutOwnerInput[]
-  createMany?: Prisma.ExpenseCreateManyOwnerInputEnvelope
-  set?: Prisma.ExpenseWhereUniqueInput | Prisma.ExpenseWhereUniqueInput[]
-  disconnect?: Prisma.ExpenseWhereUniqueInput | Prisma.ExpenseWhereUniqueInput[]
-  delete?: Prisma.ExpenseWhereUniqueInput | Prisma.ExpenseWhereUniqueInput[]
-  connect?: Prisma.ExpenseWhereUniqueInput | Prisma.ExpenseWhereUniqueInput[]
-  update?: Prisma.ExpenseUpdateWithWhereUniqueWithoutOwnerInput | Prisma.ExpenseUpdateWithWhereUniqueWithoutOwnerInput[]
-  updateMany?: Prisma.ExpenseUpdateManyWithWhereWithoutOwnerInput | Prisma.ExpenseUpdateManyWithWhereWithoutOwnerInput[]
-  deleteMany?: Prisma.ExpenseScalarWhereInput | Prisma.ExpenseScalarWhereInput[]
-}
-
-export type ExpenseCreateNestedManyWithoutHallInput = {
-  create?: Prisma.XOR<Prisma.ExpenseCreateWithoutHallInput, Prisma.ExpenseUncheckedCreateWithoutHallInput> | Prisma.ExpenseCreateWithoutHallInput[] | Prisma.ExpenseUncheckedCreateWithoutHallInput[]
-  connectOrCreate?: Prisma.ExpenseCreateOrConnectWithoutHallInput | Prisma.ExpenseCreateOrConnectWithoutHallInput[]
-  createMany?: Prisma.ExpenseCreateManyHallInputEnvelope
-  connect?: Prisma.ExpenseWhereUniqueInput | Prisma.ExpenseWhereUniqueInput[]
-}
-
-export type ExpenseUncheckedCreateNestedManyWithoutHallInput = {
-  create?: Prisma.XOR<Prisma.ExpenseCreateWithoutHallInput, Prisma.ExpenseUncheckedCreateWithoutHallInput> | Prisma.ExpenseCreateWithoutHallInput[] | Prisma.ExpenseUncheckedCreateWithoutHallInput[]
-  connectOrCreate?: Prisma.ExpenseCreateOrConnectWithoutHallInput | Prisma.ExpenseCreateOrConnectWithoutHallInput[]
-  createMany?: Prisma.ExpenseCreateManyHallInputEnvelope
-  connect?: Prisma.ExpenseWhereUniqueInput | Prisma.ExpenseWhereUniqueInput[]
-}
-
-export type ExpenseUpdateManyWithoutHallNestedInput = {
-  create?: Prisma.XOR<Prisma.ExpenseCreateWithoutHallInput, Prisma.ExpenseUncheckedCreateWithoutHallInput> | Prisma.ExpenseCreateWithoutHallInput[] | Prisma.ExpenseUncheckedCreateWithoutHallInput[]
-  connectOrCreate?: Prisma.ExpenseCreateOrConnectWithoutHallInput | Prisma.ExpenseCreateOrConnectWithoutHallInput[]
-  upsert?: Prisma.ExpenseUpsertWithWhereUniqueWithoutHallInput | Prisma.ExpenseUpsertWithWhereUniqueWithoutHallInput[]
-  createMany?: Prisma.ExpenseCreateManyHallInputEnvelope
-  set?: Prisma.ExpenseWhereUniqueInput | Prisma.ExpenseWhereUniqueInput[]
-  disconnect?: Prisma.ExpenseWhereUniqueInput | Prisma.ExpenseWhereUniqueInput[]
-  delete?: Prisma.ExpenseWhereUniqueInput | Prisma.ExpenseWhereUniqueInput[]
-  connect?: Prisma.ExpenseWhereUniqueInput | Prisma.ExpenseWhereUniqueInput[]
-  update?: Prisma.ExpenseUpdateWithWhereUniqueWithoutHallInput | Prisma.ExpenseUpdateWithWhereUniqueWithoutHallInput[]
-  updateMany?: Prisma.ExpenseUpdateManyWithWhereWithoutHallInput | Prisma.ExpenseUpdateManyWithWhereWithoutHallInput[]
-  deleteMany?: Prisma.ExpenseScalarWhereInput | Prisma.ExpenseScalarWhereInput[]
-}
-
-export type ExpenseUncheckedUpdateManyWithoutHallNestedInput = {
-  create?: Prisma.XOR<Prisma.ExpenseCreateWithoutHallInput, Prisma.ExpenseUncheckedCreateWithoutHallInput> | Prisma.ExpenseCreateWithoutHallInput[] | Prisma.ExpenseUncheckedCreateWithoutHallInput[]
-  connectOrCreate?: Prisma.ExpenseCreateOrConnectWithoutHallInput | Prisma.ExpenseCreateOrConnectWithoutHallInput[]
-  upsert?: Prisma.ExpenseUpsertWithWhereUniqueWithoutHallInput | Prisma.ExpenseUpsertWithWhereUniqueWithoutHallInput[]
-  createMany?: Prisma.ExpenseCreateManyHallInputEnvelope
-  set?: Prisma.ExpenseWhereUniqueInput | Prisma.ExpenseWhereUniqueInput[]
-  disconnect?: Prisma.ExpenseWhereUniqueInput | Prisma.ExpenseWhereUniqueInput[]
-  delete?: Prisma.ExpenseWhereUniqueInput | Prisma.ExpenseWhereUniqueInput[]
-  connect?: Prisma.ExpenseWhereUniqueInput | Prisma.ExpenseWhereUniqueInput[]
-  update?: Prisma.ExpenseUpdateWithWhereUniqueWithoutHallInput | Prisma.ExpenseUpdateWithWhereUniqueWithoutHallInput[]
-  updateMany?: Prisma.ExpenseUpdateManyWithWhereWithoutHallInput | Prisma.ExpenseUpdateManyWithWhereWithoutHallInput[]
   deleteMany?: Prisma.ExpenseScalarWhereInput | Prisma.ExpenseScalarWhereInput[]
 }
 
@@ -803,34 +693,32 @@ export type ExpenseCreateWithoutCreatedByInput = {
   id?: string
   amount: runtime.Decimal | runtime.DecimalJsLike | number | string
   description: string
-  expenseDate?: Date | string
+  expenseDate: Date | string
   category?: string | null
   imageUrl?: string | null
-  qoyodExpenseId?: string | null
+  ownerId?: string | null
   syncedToQoyod?: boolean
+  qoyodExpenseId?: string | null
   lastSyncAt?: Date | string | null
   isDeleted?: boolean
   deletedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   vendor?: Prisma.VendorCreateNestedOneWithoutExpensesInput
-  hall?: Prisma.HallCreateNestedOneWithoutExpensesInput
-  owner: Prisma.UserCreateNestedOneWithoutOwnedExpensesInput
 }
 
 export type ExpenseUncheckedCreateWithoutCreatedByInput = {
   id?: string
   amount: runtime.Decimal | runtime.DecimalJsLike | number | string
   description: string
-  expenseDate?: Date | string
+  expenseDate: Date | string
   category?: string | null
   imageUrl?: string | null
-  vendorId?: string | null
-  hallId?: string | null
-  ownerId: string
-  qoyodExpenseId?: string | null
+  ownerId?: string | null
   syncedToQoyod?: boolean
+  qoyodExpenseId?: string | null
   lastSyncAt?: Date | string | null
+  vendorId?: string | null
   isDeleted?: boolean
   deletedAt?: Date | string | null
   createdAt?: Date | string
@@ -844,54 +732,6 @@ export type ExpenseCreateOrConnectWithoutCreatedByInput = {
 
 export type ExpenseCreateManyCreatedByInputEnvelope = {
   data: Prisma.ExpenseCreateManyCreatedByInput | Prisma.ExpenseCreateManyCreatedByInput[]
-  skipDuplicates?: boolean
-}
-
-export type ExpenseCreateWithoutOwnerInput = {
-  id?: string
-  amount: runtime.Decimal | runtime.DecimalJsLike | number | string
-  description: string
-  expenseDate?: Date | string
-  category?: string | null
-  imageUrl?: string | null
-  qoyodExpenseId?: string | null
-  syncedToQoyod?: boolean
-  lastSyncAt?: Date | string | null
-  isDeleted?: boolean
-  deletedAt?: Date | string | null
-  createdAt?: Date | string
-  updatedAt?: Date | string
-  vendor?: Prisma.VendorCreateNestedOneWithoutExpensesInput
-  hall?: Prisma.HallCreateNestedOneWithoutExpensesInput
-  createdBy: Prisma.UserCreateNestedOneWithoutCreatedExpensesInput
-}
-
-export type ExpenseUncheckedCreateWithoutOwnerInput = {
-  id?: string
-  amount: runtime.Decimal | runtime.DecimalJsLike | number | string
-  description: string
-  expenseDate?: Date | string
-  category?: string | null
-  imageUrl?: string | null
-  vendorId?: string | null
-  hallId?: string | null
-  qoyodExpenseId?: string | null
-  syncedToQoyod?: boolean
-  lastSyncAt?: Date | string | null
-  isDeleted?: boolean
-  deletedAt?: Date | string | null
-  createdAt?: Date | string
-  updatedAt?: Date | string
-  createdById: string
-}
-
-export type ExpenseCreateOrConnectWithoutOwnerInput = {
-  where: Prisma.ExpenseWhereUniqueInput
-  create: Prisma.XOR<Prisma.ExpenseCreateWithoutOwnerInput, Prisma.ExpenseUncheckedCreateWithoutOwnerInput>
-}
-
-export type ExpenseCreateManyOwnerInputEnvelope = {
-  data: Prisma.ExpenseCreateManyOwnerInput | Prisma.ExpenseCreateManyOwnerInput[]
   skipDuplicates?: boolean
 }
 
@@ -921,115 +761,33 @@ export type ExpenseScalarWhereInput = {
   expenseDate?: Prisma.DateTimeFilter<"Expense"> | Date | string
   category?: Prisma.StringNullableFilter<"Expense"> | string | null
   imageUrl?: Prisma.StringNullableFilter<"Expense"> | string | null
-  vendorId?: Prisma.StringNullableFilter<"Expense"> | string | null
-  hallId?: Prisma.StringNullableFilter<"Expense"> | string | null
-  ownerId?: Prisma.StringFilter<"Expense"> | string
-  qoyodExpenseId?: Prisma.StringNullableFilter<"Expense"> | string | null
+  createdById?: Prisma.StringFilter<"Expense"> | string
+  ownerId?: Prisma.StringNullableFilter<"Expense"> | string | null
   syncedToQoyod?: Prisma.BoolFilter<"Expense"> | boolean
+  qoyodExpenseId?: Prisma.StringNullableFilter<"Expense"> | string | null
   lastSyncAt?: Prisma.DateTimeNullableFilter<"Expense"> | Date | string | null
+  vendorId?: Prisma.StringNullableFilter<"Expense"> | string | null
   isDeleted?: Prisma.BoolFilter<"Expense"> | boolean
   deletedAt?: Prisma.DateTimeNullableFilter<"Expense"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"Expense"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Expense"> | Date | string
-  createdById?: Prisma.StringFilter<"Expense"> | string
-}
-
-export type ExpenseUpsertWithWhereUniqueWithoutOwnerInput = {
-  where: Prisma.ExpenseWhereUniqueInput
-  update: Prisma.XOR<Prisma.ExpenseUpdateWithoutOwnerInput, Prisma.ExpenseUncheckedUpdateWithoutOwnerInput>
-  create: Prisma.XOR<Prisma.ExpenseCreateWithoutOwnerInput, Prisma.ExpenseUncheckedCreateWithoutOwnerInput>
-}
-
-export type ExpenseUpdateWithWhereUniqueWithoutOwnerInput = {
-  where: Prisma.ExpenseWhereUniqueInput
-  data: Prisma.XOR<Prisma.ExpenseUpdateWithoutOwnerInput, Prisma.ExpenseUncheckedUpdateWithoutOwnerInput>
-}
-
-export type ExpenseUpdateManyWithWhereWithoutOwnerInput = {
-  where: Prisma.ExpenseScalarWhereInput
-  data: Prisma.XOR<Prisma.ExpenseUpdateManyMutationInput, Prisma.ExpenseUncheckedUpdateManyWithoutOwnerInput>
-}
-
-export type ExpenseCreateWithoutHallInput = {
-  id?: string
-  amount: runtime.Decimal | runtime.DecimalJsLike | number | string
-  description: string
-  expenseDate?: Date | string
-  category?: string | null
-  imageUrl?: string | null
-  qoyodExpenseId?: string | null
-  syncedToQoyod?: boolean
-  lastSyncAt?: Date | string | null
-  isDeleted?: boolean
-  deletedAt?: Date | string | null
-  createdAt?: Date | string
-  updatedAt?: Date | string
-  vendor?: Prisma.VendorCreateNestedOneWithoutExpensesInput
-  owner: Prisma.UserCreateNestedOneWithoutOwnedExpensesInput
-  createdBy: Prisma.UserCreateNestedOneWithoutCreatedExpensesInput
-}
-
-export type ExpenseUncheckedCreateWithoutHallInput = {
-  id?: string
-  amount: runtime.Decimal | runtime.DecimalJsLike | number | string
-  description: string
-  expenseDate?: Date | string
-  category?: string | null
-  imageUrl?: string | null
-  vendorId?: string | null
-  ownerId: string
-  qoyodExpenseId?: string | null
-  syncedToQoyod?: boolean
-  lastSyncAt?: Date | string | null
-  isDeleted?: boolean
-  deletedAt?: Date | string | null
-  createdAt?: Date | string
-  updatedAt?: Date | string
-  createdById: string
-}
-
-export type ExpenseCreateOrConnectWithoutHallInput = {
-  where: Prisma.ExpenseWhereUniqueInput
-  create: Prisma.XOR<Prisma.ExpenseCreateWithoutHallInput, Prisma.ExpenseUncheckedCreateWithoutHallInput>
-}
-
-export type ExpenseCreateManyHallInputEnvelope = {
-  data: Prisma.ExpenseCreateManyHallInput | Prisma.ExpenseCreateManyHallInput[]
-  skipDuplicates?: boolean
-}
-
-export type ExpenseUpsertWithWhereUniqueWithoutHallInput = {
-  where: Prisma.ExpenseWhereUniqueInput
-  update: Prisma.XOR<Prisma.ExpenseUpdateWithoutHallInput, Prisma.ExpenseUncheckedUpdateWithoutHallInput>
-  create: Prisma.XOR<Prisma.ExpenseCreateWithoutHallInput, Prisma.ExpenseUncheckedCreateWithoutHallInput>
-}
-
-export type ExpenseUpdateWithWhereUniqueWithoutHallInput = {
-  where: Prisma.ExpenseWhereUniqueInput
-  data: Prisma.XOR<Prisma.ExpenseUpdateWithoutHallInput, Prisma.ExpenseUncheckedUpdateWithoutHallInput>
-}
-
-export type ExpenseUpdateManyWithWhereWithoutHallInput = {
-  where: Prisma.ExpenseScalarWhereInput
-  data: Prisma.XOR<Prisma.ExpenseUpdateManyMutationInput, Prisma.ExpenseUncheckedUpdateManyWithoutHallInput>
 }
 
 export type ExpenseCreateWithoutVendorInput = {
   id?: string
   amount: runtime.Decimal | runtime.DecimalJsLike | number | string
   description: string
-  expenseDate?: Date | string
+  expenseDate: Date | string
   category?: string | null
   imageUrl?: string | null
-  qoyodExpenseId?: string | null
+  ownerId?: string | null
   syncedToQoyod?: boolean
+  qoyodExpenseId?: string | null
   lastSyncAt?: Date | string | null
   isDeleted?: boolean
   deletedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
-  hall?: Prisma.HallCreateNestedOneWithoutExpensesInput
-  owner: Prisma.UserCreateNestedOneWithoutOwnedExpensesInput
   createdBy: Prisma.UserCreateNestedOneWithoutCreatedExpensesInput
 }
 
@@ -1037,19 +795,18 @@ export type ExpenseUncheckedCreateWithoutVendorInput = {
   id?: string
   amount: runtime.Decimal | runtime.DecimalJsLike | number | string
   description: string
-  expenseDate?: Date | string
+  expenseDate: Date | string
   category?: string | null
   imageUrl?: string | null
-  hallId?: string | null
-  ownerId: string
-  qoyodExpenseId?: string | null
+  createdById: string
+  ownerId?: string | null
   syncedToQoyod?: boolean
+  qoyodExpenseId?: string | null
   lastSyncAt?: Date | string | null
   isDeleted?: boolean
   deletedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
-  createdById: string
 }
 
 export type ExpenseCreateOrConnectWithoutVendorInput = {
@@ -1082,38 +839,18 @@ export type ExpenseCreateManyCreatedByInput = {
   id?: string
   amount: runtime.Decimal | runtime.DecimalJsLike | number | string
   description: string
-  expenseDate?: Date | string
+  expenseDate: Date | string
   category?: string | null
   imageUrl?: string | null
-  vendorId?: string | null
-  hallId?: string | null
-  ownerId: string
-  qoyodExpenseId?: string | null
+  ownerId?: string | null
   syncedToQoyod?: boolean
+  qoyodExpenseId?: string | null
   lastSyncAt?: Date | string | null
+  vendorId?: string | null
   isDeleted?: boolean
   deletedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
-}
-
-export type ExpenseCreateManyOwnerInput = {
-  id?: string
-  amount: runtime.Decimal | runtime.DecimalJsLike | number | string
-  description: string
-  expenseDate?: Date | string
-  category?: string | null
-  imageUrl?: string | null
-  vendorId?: string | null
-  hallId?: string | null
-  qoyodExpenseId?: string | null
-  syncedToQoyod?: boolean
-  lastSyncAt?: Date | string | null
-  isDeleted?: boolean
-  deletedAt?: Date | string | null
-  createdAt?: Date | string
-  updatedAt?: Date | string
-  createdById: string
 }
 
 export type ExpenseUpdateWithoutCreatedByInput = {
@@ -1123,16 +860,15 @@ export type ExpenseUpdateWithoutCreatedByInput = {
   expenseDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  qoyodExpenseId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  ownerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   syncedToQoyod?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  qoyodExpenseId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   lastSyncAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   vendor?: Prisma.VendorUpdateOneWithoutExpensesNestedInput
-  hall?: Prisma.HallUpdateOneWithoutExpensesNestedInput
-  owner?: Prisma.UserUpdateOneRequiredWithoutOwnedExpensesNestedInput
 }
 
 export type ExpenseUncheckedUpdateWithoutCreatedByInput = {
@@ -1142,12 +878,11 @@ export type ExpenseUncheckedUpdateWithoutCreatedByInput = {
   expenseDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  vendorId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  hallId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  ownerId?: Prisma.StringFieldUpdateOperationsInput | string
-  qoyodExpenseId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  ownerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   syncedToQoyod?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  qoyodExpenseId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   lastSyncAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  vendorId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1161,168 +896,33 @@ export type ExpenseUncheckedUpdateManyWithoutCreatedByInput = {
   expenseDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  ownerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  syncedToQoyod?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  qoyodExpenseId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastSyncAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   vendorId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  hallId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  ownerId?: Prisma.StringFieldUpdateOperationsInput | string
-  qoyodExpenseId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  syncedToQoyod?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  lastSyncAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-}
-
-export type ExpenseUpdateWithoutOwnerInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
-  amount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
-  description?: Prisma.StringFieldUpdateOperationsInput | string
-  expenseDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  qoyodExpenseId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  syncedToQoyod?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  lastSyncAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  vendor?: Prisma.VendorUpdateOneWithoutExpensesNestedInput
-  hall?: Prisma.HallUpdateOneWithoutExpensesNestedInput
-  createdBy?: Prisma.UserUpdateOneRequiredWithoutCreatedExpensesNestedInput
-}
-
-export type ExpenseUncheckedUpdateWithoutOwnerInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
-  amount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
-  description?: Prisma.StringFieldUpdateOperationsInput | string
-  expenseDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  vendorId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  hallId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  qoyodExpenseId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  syncedToQoyod?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  lastSyncAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  createdById?: Prisma.StringFieldUpdateOperationsInput | string
-}
-
-export type ExpenseUncheckedUpdateManyWithoutOwnerInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
-  amount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
-  description?: Prisma.StringFieldUpdateOperationsInput | string
-  expenseDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  vendorId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  hallId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  qoyodExpenseId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  syncedToQoyod?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  lastSyncAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  createdById?: Prisma.StringFieldUpdateOperationsInput | string
-}
-
-export type ExpenseCreateManyHallInput = {
-  id?: string
-  amount: runtime.Decimal | runtime.DecimalJsLike | number | string
-  description: string
-  expenseDate?: Date | string
-  category?: string | null
-  imageUrl?: string | null
-  vendorId?: string | null
-  ownerId: string
-  qoyodExpenseId?: string | null
-  syncedToQoyod?: boolean
-  lastSyncAt?: Date | string | null
-  isDeleted?: boolean
-  deletedAt?: Date | string | null
-  createdAt?: Date | string
-  updatedAt?: Date | string
-  createdById: string
-}
-
-export type ExpenseUpdateWithoutHallInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
-  amount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
-  description?: Prisma.StringFieldUpdateOperationsInput | string
-  expenseDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  qoyodExpenseId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  syncedToQoyod?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  lastSyncAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  vendor?: Prisma.VendorUpdateOneWithoutExpensesNestedInput
-  owner?: Prisma.UserUpdateOneRequiredWithoutOwnedExpensesNestedInput
-  createdBy?: Prisma.UserUpdateOneRequiredWithoutCreatedExpensesNestedInput
-}
-
-export type ExpenseUncheckedUpdateWithoutHallInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
-  amount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
-  description?: Prisma.StringFieldUpdateOperationsInput | string
-  expenseDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  vendorId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  ownerId?: Prisma.StringFieldUpdateOperationsInput | string
-  qoyodExpenseId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  syncedToQoyod?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  lastSyncAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  createdById?: Prisma.StringFieldUpdateOperationsInput | string
-}
-
-export type ExpenseUncheckedUpdateManyWithoutHallInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
-  amount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
-  description?: Prisma.StringFieldUpdateOperationsInput | string
-  expenseDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  vendorId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  ownerId?: Prisma.StringFieldUpdateOperationsInput | string
-  qoyodExpenseId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  syncedToQoyod?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  lastSyncAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  createdById?: Prisma.StringFieldUpdateOperationsInput | string
 }
 
 export type ExpenseCreateManyVendorInput = {
   id?: string
   amount: runtime.Decimal | runtime.DecimalJsLike | number | string
   description: string
-  expenseDate?: Date | string
+  expenseDate: Date | string
   category?: string | null
   imageUrl?: string | null
-  hallId?: string | null
-  ownerId: string
-  qoyodExpenseId?: string | null
+  createdById: string
+  ownerId?: string | null
   syncedToQoyod?: boolean
+  qoyodExpenseId?: string | null
   lastSyncAt?: Date | string | null
   isDeleted?: boolean
   deletedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
-  createdById: string
 }
 
 export type ExpenseUpdateWithoutVendorInput = {
@@ -1332,15 +932,14 @@ export type ExpenseUpdateWithoutVendorInput = {
   expenseDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  qoyodExpenseId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  ownerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   syncedToQoyod?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  qoyodExpenseId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   lastSyncAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  hall?: Prisma.HallUpdateOneWithoutExpensesNestedInput
-  owner?: Prisma.UserUpdateOneRequiredWithoutOwnedExpensesNestedInput
   createdBy?: Prisma.UserUpdateOneRequiredWithoutCreatedExpensesNestedInput
 }
 
@@ -1351,16 +950,15 @@ export type ExpenseUncheckedUpdateWithoutVendorInput = {
   expenseDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  hallId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  ownerId?: Prisma.StringFieldUpdateOperationsInput | string
-  qoyodExpenseId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdById?: Prisma.StringFieldUpdateOperationsInput | string
+  ownerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   syncedToQoyod?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  qoyodExpenseId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   lastSyncAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  createdById?: Prisma.StringFieldUpdateOperationsInput | string
 }
 
 export type ExpenseUncheckedUpdateManyWithoutVendorInput = {
@@ -1370,16 +968,15 @@ export type ExpenseUncheckedUpdateManyWithoutVendorInput = {
   expenseDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  hallId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  ownerId?: Prisma.StringFieldUpdateOperationsInput | string
-  qoyodExpenseId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdById?: Prisma.StringFieldUpdateOperationsInput | string
+  ownerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   syncedToQoyod?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  qoyodExpenseId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   lastSyncAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  createdById?: Prisma.StringFieldUpdateOperationsInput | string
 }
 
 
@@ -1391,21 +988,18 @@ export type ExpenseSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs 
   expenseDate?: boolean
   category?: boolean
   imageUrl?: boolean
-  vendorId?: boolean
-  hallId?: boolean
+  createdById?: boolean
   ownerId?: boolean
-  qoyodExpenseId?: boolean
   syncedToQoyod?: boolean
+  qoyodExpenseId?: boolean
   lastSyncAt?: boolean
+  vendorId?: boolean
   isDeleted?: boolean
   deletedAt?: boolean
   createdAt?: boolean
   updatedAt?: boolean
-  createdById?: boolean
-  vendor?: boolean | Prisma.Expense$vendorArgs<ExtArgs>
-  hall?: boolean | Prisma.Expense$hallArgs<ExtArgs>
-  owner?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   createdBy?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+  vendor?: boolean | Prisma.Expense$vendorArgs<ExtArgs>
 }, ExtArgs["result"]["expense"]>
 
 export type ExpenseSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -1415,21 +1009,18 @@ export type ExpenseSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exten
   expenseDate?: boolean
   category?: boolean
   imageUrl?: boolean
-  vendorId?: boolean
-  hallId?: boolean
+  createdById?: boolean
   ownerId?: boolean
-  qoyodExpenseId?: boolean
   syncedToQoyod?: boolean
+  qoyodExpenseId?: boolean
   lastSyncAt?: boolean
+  vendorId?: boolean
   isDeleted?: boolean
   deletedAt?: boolean
   createdAt?: boolean
   updatedAt?: boolean
-  createdById?: boolean
-  vendor?: boolean | Prisma.Expense$vendorArgs<ExtArgs>
-  hall?: boolean | Prisma.Expense$hallArgs<ExtArgs>
-  owner?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   createdBy?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+  vendor?: boolean | Prisma.Expense$vendorArgs<ExtArgs>
 }, ExtArgs["result"]["expense"]>
 
 export type ExpenseSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -1439,21 +1030,18 @@ export type ExpenseSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exten
   expenseDate?: boolean
   category?: boolean
   imageUrl?: boolean
-  vendorId?: boolean
-  hallId?: boolean
+  createdById?: boolean
   ownerId?: boolean
-  qoyodExpenseId?: boolean
   syncedToQoyod?: boolean
+  qoyodExpenseId?: boolean
   lastSyncAt?: boolean
+  vendorId?: boolean
   isDeleted?: boolean
   deletedAt?: boolean
   createdAt?: boolean
   updatedAt?: boolean
-  createdById?: boolean
-  vendor?: boolean | Prisma.Expense$vendorArgs<ExtArgs>
-  hall?: boolean | Prisma.Expense$hallArgs<ExtArgs>
-  owner?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   createdBy?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+  vendor?: boolean | Prisma.Expense$vendorArgs<ExtArgs>
 }, ExtArgs["result"]["expense"]>
 
 export type ExpenseSelectScalar = {
@@ -1463,46 +1051,37 @@ export type ExpenseSelectScalar = {
   expenseDate?: boolean
   category?: boolean
   imageUrl?: boolean
-  vendorId?: boolean
-  hallId?: boolean
+  createdById?: boolean
   ownerId?: boolean
-  qoyodExpenseId?: boolean
   syncedToQoyod?: boolean
+  qoyodExpenseId?: boolean
   lastSyncAt?: boolean
+  vendorId?: boolean
   isDeleted?: boolean
   deletedAt?: boolean
   createdAt?: boolean
   updatedAt?: boolean
-  createdById?: boolean
 }
 
-export type ExpenseOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "amount" | "description" | "expenseDate" | "category" | "imageUrl" | "vendorId" | "hallId" | "ownerId" | "qoyodExpenseId" | "syncedToQoyod" | "lastSyncAt" | "isDeleted" | "deletedAt" | "createdAt" | "updatedAt" | "createdById", ExtArgs["result"]["expense"]>
+export type ExpenseOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "amount" | "description" | "expenseDate" | "category" | "imageUrl" | "createdById" | "ownerId" | "syncedToQoyod" | "qoyodExpenseId" | "lastSyncAt" | "vendorId" | "isDeleted" | "deletedAt" | "createdAt" | "updatedAt", ExtArgs["result"]["expense"]>
 export type ExpenseInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  vendor?: boolean | Prisma.Expense$vendorArgs<ExtArgs>
-  hall?: boolean | Prisma.Expense$hallArgs<ExtArgs>
-  owner?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   createdBy?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+  vendor?: boolean | Prisma.Expense$vendorArgs<ExtArgs>
 }
 export type ExpenseIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  vendor?: boolean | Prisma.Expense$vendorArgs<ExtArgs>
-  hall?: boolean | Prisma.Expense$hallArgs<ExtArgs>
-  owner?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   createdBy?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+  vendor?: boolean | Prisma.Expense$vendorArgs<ExtArgs>
 }
 export type ExpenseIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  vendor?: boolean | Prisma.Expense$vendorArgs<ExtArgs>
-  hall?: boolean | Prisma.Expense$hallArgs<ExtArgs>
-  owner?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   createdBy?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+  vendor?: boolean | Prisma.Expense$vendorArgs<ExtArgs>
 }
 
 export type $ExpensePayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "Expense"
   objects: {
-    vendor: Prisma.$VendorPayload<ExtArgs> | null
-    hall: Prisma.$HallPayload<ExtArgs> | null
-    owner: Prisma.$UserPayload<ExtArgs>
     createdBy: Prisma.$UserPayload<ExtArgs>
+    vendor: Prisma.$VendorPayload<ExtArgs> | null
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -1511,17 +1090,16 @@ export type $ExpensePayload<ExtArgs extends runtime.Types.Extensions.InternalArg
     expenseDate: Date
     category: string | null
     imageUrl: string | null
-    vendorId: string | null
-    hallId: string | null
-    ownerId: string
-    qoyodExpenseId: string | null
+    createdById: string
+    ownerId: string | null
     syncedToQoyod: boolean
+    qoyodExpenseId: string | null
     lastSyncAt: Date | null
+    vendorId: string | null
     isDeleted: boolean
     deletedAt: Date | null
     createdAt: Date
     updatedAt: Date
-    createdById: string
   }, ExtArgs["result"]["expense"]>
   composites: {}
 }
@@ -1916,10 +1494,8 @@ readonly fields: ExpenseFieldRefs;
  */
 export interface Prisma__ExpenseClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
-  vendor<T extends Prisma.Expense$vendorArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Expense$vendorArgs<ExtArgs>>): Prisma.Prisma__VendorClient<runtime.Types.Result.GetResult<Prisma.$VendorPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
-  hall<T extends Prisma.Expense$hallArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Expense$hallArgs<ExtArgs>>): Prisma.Prisma__HallClient<runtime.Types.Result.GetResult<Prisma.$HallPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
-  owner<T extends Prisma.UserDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.UserDefaultArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   createdBy<T extends Prisma.UserDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.UserDefaultArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+  vendor<T extends Prisma.Expense$vendorArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Expense$vendorArgs<ExtArgs>>): Prisma.Prisma__VendorClient<runtime.Types.Result.GetResult<Prisma.$VendorPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1955,17 +1531,16 @@ export interface ExpenseFieldRefs {
   readonly expenseDate: Prisma.FieldRef<"Expense", 'DateTime'>
   readonly category: Prisma.FieldRef<"Expense", 'String'>
   readonly imageUrl: Prisma.FieldRef<"Expense", 'String'>
-  readonly vendorId: Prisma.FieldRef<"Expense", 'String'>
-  readonly hallId: Prisma.FieldRef<"Expense", 'String'>
+  readonly createdById: Prisma.FieldRef<"Expense", 'String'>
   readonly ownerId: Prisma.FieldRef<"Expense", 'String'>
-  readonly qoyodExpenseId: Prisma.FieldRef<"Expense", 'String'>
   readonly syncedToQoyod: Prisma.FieldRef<"Expense", 'Boolean'>
+  readonly qoyodExpenseId: Prisma.FieldRef<"Expense", 'String'>
   readonly lastSyncAt: Prisma.FieldRef<"Expense", 'DateTime'>
+  readonly vendorId: Prisma.FieldRef<"Expense", 'String'>
   readonly isDeleted: Prisma.FieldRef<"Expense", 'Boolean'>
   readonly deletedAt: Prisma.FieldRef<"Expense", 'DateTime'>
   readonly createdAt: Prisma.FieldRef<"Expense", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"Expense", 'DateTime'>
-  readonly createdById: Prisma.FieldRef<"Expense", 'String'>
 }
     
 
@@ -2378,25 +1953,6 @@ export type Expense$vendorArgs<ExtArgs extends runtime.Types.Extensions.Internal
    */
   include?: Prisma.VendorInclude<ExtArgs> | null
   where?: Prisma.VendorWhereInput
-}
-
-/**
- * Expense.hall
- */
-export type Expense$hallArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  /**
-   * Select specific fields to fetch from the Hall
-   */
-  select?: Prisma.HallSelect<ExtArgs> | null
-  /**
-   * Omit specific fields from the Hall
-   */
-  omit?: Prisma.HallOmit<ExtArgs> | null
-  /**
-   * Choose, which related nodes to fetch as well
-   */
-  include?: Prisma.HallInclude<ExtArgs> | null
-  where?: Prisma.HallWhereInput
 }
 
 /**

@@ -138,6 +138,7 @@ export default function ContractPage() {
 
     const [booking, setBooking] = useState<BookingData | null>(null)
     const [companySettings, setCompanySettings] = useState<CompanySettings | null>(null)
+    const [totalPaid, setTotalPaid] = useState(0)
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState<string | null>(null)
 
@@ -182,6 +183,19 @@ export default function ContractPage() {
                 } else {
                     setBooking(found)
                     setCompanySettings(settings)
+
+                    // Fetch payments for this booking to calculate paid amount
+                    try {
+                        const paymentsRes = await fetch('/api/payments')
+                        if (paymentsRes.ok) {
+                            const allPayments = await paymentsRes.json()
+                            const bookingPayments = allPayments.filter((p: any) => p.bookingId === bookingId)
+                            const paidSum = bookingPayments.reduce((sum: number, p: any) => sum + Number(p.amount), 0)
+                            setTotalPaid(paidSum)
+                        }
+                    } catch (e) {
+                        console.warn('Could not fetch payments')
+                    }
                 }
             } catch (err) {
                 console.error(err)
@@ -217,8 +231,8 @@ export default function ContractPage() {
         )
     }
 
-    // Check if fully paid (for now, check if status is CONFIRMED or finalAmount - downPayment <= 0)
-    const remainingAmount = booking.finalAmount - booking.downPayment
+    // Check if fully paid based on actual payments
+    const remainingAmount = booking.finalAmount - totalPaid
     const isFullyPaid = remainingAmount <= 0 || booking.status === 'COMPLETED'
 
     // If not fully paid, show warning but still allow viewing (as per common business practice)
@@ -297,10 +311,15 @@ export default function ContractPage() {
                     {!isFullyPaid && (
                         <span className="text-amber-600 text-sm flex items-center gap-1">
                             <AlertCircle className="h-4 w-4" />
-                            لم يتم السداد بالكامل
+                            لم يتم السداد بالكامل - المتبقي: {remainingAmount.toLocaleString()} ر.س
                         </span>
                     )}
-                    <Button onClick={handlePrint} className="gap-2 bg-blue-700 text-white hover:bg-blue-800">
+                    <Button
+                        onClick={handlePrint}
+                        className="gap-2 bg-blue-700 text-white hover:bg-blue-800 disabled:opacity-50 disabled:cursor-not-allowed"
+                        disabled={!isFullyPaid}
+                        title={!isFullyPaid ? 'لا يمكن طباعة العقد قبل اكتمال السداد' : 'طباعة العقد'}
+                    >
                         <Printer className="h-4 w-4 text-white" />
                         طباعة
                     </Button>

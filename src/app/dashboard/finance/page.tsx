@@ -23,6 +23,7 @@ import {
 interface Invoice {
     id: string
     invoiceNumber: string
+    bookingId: string
     bookingNumber: string
     hallName: string
     customerName: string
@@ -99,6 +100,12 @@ export default function FinancePage() {
         paymentDate: new Date().toISOString().split('T')[0],
         notes: ''
     })
+    const [invoiceForm, setInvoiceForm] = useState({
+        bookingId: '',
+        amount: '',
+        paymentMethod: 'CASH',
+        notes: ''
+    })
     const [saving, setSaving] = useState(false)
 
     const fetchData = async () => {
@@ -155,18 +162,24 @@ export default function FinancePage() {
 
     // Create Invoice
     const handleCreateInvoice = async () => {
-        if (!selectedBookingId) return
+        if (!invoiceForm.bookingId || !invoiceForm.amount) return
         setSaving(true)
 
         try {
             const response = await fetch('/api/invoices', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ bookingId: selectedBookingId })
+                body: JSON.stringify({
+                    bookingId: invoiceForm.bookingId,
+                    amount: invoiceForm.amount,
+                    paymentMethod: invoiceForm.paymentMethod,
+                    notes: invoiceForm.notes
+                })
             })
 
             if (response.ok) {
                 setShowInvoiceModal(false)
+                setInvoiceForm({ bookingId: '', amount: '', paymentMethod: 'CASH', notes: '' })
                 setSelectedBookingId('')
                 fetchData()
             } else {
@@ -479,22 +492,13 @@ export default function FinancePage() {
                     </p>
                 </div>
 
-                <div className="flex gap-2">
-                    <button
-                        onClick={() => setShowInvoiceModal(true)}
-                        className="btn-secondary flex items-center gap-2"
-                    >
-                        <FileText size={18} />
-                        إصدار فاتورة
-                    </button>
-                    <button
-                        onClick={() => setShowPaymentModal(true)}
-                        className="btn-primary flex items-center gap-2"
-                    >
-                        <Plus size={18} />
-                        تسجيل دفعة
-                    </button>
-                </div>
+                <button
+                    onClick={() => setShowInvoiceModal(true)}
+                    className="btn-primary flex items-center gap-2"
+                >
+                    <Plus size={18} />
+                    إصدار فاتورة
+                </button>
             </div>
 
             {/* Stats Cards */}
@@ -556,29 +560,7 @@ export default function FinancePage() {
                 </Card>
             </div>
 
-            {/* Tabs */}
-            <div className="flex gap-4 border-b border-[var(--border-color)]">
-                <button
-                    onClick={() => setActiveTab('invoices')}
-                    className={`pb-3 px-4 font-medium transition-colors ${activeTab === 'invoices'
-                        ? 'text-[var(--primary-600)] border-b-2 border-[var(--primary-600)]'
-                        : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
-                        }`}
-                >
-                    <FileText size={18} className="inline ml-2" />
-                    الفواتير
-                </button>
-                <button
-                    onClick={() => setActiveTab('payments')}
-                    className={`pb-3 px-4 font-medium transition-colors ${activeTab === 'payments'
-                        ? 'text-[var(--primary-600)] border-b-2 border-[var(--primary-600)]'
-                        : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
-                        }`}
-                >
-                    <CreditCard size={18} className="inline ml-2" />
-                    المدفوعات
-                </button>
-            </div>
+
 
             {/* Search */}
             <Card className="bg-white border border-[var(--border-color)]">
@@ -587,7 +569,7 @@ export default function FinancePage() {
                         <Search className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
                         <input
                             type="text"
-                            placeholder={activeTab === 'invoices' ? 'بحث برقم الفاتورة أو العميل...' : 'بحث برقم السند أو العميل...'}
+                            placeholder="بحث برقم الفاتورة أو العميل..."
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
                             className="form-input pr-10 w-full"
@@ -596,188 +578,109 @@ export default function FinancePage() {
                 </CardContent>
             </Card>
 
-            {/* Invoices Tab */}
-            {activeTab === 'invoices' && (
-                <Card className="bg-white border border-[var(--border-color)]">
-                    <CardContent className="p-0">
-                        <div className="overflow-x-auto">
-                            <table className="table">
-                                <thead>
-                                    <tr>
-                                        <th>رقم الفاتورة</th>
-                                        <th>العميل</th>
-                                        <th>الحجز</th>
-                                        <th>المبلغ</th>
-                                        <th>المدفوع</th>
-                                        <th>الحالة</th>
-                                        <th>قيود</th>
-                                        <th>الإجراءات</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {filteredInvoices.map(invoice => (
-                                        <tr key={invoice.id}>
-                                            <td className="font-medium text-[var(--primary-700)]">{invoice.invoiceNumber}</td>
-                                            <td>{invoice.customerName}</td>
-                                            <td>{invoice.bookingNumber}</td>
-                                            <td className="font-bold">{invoice.totalAmount.toLocaleString()} ر.س</td>
-                                            <td className="text-green-600">{invoice.paidAmount.toLocaleString()} ر.س</td>
-                                            <td>
-                                                <span className={`
+            {/* Invoices List */}
+            <Card className="bg-white border border-[var(--border-color)]">
+                <CardContent className="p-0">
+                    <div className="overflow-x-auto">
+                        <table className="table">
+                            <thead>
+                                <tr>
+                                    <th>رقم الفاتورة</th>
+                                    <th>العميل</th>
+                                    <th>الحجز</th>
+                                    <th>المبلغ</th>
+                                    <th>المدفوع</th>
+                                    <th>الحالة</th>
+                                    <th>قيود</th>
+                                    <th>الإجراءات</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {filteredInvoices.map(invoice => (
+                                    <tr key={invoice.id}>
+                                        <td className="font-medium text-[var(--primary-700)]">{invoice.invoiceNumber}</td>
+                                        <td>{invoice.customerName}</td>
+                                        <td>{invoice.bookingNumber}</td>
+                                        <td className="font-bold">{invoice.totalAmount.toLocaleString()} ر.س</td>
+                                        <td className="text-green-600">{invoice.paidAmount.toLocaleString()} ر.س</td>
+                                        <td>
+                                            <span className={`
                                                     inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium
                                                     ${INVOICE_STATUS[invoice.status]?.color || 'bg-gray-100 text-gray-700'}
                                                 `}>
-                                                    {INVOICE_STATUS[invoice.status]?.icon}
-                                                    {INVOICE_STATUS[invoice.status]?.label || invoice.status}
-                                                </span>
-                                            </td>
-                                            <td>
-                                                {invoice.syncedToQoyod ? (
-                                                    <div className="flex items-center gap-1">
-                                                        <span className="inline-flex items-center gap-1 text-green-600" title="تمت المزامنة مع قيود">
-                                                            <CheckCircle size={16} />
-                                                        </span>
-                                                        <button
-                                                            onClick={() => handleDeleteFromQoyod(invoice.id)}
-                                                            className="p-1 text-gray-500 hover:bg-gray-100 rounded"
-                                                            title="حذف من قيود (مسودة فقط)"
-                                                            disabled={saving}
-                                                        >
-                                                            <Trash2 size={14} />
-                                                        </button>
-                                                        <button
-                                                            onClick={() => handleCancelInvoice(invoice.id)}
-                                                            className="p-1 text-red-500 hover:bg-red-50 rounded"
-                                                            title="إلغاء الفاتورة (إشعار دائن)"
-                                                            disabled={saving}
-                                                        >
-                                                            <XCircle size={14} />
-                                                        </button>
-                                                    </div>
-                                                ) : (
-                                                    <button
-                                                        onClick={() => handleSyncToQoyod('invoice', invoice.id)}
-                                                        className="inline-flex items-center gap-1 text-yellow-600 hover:text-blue-600"
-                                                        title="مزامنة مع قيود"
-                                                        disabled={saving}
-                                                    >
-                                                        <RefreshCw size={16} className={saving ? 'animate-spin' : ''} />
-                                                        <span className="text-xs">مزامنة</span>
-                                                    </button>
-                                                )}
-                                            </td>
-                                            <td>
-                                                <div className="flex gap-1">
-                                                    <button
-                                                        onClick={() => setShowViewInvoice(invoice)}
-                                                        className="p-2 hover:bg-gray-100 rounded-md"
-                                                        title="عرض"
-                                                    >
-                                                        <Eye size={16} className="text-gray-500" />
-                                                    </button>
-                                                    <button
-                                                        onClick={() => printInvoice(invoice)}
-                                                        className="p-2 hover:bg-gray-100 rounded-md"
-                                                        title="طباعة"
-                                                    >
-                                                        <Printer size={16} className="text-gray-500" />
-                                                    </button>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                    ))}
-                                </tbody>
-                            </table>
-                        </div>
-
-                        {filteredInvoices.length === 0 && (
-                            <div className="flex flex-col items-center justify-center py-12">
-                                <FileText className="text-gray-300 mb-4" size={64} />
-                                <p className="text-[var(--text-secondary)]">لا توجد فواتير</p>
-                            </div>
-                        )}
-                    </CardContent>
-                </Card>
-            )}
-
-            {/* Payments Tab */}
-            {activeTab === 'payments' && (
-                <Card className="bg-white border border-[var(--border-color)]">
-                    <CardContent className="p-0">
-                        <div className="overflow-x-auto">
-                            <table className="table">
-                                <thead>
-                                    <tr>
-                                        <th>رقم السند</th>
-                                        <th>العميل</th>
-                                        <th>الحجز</th>
-                                        <th>المبلغ</th>
-                                        <th>طريقة الدفع</th>
-                                        <th>التاريخ</th>
-                                        <th>قيود</th>
-                                        <th>الإجراءات</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {filteredPayments.map(payment => (
-                                        <tr key={payment.id}>
-                                            <td className="font-medium text-[var(--primary-700)]">{payment.paymentNumber}</td>
-                                            <td>{payment.customerName}</td>
-                                            <td>{payment.bookingNumber}</td>
-                                            <td className="font-bold text-green-600">{payment.amount.toLocaleString()} ر.س</td>
-                                            <td>{PAYMENT_METHODS[payment.paymentMethod] || payment.paymentMethod}</td>
-                                            <td>{new Date(payment.paymentDate).toLocaleDateString('ar-SA')}</td>
-                                            <td>
-                                                {payment.syncedToQoyod ? (
+                                                {INVOICE_STATUS[invoice.status]?.icon}
+                                                {INVOICE_STATUS[invoice.status]?.label || invoice.status}
+                                            </span>
+                                        </td>
+                                        <td>
+                                            {invoice.syncedToQoyod ? (
+                                                <div className="flex items-center gap-1">
                                                     <span className="inline-flex items-center gap-1 text-green-600" title="تمت المزامنة مع قيود">
                                                         <CheckCircle size={16} />
-                                                        <span className="text-xs">تم</span>
                                                     </span>
-                                                ) : (
                                                     <button
-                                                        onClick={() => handleSyncToQoyod('payment', payment.id)}
-                                                        className="inline-flex items-center gap-1 text-yellow-600 hover:text-blue-600"
-                                                        title="مزامنة مع قيود"
+                                                        onClick={() => handleDeleteFromQoyod(invoice.id)}
+                                                        className="p-1 text-gray-500 hover:bg-gray-100 rounded"
+                                                        title="حذف من قيود (مسودة فقط)"
                                                         disabled={saving}
                                                     >
-                                                        <RefreshCw size={16} className={saving ? 'animate-spin' : ''} />
-                                                        <span className="text-xs">مزامنة</span>
-                                                    </button>
-                                                )}
-                                            </td>
-                                            <td>
-                                                <div className="flex gap-1">
-                                                    <button
-                                                        onClick={() => setShowViewPayment(payment)}
-                                                        className="p-2 hover:bg-gray-100 rounded-md"
-                                                        title="عرض"
-                                                    >
-                                                        <Eye size={16} className="text-gray-500" />
+                                                        <Trash2 size={14} />
                                                     </button>
                                                     <button
-                                                        onClick={() => printReceipt(payment)}
-                                                        className="p-2 hover:bg-gray-100 rounded-md"
-                                                        title="طباعة سند قبض"
+                                                        onClick={() => handleCancelInvoice(invoice.id)}
+                                                        className="p-1 text-red-500 hover:bg-red-50 rounded"
+                                                        title="إلغاء الفاتورة (إشعار دائن)"
+                                                        disabled={saving}
                                                     >
-                                                        <Printer size={16} className="text-gray-500" />
+                                                        <XCircle size={14} />
                                                     </button>
                                                 </div>
-                                            </td>
-                                        </tr>
-                                    ))}
-                                </tbody>
-                            </table>
-                        </div>
+                                            ) : (
+                                                <button
+                                                    onClick={() => handleSyncToQoyod('invoice', invoice.id)}
+                                                    className="inline-flex items-center gap-1 text-yellow-600 hover:text-blue-600"
+                                                    title="مزامنة مع قيود"
+                                                    disabled={saving}
+                                                >
+                                                    <RefreshCw size={16} className={saving ? 'animate-spin' : ''} />
+                                                    <span className="text-xs">مزامنة</span>
+                                                </button>
+                                            )}
+                                        </td>
+                                        <td>
+                                            <div className="flex gap-1">
+                                                <button
+                                                    onClick={() => setShowViewInvoice(invoice)}
+                                                    className="p-2 hover:bg-gray-100 rounded-md"
+                                                    title="عرض"
+                                                >
+                                                    <Eye size={16} className="text-gray-500" />
+                                                </button>
+                                                <button
+                                                    onClick={() => printInvoice(invoice)}
+                                                    className="p-2 hover:bg-gray-100 rounded-md"
+                                                    title="طباعة"
+                                                >
+                                                    <Printer size={16} className="text-gray-500" />
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
 
-                        {filteredPayments.length === 0 && (
-                            <div className="flex flex-col items-center justify-center py-12">
-                                <CreditCard className="text-gray-300 mb-4" size={64} />
-                                <p className="text-[var(--text-secondary)]">لا توجد مدفوعات</p>
-                            </div>
-                        )}
-                    </CardContent>
-                </Card>
-            )}
+                    {filteredInvoices.length === 0 && (
+                        <div className="flex flex-col items-center justify-center py-12">
+                            <FileText className="text-gray-300 mb-4" size={64} />
+                            <p className="text-[var(--text-secondary)]">لا توجد فواتير</p>
+                        </div>
+                    )}
+                </CardContent>
+            </Card>
+
+
 
             {/* Create Invoice Modal */}
             {showInvoiceModal && (
@@ -794,23 +697,81 @@ export default function FinancePage() {
                             <div>
                                 <label className="form-label">اختر الحجز *</label>
                                 <select
-                                    value={selectedBookingId}
-                                    onChange={(e) => setSelectedBookingId(e.target.value)}
+                                    value={invoiceForm.bookingId}
+                                    onChange={(e) => {
+                                        const bookingId = e.target.value
+                                        const booking = bookings.find(b => b.id === bookingId)
+                                        let amount = ''
+
+                                        if (booking) {
+                                            const bookingInvoices = invoices.filter(i => i.bookingId === bookingId && i.status !== 'CANCELLED')
+                                            const invoicedAmount = bookingInvoices.reduce((sum, inv) => sum + inv.totalAmount, 0)
+                                            const remaining = booking.finalAmount - invoicedAmount
+                                            amount = remaining > 0 ? remaining.toString() : '0'
+                                        }
+
+                                        setInvoiceForm({ ...invoiceForm, bookingId, amount })
+                                    }}
                                     className="form-input w-full"
                                 >
-                                    <option value="">اختر حجز مؤكد</option>
-                                    {bookings.map(b => (
-                                        <option key={b.id} value={b.id}>
-                                            {b.bookingNumber} - {b.customerName} ({b.finalAmount.toLocaleString()} ر.س)
-                                        </option>
-                                    ))}
+                                    <option value="">اختر الحجز...</option>
+                                    {bookings.map(booking => {
+                                        const bookingInvoices = invoices.filter(i => i.bookingId === booking.id && i.status !== 'CANCELLED')
+                                        const invoicedAmount = bookingInvoices.reduce((sum, inv) => sum + inv.totalAmount, 0)
+                                        const remaining = booking.finalAmount - invoicedAmount
+
+                                        if (remaining <= 0) return null // Hide fully invoiced bookings
+
+                                        return (
+                                            <option key={booking.id} value={booking.id}>
+                                                {booking.bookingNumber} - {booking.customerName} (المتبقي: {remaining.toLocaleString()})
+                                            </option>
+                                        )
+                                    })}
                                 </select>
+                            </div>
+
+                            <div>
+                                <label className="form-label">المبلغ *</label>
+                                <input
+                                    type="number"
+                                    required
+                                    min="1"
+                                    step="0.01"
+                                    value={invoiceForm.amount}
+                                    onChange={(e) => setInvoiceForm({ ...invoiceForm, amount: e.target.value })}
+                                    className="form-input w-full"
+                                    placeholder="0.00"
+                                />
+                            </div>
+
+                            <div>
+                                <label className="form-label">طريقة الدفع *</label>
+                                <select
+                                    value={invoiceForm.paymentMethod}
+                                    onChange={(e) => setInvoiceForm({ ...invoiceForm, paymentMethod: e.target.value })}
+                                    className="form-input w-full"
+                                >
+                                    <option value="CASH">نقداً</option>
+                                    <option value="CARD">بطاقة</option>
+                                    <option value="BANK_TRANSFER">تحويل بنكي</option>
+                                </select>
+                            </div>
+
+                            <div>
+                                <label className="form-label">ملاحظات</label>
+                                <textarea
+                                    value={invoiceForm.notes}
+                                    onChange={(e) => setInvoiceForm({ ...invoiceForm, notes: e.target.value })}
+                                    className="form-input w-full h-20"
+                                    placeholder="ملاحظات إضافية..."
+                                />
                             </div>
 
                             <div className="flex gap-3 pt-4">
                                 <button
                                     onClick={handleCreateInvoice}
-                                    disabled={!selectedBookingId || saving}
+                                    disabled={saving || !invoiceForm.bookingId || !invoiceForm.amount}
                                     className="btn-primary flex-1"
                                 >
                                     {saving ? 'جاري الإصدار...' : 'إصدار الفاتورة'}

@@ -302,17 +302,16 @@ export const ExpenseScalarFieldEnum = {
   expenseDate: 'expenseDate',
   category: 'category',
   imageUrl: 'imageUrl',
-  vendorId: 'vendorId',
-  hallId: 'hallId',
+  createdById: 'createdById',
   ownerId: 'ownerId',
-  qoyodExpenseId: 'qoyodExpenseId',
   syncedToQoyod: 'syncedToQoyod',
+  qoyodExpenseId: 'qoyodExpenseId',
   lastSyncAt: 'lastSyncAt',
+  vendorId: 'vendorId',
   isDeleted: 'isDeleted',
   deletedAt: 'deletedAt',
   createdAt: 'createdAt',
-  updatedAt: 'updatedAt',
-  createdById: 'createdById'
+  updatedAt: 'updatedAt'
 } as const
 
 export type ExpenseScalarFieldEnum = (typeof ExpenseScalarFieldEnum)[keyof typeof ExpenseScalarFieldEnum]

@@ -126,44 +126,95 @@ export async function POST(request: Request) {
             )
         }
 
-        // Check if invoice already exists for this booking
-        const existingInvoice = await prisma.invoice.findFirst({
+        // Check for existing invoices to calculate remaining amount (not to block new ones)
+        const existingInvoices = await prisma.invoice.findMany({
             where: {
                 bookingId: body.bookingId,
-                isDeleted: false
+                isDeleted: false,
+                status: { not: 'CANCELLED' }
             }
         })
 
-        if (existingInvoice) {
+        const totalInvoiced = existingInvoices.reduce((sum, inv) => sum + Number(inv.totalAmount), 0)
+        const remainingUninvoiced = Number(booking.finalAmount) - totalInvoiced
+
+        let invoiceAmount = 0
+        let isFullInvoice = false
+
+        if (body.amount) {
+            invoiceAmount = parseFloat(body.amount)
+        } else {
+            invoiceAmount = remainingUninvoiced
+            isFullInvoice = true
+        }
+
+        if (invoiceAmount <= 0) {
             return NextResponse.json(
-                { error: 'فاتورة موجودة مسبقاً لهذا الحجز', existingId: existingInvoice.id },
+                { error: 'تم إصدار فواتير بكامل مبلغ الحجز', remaining: remainingUninvoiced },
                 { status: 400 }
             )
         }
 
         const invoiceNumber = await generateInvoiceNumber()
 
-        // Calculate due date (default 7 days from now)
-        const dueDate = new Date()
-        dueDate.setDate(dueDate.getDate() + 7)
+        // Generate payment number
+        const year = new Date().getFullYear()
+        const paymentPrefix = `PAY-${year}-`
+        const lastPayment = await prisma.payment.findFirst({
+            where: { paymentNumber: { startsWith: paymentPrefix } },
+            orderBy: { paymentNumber: 'desc' }
+        })
+        let paymentNextNumber = 1
+        if (lastPayment) {
+            paymentNextNumber = parseInt(lastPayment.paymentNumber.split('-')[2]) + 1
+        }
+        const paymentNumber = `${paymentPrefix}${paymentNextNumber.toString().padStart(4, '0')}`
 
-        const invoice = await prisma.invoice.create({
-            data: {
-                invoiceNumber,
-                bookingId: booking.id,
-                customerId: booking.customerId,
-                ownerId: session.user.ownerId, // Tenant isolation
-                subtotal: booking.totalAmount,
-                discountAmount: booking.discountAmount,
-                vatAmount: booking.vatAmount,
-                totalAmount: booking.finalAmount,
-                paidAmount: 0,
-                issueDate: new Date(),
-                dueDate: body.dueDate ? new Date(body.dueDate) : dueDate,
-                status: 'UNPAID',
-                notes: body.notes || null,
-                createdById: session.user.id
-            },
+        // Payment date (use provided or today)
+        const paymentDate = body.paymentDate ? new Date(body.paymentDate) : new Date()
+
+        // Use transaction to create both invoice and payment atomically
+        const result = await prisma.$transaction(async (tx) => {
+            // Create Invoice - always PAID since we're creating payment simultaneously
+            const invoice = await tx.invoice.create({
+                data: {
+                    invoiceNumber,
+                    bookingId: booking.id,
+                    customerId: booking.customerId,
+                    ownerId: session.user.ownerId,
+                    subtotal: invoiceAmount,
+                    discountAmount: 0,
+                    vatAmount: 0,
+                    totalAmount: invoiceAmount,
+                    paidAmount: invoiceAmount, // Fully paid
+                    issueDate: new Date(),
+                    dueDate: paymentDate,
+                    status: 'PAID',
+                    notes: body.notes || 'فاتورة دفعة',
+                    createdById: session.user.id
+                }
+            })
+
+            // Create Payment linked to this invoice
+            const payment = await tx.payment.create({
+                data: {
+                    paymentNumber,
+                    bookingId: booking.id,
+                    invoiceId: invoice.id,
+                    ownerId: session.user.ownerId,
+                    amount: invoiceAmount,
+                    paymentMethod: body.paymentMethod || 'CASH',
+                    paymentDate,
+                    notes: body.notes || 'دفعة فاتورة',
+                    createdById: session.user.id
+                }
+            })
+
+            return { invoice, payment }
+        })
+
+        const invoiceWithRelations = await prisma.invoice.findUnique({
+            where: { id: result.invoice.id },
             include: {
                 booking: { select: { bookingNumber: true } },
                 customer: { select: { nameAr: true } }
@@ -185,7 +236,7 @@ export async function POST(request: Request) {
                         'Content-Type': 'application/json',
                         'Cookie': request.headers.get('cookie') || ''
                     },
-                    body: JSON.stringify({ type: 'invoice', id: invoice.id })
+                    body: JSON.stringify({ type: 'invoice', id: result.invoice.id })
                 }).catch(err => console.error('Auto-sync to Qoyod failed:', err))
             }
         } catch (syncError) {
@@ -193,7 +244,7 @@ export async function POST(request: Request) {
             console.error('Error checking Qoyod auto-sync:', syncError)
         }
 
-        return NextResponse.json(invoice, { status: 201 })
+        return NextResponse.json(invoiceWithRelations, { status: 201 })
     } catch (error) {
         console.error('Error creating invoice:', error)
         return NextResponse.json(

@@ -232,7 +232,6 @@ export type VendorOrderByWithRelationInput = {
 
 export type VendorWhereUniqueInput = Prisma.AtLeast<{
   id?: string
-  qoyodVendorId_ownerId?: Prisma.VendorQoyodVendorIdOwnerIdCompoundUniqueInput
   AND?: Prisma.VendorWhereInput | Prisma.VendorWhereInput[]
   OR?: Prisma.VendorWhereInput[]
   NOT?: Prisma.VendorWhereInput | Prisma.VendorWhereInput[]
@@ -245,7 +244,7 @@ export type VendorWhereUniqueInput = Prisma.AtLeast<{
   createdAt?: Prisma.DateTimeFilter<"Vendor"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Vendor"> | Date | string
   expenses?: Prisma.ExpenseListRelationFilter
-}, "id" | "qoyodVendorId_ownerId">
+}, "id">
 
 export type VendorOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
@@ -368,11 +367,6 @@ export type VendorUncheckedUpdateManyInput = {
 export type VendorNullableScalarRelationFilter = {
   is?: Prisma.VendorWhereInput | null
   isNot?: Prisma.VendorWhereInput | null
-}
-
-export type VendorQoyodVendorIdOwnerIdCompoundUniqueInput = {
-  qoyodVendorId: string
-  ownerId: string
 }
 
 export type VendorCountOrderByAggregateInput = {
