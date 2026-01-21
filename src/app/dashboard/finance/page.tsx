@@ -193,7 +193,7 @@ export default function FinancePage() {
         }
     }
 
-    // Sync to Qoyod
+    // Sync to Qoyod (with verification)
     const handleSyncToQoyod = async (type: 'invoice' | 'payment', id: string) => {
         setSaving(true)
         try {
@@ -206,7 +206,14 @@ export default function FinancePage() {
             const data = await response.json()
 
             if (response.ok) {
-                alert('تمت المزامنة مع قيود بنجاح')
+                // Show custom message from API if provided (e.g., "Invoice already exists, linked")
+                if (data.message) {
+                    alert(`${data.message}\nرقم الفاتورة في قيود: ${data.qoyodInvoiceId}`)
+                } else if (type === 'invoice' && data.qoyodInvoiceId) {
+                    alert(`تمت المزامنة مع قيود بنجاح\nرقم الفاتورة في قيود: ${data.qoyodInvoiceId}`)
+                } else {
+                    alert('تمت المزامنة مع قيود بنجاح')
+                }
                 fetchData()
             } else {
                 alert(data.error || 'فشل المزامنة')
@@ -214,6 +221,41 @@ export default function FinancePage() {
         } catch (error) {
             console.error('Sync Error:', error)
             alert('حدث خطأ أثناء المزامنة')
+        } finally {
+            setSaving(false)
+        }
+    }
+
+    // Verify and fix sync status for all invoices
+    const handleVerifySync = async () => {
+        if (!confirm('سيتم التحقق من حالة المزامنة لجميع الفواتير مع نظام قيود وتصحيح أي اختلافات. متابعة؟')) {
+            return
+        }
+
+        setSaving(true)
+        try {
+            const response = await fetch('/api/qoyod?action=verify-sync')
+            const data = await response.json()
+
+            if (response.ok) {
+                const { results, notFoundInvoices } = data
+                let message = `تم التحقق من الفواتير:\n`
+                message += `✓ تم التحقق: ${results.verified}\n`
+                message += `🔧 تم إصلاح: ${results.fixed}\n`
+                message += `⚠ غير موجودة في قيود: ${results.notFound}`
+
+                if (notFoundInvoices && notFoundInvoices.length > 0) {
+                    message += `\n\nالفواتير التي لم يتم العثور عليها:\n${notFoundInvoices.join(', ')}`
+                }
+
+                alert(message)
+                fetchData()
+            } else {
+                alert(data.error || 'فشل التحقق')
+            }
+        } catch (error) {
+            console.error('Verify Error:', error)
+            alert('حدث خطأ أثناء التحقق')
         } finally {
             setSaving(false)
         }
@@ -279,6 +321,33 @@ export default function FinancePage() {
         } catch (error) {
             console.error('Cancel Error:', error)
             alert('حدث خطأ أثناء إلغاء الفاتورة')
+        } finally {
+            setSaving(false)
+        }
+    }
+
+    // Delete local invoice (only for non-synced invoices)
+    const handleDeleteLocalInvoice = async (id: string, invoiceNumber: string) => {
+        if (!confirm(`هل تريد حذف الفاتورة ${invoiceNumber} من النظام؟\n\nملاحظة: هذا سيحذف الفاتورة من النظام المحلي فقط.`)) {
+            return
+        }
+
+        setSaving(true)
+        try {
+            const response = await fetch(`/api/invoices/${id}`, {
+                method: 'DELETE'
+            })
+
+            if (response.ok) {
+                alert('تم حذف الفاتورة بنجاح')
+                fetchData()
+            } else {
+                const data = await response.json()
+                alert(data.error || 'فشل حذف الفاتورة')
+            }
+        } catch (error) {
+            console.error('Delete Local Error:', error)
+            alert('حدث خطأ أثناء حذف الفاتورة')
         } finally {
             setSaving(false)
         }
@@ -492,13 +561,24 @@ export default function FinancePage() {
                     </p>
                 </div>
 
-                <button
-                    onClick={() => setShowInvoiceModal(true)}
-                    className="btn-primary flex items-center gap-2"
-                >
-                    <Plus size={18} />
-                    إصدار فاتورة
-                </button>
+                <div className="flex gap-2">
+                    <button
+                        onClick={handleVerifySync}
+                        className="btn-secondary flex items-center gap-2"
+                        disabled={saving}
+                        title="التحقق من حالة المزامنة مع قيود"
+                    >
+                        <RefreshCw size={18} className={saving ? 'animate-spin' : ''} />
+                        تحقق من المزامنة
+                    </button>
+                    <button
+                        onClick={() => setShowInvoiceModal(true)}
+                        className="btn-primary flex items-center gap-2"
+                    >
+                        <Plus size={18} />
+                        إصدار فاتورة
+                    </button>
+                </div>
             </div>
 
             {/* Stats Cards */}

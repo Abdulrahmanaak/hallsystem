@@ -71,13 +71,33 @@ export async function PUT(
     }
 }
 
-// DELETE - Cancel invoice
+// DELETE - Cancel/Delete invoice (only if not synced to Qoyod)
 export async function DELETE(
     request: Request,
     { params }: { params: Promise<{ id: string }> }
 ) {
     try {
         const { id } = await params
+
+        // Check if invoice is synced to Qoyod
+        const invoice = await prisma.invoice.findUnique({
+            where: { id },
+            select: { syncedToQoyod: true, qoyodInvoiceId: true }
+        })
+
+        if (!invoice) {
+            return NextResponse.json(
+                { error: 'الفاتورة غير موجودة' },
+                { status: 404 }
+            )
+        }
+
+        if (invoice.syncedToQoyod) {
+            return NextResponse.json(
+                { error: 'لا يمكن حذف فاتورة مزامنة مع قيود. يرجى حذفها من قيود أولاً.' },
+                { status: 400 }
+            )
+        }
 
         await prisma.invoice.update({
             where: { id },

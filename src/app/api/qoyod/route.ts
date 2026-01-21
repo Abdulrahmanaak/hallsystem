@@ -70,13 +70,37 @@ async function qoyodRequest(endpoint: string, method: string = 'GET', body: any 
 
         if (!response.ok) {
             const errorText = await response.text()
-            console.error(`Qoyod API Error [${method} ${url}]:`, response.status, errorText)
-            throw new Error(`Qoyod APi Error: ${response.status} - ${errorText}`)
+            // Use warn instead of error for 404s (often expected during searches)
+            if (response.status === 404) {
+                console.warn(`Qoyod API [${method} ${url}]: 404 - ${errorText}`)
+            } else {
+                console.error(`Qoyod API Error [${method} ${url}]:`, response.status, errorText)
+            }
+            throw new Error(`Qoyod API Error: ${response.status} - ${errorText}`)
         }
 
-        return await response.json()
-    } catch (error) {
-        console.error('Qoyod Request Failed:', error)
+        // Get response text first (can only read body once)
+        const responseText = await response.text()
+
+        // Handle empty responses (some DELETE endpoints return empty body)
+        if (!responseText || responseText.trim() === '') {
+            console.log(`Qoyod API [${method} ${url}]: Success (empty response)`)
+            return { success: true, message: 'Success' }
+        }
+
+        // Try to parse as JSON, fall back to text wrapper
+        try {
+            return JSON.parse(responseText)
+        } catch {
+            // Not valid JSON - return as text wrapper
+            console.log(`Qoyod API [${method} ${url}]: Text response - "${responseText}"`)
+            return { success: true, message: responseText }
+        }
+    } catch (error: any) {
+        // Only log as error if it's not an expected 404
+        if (!error.message?.includes('404')) {
+            console.error('Qoyod Request Failed:', error.message)
+        }
         throw error
     }
 }
@@ -369,6 +393,117 @@ export async function GET(request: Request) {
             })
         }
 
+        // Action: Verify and fix sync status for all invoices
+        if (action === 'verify-sync') {
+            const session = await auth()
+            if (!session?.user?.ownerId) {
+                return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+            }
+
+            // Get all invoices marked as synced
+            const syncedInvoices = await prisma.invoice.findMany({
+                where: {
+                    ownerId: session.user.ownerId,
+                    syncedToQoyod: true,
+                    isDeleted: false
+                },
+                select: {
+                    id: true,
+                    invoiceNumber: true,
+                    qoyodInvoiceId: true
+                }
+            })
+
+            // Fetch all invoices from Qoyod
+            let qoyodInvoices: any[] = []
+            try {
+                // Try fetching all invoices - Qoyod v2 API
+                const res = await qoyodRequest('/invoices', 'GET', null, config)
+                console.log('Qoyod invoices response:', JSON.stringify(res).substring(0, 500))
+                qoyodInvoices = res.invoices || []
+                console.log(`Found ${qoyodInvoices.length} invoices in Qoyod`)
+            } catch (e: any) {
+                console.error('Failed to fetch invoices from Qoyod:', e.message)
+                // If error contains "nothing", it means no invoices exist
+                if (e.message?.includes('nothing') || e.message?.includes('404')) {
+                    console.log('No invoices found in Qoyod')
+                    qoyodInvoices = []
+                } else {
+                    return NextResponse.json({
+                        error: 'فشل في جلب الفواتير من قيود: ' + e.message
+                    }, { status: 500 })
+                }
+            }
+
+            // Create a map of Qoyod invoices by reference number
+            const qoyodByReference = new Map<string, any>()
+            const qoyodById = new Map<string, any>()
+            for (const inv of qoyodInvoices) {
+                if (inv.reference) {
+                    qoyodByReference.set(inv.reference, inv)
+                }
+                qoyodById.set(inv.id.toString(), inv)
+            }
+
+            // Check each synced invoice
+            const results = {
+                verified: 0,      // Exists in Qoyod
+                fixed: 0,         // ID corrected
+                notFound: 0,      // Not in Qoyod, status updated
+                errors: 0
+            }
+            const notFoundInvoices: string[] = []
+
+            for (const invoice of syncedInvoices) {
+                try {
+                    // First check by reference number
+                    const qoyodInv = qoyodByReference.get(invoice.invoiceNumber)
+
+                    if (qoyodInv) {
+                        // Found in Qoyod - verify/fix ID
+                        const correctId = qoyodInv.id.toString()
+                        if (invoice.qoyodInvoiceId !== correctId) {
+                            // Fix the ID
+                            await prisma.invoice.update({
+                                where: { id: invoice.id },
+                                data: { qoyodInvoiceId: correctId }
+                            })
+                            results.fixed++
+                            console.log(`Fixed ${invoice.invoiceNumber}: ${invoice.qoyodInvoiceId} -> ${correctId}`)
+                        } else {
+                            results.verified++
+                        }
+                    } else if (invoice.qoyodInvoiceId && qoyodById.has(invoice.qoyodInvoiceId)) {
+                        // Found by stored ID (reference might be different)
+                        results.verified++
+                    } else {
+                        // Not found in Qoyod - mark as not synced
+                        await prisma.invoice.update({
+                            where: { id: invoice.id },
+                            data: {
+                                syncedToQoyod: false,
+                                qoyodInvoiceId: null
+                            }
+                        })
+                        results.notFound++
+                        notFoundInvoices.push(invoice.invoiceNumber)
+                        console.log(`Invoice ${invoice.invoiceNumber} not found in Qoyod, unmarked sync`)
+                    }
+                } catch (e) {
+                    console.error(`Error verifying invoice ${invoice.invoiceNumber}:`, e)
+                    results.errors++
+                }
+            }
+
+            return NextResponse.json({
+                success: true,
+                message: `تم التحقق من ${syncedInvoices.length} فاتورة`,
+                results,
+                notFoundInvoices,
+                qoyodInvoiceCount: qoyodInvoices.length
+            })
+        }
+
         // Default: Test connection
         try {
             const data = await qoyodRequest('/products?limit=1', 'GET', null, config)
@@ -413,6 +548,58 @@ export async function POST(request: Request) {
             })
 
             if (!invoice) return NextResponse.json({ error: 'Invoice not found' }, { status: 404 })
+
+            // Step 0: Check if invoice already exists in Qoyod by reference number
+            let existingQoyodInvoice: any = null
+            try {
+                const searchRes = await qoyodRequest(
+                    `/invoices?q[reference_eq]=${encodeURIComponent(invoice.invoiceNumber)}`,
+                    'GET', null, config
+                )
+                if (searchRes.invoices?.length > 0) {
+                    existingQoyodInvoice = searchRes.invoices[0]
+                    console.log(`Invoice ${invoice.invoiceNumber} already exists in Qoyod with ID ${existingQoyodInvoice.id}`)
+                }
+            } catch (e: any) {
+                // Ignore search errors (404 means not found, which is fine)
+                if (!e.message?.includes('404') && !e.message?.includes('nothing')) {
+                    console.warn('Error searching for existing invoice:', e.message)
+                }
+            }
+
+            // If invoice already exists in Qoyod, just update local record
+            if (existingQoyodInvoice) {
+                const existingId = existingQoyodInvoice.id.toString()
+                await prisma.invoice.update({
+                    where: { id },
+                    data: {
+                        syncedToQoyod: true,
+                        qoyodInvoiceId: existingId,
+                        lastSyncAt: new Date()
+                    }
+                })
+
+                // Log the sync recovery
+                await prisma.accountingSync.create({
+                    data: {
+                        syncType: 'LINK',
+                        recordType: 'Invoice',
+                        recordId: id,
+                        status: 'SUCCESS',
+                        qoyodId: existingId,
+                        requestData: JSON.stringify({ action: 'link-existing', invoiceNumber: invoice.invoiceNumber }),
+                        responseData: JSON.stringify({ existingInvoice: existingQoyodInvoice }),
+                        completedAt: new Date()
+                    }
+                })
+
+                return NextResponse.json({
+                    success: true,
+                    qoyodInvoiceId: existingId,
+                    message: 'الفاتورة موجودة في قيود. تم تحديث الربط.',
+                    alreadyExisted: true
+                })
+            }
 
             // 1. Sync Customer
             const contactId = await syncCustomer(invoice.customerId, config)
@@ -488,30 +675,75 @@ export async function POST(request: Request) {
                 }
             }
 
-            const qoyodRes = await qoyodRequest('/invoices', 'POST', invoicePayload, config)
-            const qoyodInvoiceId = qoyodRes.invoice.id
+            let qoyodInvoiceId: string
+            try {
+                const qoyodRes = await qoyodRequest('/invoices', 'POST', invoicePayload, config)
+                qoyodInvoiceId = qoyodRes.invoice.id.toString()
 
-            // 6. Update Local DB
+                // Log Success
+                await prisma.accountingSync.create({
+                    data: {
+                        syncType: 'CREATE',
+                        recordType: 'Invoice',
+                        recordId: id,
+                        status: 'SUCCESS',
+                        qoyodId: qoyodInvoiceId,
+                        requestData: JSON.stringify(invoicePayload),
+                        responseData: JSON.stringify(qoyodRes),
+                        completedAt: new Date()
+                    }
+                })
+            } catch (error: any) {
+                // Handle "Reference is already taken by id XXXX" error (422)
+                const match = error.message?.match(/Reference is already taken by id (\d+)/)
+                if (match) {
+                    const existingId = match[1]
+                    console.log(`Invoice reference already exists in Qoyod with ID ${existingId}, updating local record`)
+
+                    await prisma.invoice.update({
+                        where: { id },
+                        data: {
+                            syncedToQoyod: true,
+                            qoyodInvoiceId: existingId,
+                            lastSyncAt: new Date()
+                        }
+                    })
+
+                    await prisma.accountingSync.create({
+                        data: {
+                            syncType: 'LINK',
+                            recordType: 'Invoice',
+                            recordId: id,
+                            status: 'SUCCESS',
+                            qoyodId: existingId,
+                            requestData: JSON.stringify({ action: 'recovered-from-duplicate', invoiceNumber: invoice.invoiceNumber }),
+                            responseData: JSON.stringify({ recoveredId: existingId }),
+                            completedAt: new Date()
+                        }
+                    })
+
+                    return NextResponse.json({
+                        success: true,
+                        qoyodInvoiceId: existingId,
+                        message: 'الفاتورة موجودة في قيود. تم تحديث الربط.',
+                        recoveredFromDuplicate: true
+                    })
+                }
+
+                // Re-throw other errors with friendly messages
+                if (error.message?.includes('403')) {
+                    throw new Error('غير مصرح. تحقق من صلاحيات مفتاح API.')
+                }
+                throw error
+            }
+
+            // 7. Update Local DB
             await prisma.invoice.update({
                 where: { id },
                 data: {
                     syncedToQoyod: true,
                     lastSyncAt: new Date(),
-                    qoyodInvoiceId: qoyodInvoiceId.toString(),
-                }
-            })
-
-            // Log Success
-            await prisma.accountingSync.create({
-                data: {
-                    syncType: 'CREATE',
-                    recordType: 'Invoice',
-                    recordId: id,
-                    status: 'SUCCESS',
-                    qoyodId: qoyodInvoiceId.toString(),
-                    requestData: JSON.stringify(invoicePayload),
-                    responseData: JSON.stringify(qoyodRes),
-                    completedAt: new Date()
+                    qoyodInvoiceId: qoyodInvoiceId,
                 }
             })
 
@@ -708,14 +940,81 @@ export async function POST(request: Request) {
             })
 
             if (!invoice) return NextResponse.json({ error: 'Invoice not found' }, { status: 404 })
-            if (!invoice.qoyodInvoiceId) {
+            if (!invoice.syncedToQoyod) {
                 return NextResponse.json({ error: 'Invoice not synced to Qoyod' }, { status: 400 })
             }
 
-            // Delete the invoice from Qoyod (only works for Draft status)
-            await qoyodRequest(`/invoices/${invoice.qoyodInvoiceId}`, 'DELETE', null, config)
+            // Step 1: Find the invoice in Qoyod by reference number (our invoice number)
+            // This ensures we get the correct Qoyod ID even if our stored ID is wrong
+            let actualQoyodId: string | null = invoice.qoyodInvoiceId
+            let foundInQoyod = false
 
-            // Update local database - clear Qoyod reference
+            try {
+                // Search for invoice by reference number in Qoyod
+                const searchRes = await qoyodRequest(
+                    `/invoices?q[reference_eq]=${encodeURIComponent(invoice.invoiceNumber)}`,
+                    'GET',
+                    null,
+                    config
+                )
+
+                if (searchRes.invoices && searchRes.invoices.length > 0) {
+                    // Found the invoice - use the actual Qoyod ID
+                    actualQoyodId = searchRes.invoices[0].id.toString()
+                    foundInQoyod = true
+                    console.log(`Found invoice in Qoyod: reference=${invoice.invoiceNumber}, qoyodId=${actualQoyodId}`)
+
+                    // Update local record with correct ID if different
+                    if (actualQoyodId !== invoice.qoyodInvoiceId) {
+                        console.log(`Correcting qoyodInvoiceId: ${invoice.qoyodInvoiceId} -> ${actualQoyodId}`)
+                        await prisma.invoice.update({
+                            where: { id },
+                            data: { qoyodInvoiceId: actualQoyodId }
+                        })
+                    }
+                } else {
+                    console.log(`Invoice ${invoice.invoiceNumber} not found in Qoyod by reference (empty results)`)
+                    // Invoice doesn't exist in Qoyod - clear the incorrect stored ID
+                    actualQoyodId = null
+                }
+            } catch (e: any) {
+                // Handle 404 / "nothing found" as empty results - invoice doesn't exist in Qoyod
+                if (e.message?.includes('404') || e.message?.includes('nothing')) {
+                    console.log(`Invoice ${invoice.invoiceNumber} not found in Qoyod (404/nothing): ${e.message}`)
+                    actualQoyodId = null
+                } else {
+                    console.warn('Failed to search for invoice in Qoyod, will try with stored ID:', e.message)
+                }
+            }
+
+            // Step 2: Delete the invoice from Qoyod
+            let qoyodDeleted = false
+            let notFoundOnQoyod = false
+            let errorMessage: string | null = null
+
+            if (actualQoyodId) {
+                try {
+                    await qoyodRequest(`/invoices/${actualQoyodId}`, 'DELETE', null, config)
+                    qoyodDeleted = true
+                    console.log(`Successfully deleted invoice ${actualQoyodId} from Qoyod`)
+                } catch (error: any) {
+                    // Check if it's a 404 (not found) error
+                    if (error.message?.includes('404') || error.message?.includes('Invalid invoice ID')) {
+                        console.log(`Invoice ${actualQoyodId} not found on Qoyod`)
+                        notFoundOnQoyod = true
+                    } else if (error.message?.includes('403') || error.message?.includes('approved') || error.message?.includes('ZATCA')) {
+                        // Invoice is approved and cannot be deleted
+                        errorMessage = 'لا يمكن حذف فاتورة معتمدة. استخدم خيار "إلغاء الفاتورة" لإنشاء إشعار دائن.'
+                        throw new Error(errorMessage)
+                    } else {
+                        throw error
+                    }
+                }
+            } else {
+                notFoundOnQoyod = true
+            }
+
+            // Step 3: Update local database - clear Qoyod reference
             await prisma.invoice.update({
                 where: { id },
                 data: {
@@ -725,21 +1024,41 @@ export async function POST(request: Request) {
                 }
             })
 
-            // Log Success
+            // Log the operation
             await prisma.accountingSync.create({
                 data: {
                     syncType: 'DELETE',
                     recordType: 'Invoice',
                     recordId: id,
-                    status: 'SUCCESS',
-                    qoyodId: invoice.qoyodInvoiceId,
-                    requestData: JSON.stringify({ action: 'delete', invoiceId: invoice.qoyodInvoiceId }),
-                    responseData: JSON.stringify({ deleted: true }),
+                    status: qoyodDeleted ? 'SUCCESS' : 'PARTIAL',
+                    qoyodId: actualQoyodId,
+                    requestData: JSON.stringify({
+                        action: 'delete',
+                        invoiceNumber: invoice.invoiceNumber,
+                        storedQoyodId: invoice.qoyodInvoiceId,
+                        actualQoyodId
+                    }),
+                    responseData: JSON.stringify({
+                        deleted: qoyodDeleted,
+                        foundInQoyod,
+                        notFoundOnQoyod,
+                        localCleanup: true
+                    }),
                     completedAt: new Date()
                 }
             })
 
-            return NextResponse.json({ success: true, message: 'تم حذف الفاتورة من قيود بنجاح' })
+            // Return appropriate message
+            let message: string
+            if (qoyodDeleted) {
+                message = 'تم حذف الفاتورة من قيود بنجاح'
+            } else if (notFoundOnQoyod) {
+                message = 'الفاتورة غير موجودة في قيود. تم تنظيف الربط المحلي.'
+            } else {
+                message = 'تم تنظيف الربط المحلي'
+            }
+
+            return NextResponse.json({ success: true, message, deleted: qoyodDeleted })
         }
 
 
