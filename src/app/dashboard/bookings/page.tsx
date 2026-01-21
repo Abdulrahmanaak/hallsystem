@@ -73,8 +73,12 @@ import {
     AlertCircle,
     ChevronDown,
     FileText,
-    CalendarIcon
+    CalendarIcon,
+    Receipt,
+    Share2,
+    Printer
 } from 'lucide-react'
+import { printInvoice as printInvoiceUtil } from '@/lib/invoice-utils'
 
 interface Booking {
     id: string
@@ -119,6 +123,16 @@ interface Hall {
     capacity: number
 }
 
+interface Invoice {
+    id: string
+    invoiceNumber: string
+    bookingId: string
+    totalAmount: number
+    paidAmount: number
+    issueDate: string
+    status: string
+}
+
 const EVENT_TYPES: Record<string, string> = {
     'WEDDING': 'زفاف',
     'ENGAGEMENT': 'خطوبة',
@@ -134,6 +148,20 @@ const STATUS_CONFIG: Record<string, { label: string; color: string; icon: React.
     'CANCELLED': { label: 'ملغي', color: 'bg-red-100 text-red-800', icon: <XCircle size={14} /> },
     'COMPLETED': { label: 'مكتمل', color: 'bg-blue-100 text-blue-800', icon: <CheckCircle size={14} /> }
 }
+
+const PAYMENT_METHODS: Record<string, string> = {
+    'CASH': 'نقداً',
+    'CARD': 'بطاقة',
+    'BANK_TRANSFER': 'تحويل بنكي'
+}
+
+const INVOICE_STATUS: Record<string, { label: string; color: string; icon: React.ReactNode }> = {
+    'UNPAID': { label: 'غير مدفوعة', color: 'bg-red-100 text-red-800', icon: <XCircle size={14} /> },
+    'PARTIALLY_PAID': { label: 'مدفوعة جزئياً', color: 'bg-yellow-100 text-yellow-800', icon: <Clock size={14} /> },
+    'PAID': { label: 'مدفوعة', color: 'bg-green-100 text-green-800', icon: <CheckCircle size={14} /> },
+    'CANCELLED': { label: 'ملغاة', color: 'bg-gray-100 text-gray-800', icon: <AlertCircle size={14} /> }
+}
+
 
 export default function BookingsPage() {
     const [bookings, setBookings] = useState<Booking[]>([])
@@ -166,6 +194,16 @@ export default function BookingsPage() {
     const [saving, setSaving] = useState(false)
     const [openStatusDropdown, setOpenStatusDropdown] = useState<string | null>(null)
     const [hijriDate, setHijriDate] = useState({ day: '', month: '', year: '' })
+
+    // Invoice modal state
+    const [showInvoiceModal, setShowInvoiceModal] = useState(false)
+    const [selectedBookingForInvoice, setSelectedBookingForInvoice] = useState<Booking | null>(null)
+    const [bookingInvoices, setBookingInvoices] = useState<Invoice[]>([])
+    const [loadingInvoices, setLoadingInvoices] = useState(false)
+    const [showCreateInvoiceForm, setShowCreateInvoiceForm] = useState(false)
+    const [invoiceForm, setInvoiceForm] = useState({ amount: '', paymentMethod: 'CASH', notes: '' })
+    const [savingInvoice, setSavingInvoice] = useState(false)
+
 
     const fetchData = async () => {
         try {
@@ -329,6 +367,96 @@ export default function BookingsPage() {
         } catch (error) {
             console.error('Error deleting booking:', error)
         }
+    }
+
+    // Invoice Modal Functions
+    const openInvoiceModal = async (booking: Booking) => {
+        setSelectedBookingForInvoice(booking)
+        setShowInvoiceModal(true)
+        setShowCreateInvoiceForm(false)
+        setInvoiceForm({ amount: '', paymentMethod: 'CASH', notes: '' })
+        await fetchBookingInvoices(booking.id)
+    }
+
+    const fetchBookingInvoices = async (bookingId: string) => {
+        setLoadingInvoices(true)
+        try {
+            const response = await fetch('/api/invoices')
+            const allInvoices = await response.json()
+            const filtered = allInvoices.filter((inv: Invoice) => inv.bookingId === bookingId)
+            setBookingInvoices(filtered)
+        } catch (error) {
+            console.error('Error fetching invoices:', error)
+        } finally {
+            setLoadingInvoices(false)
+        }
+    }
+
+    const handleCreateBookingInvoice = async () => {
+        if (!selectedBookingForInvoice || !invoiceForm.amount) return
+        setSavingInvoice(true)
+
+        try {
+            const response = await fetch('/api/invoices', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    bookingId: selectedBookingForInvoice.id,
+                    amount: invoiceForm.amount,
+                    paymentMethod: invoiceForm.paymentMethod,
+                    notes: invoiceForm.notes
+                })
+            })
+
+            if (response.ok) {
+                setShowCreateInvoiceForm(false)
+                setInvoiceForm({ amount: '', paymentMethod: 'CASH', notes: '' })
+                await fetchBookingInvoices(selectedBookingForInvoice.id)
+            } else {
+                const error = await response.json()
+                alert(error.error || 'حدث خطأ')
+            }
+        } catch (error) {
+            console.error('Error creating invoice:', error)
+        } finally {
+            setSavingInvoice(false)
+        }
+    }
+
+    const printInvoice = async (invoice: Invoice) => {
+        const booking = selectedBookingForInvoice
+        if (!booking) return
+
+        const subtotal = invoice.totalAmount
+        const vat = Math.round(subtotal / 1.15 * 0.15 * 100) / 100
+        const baseAmount = subtotal - vat
+        // paidAmount is already available in invoice object
+
+        await printInvoiceUtil({
+            invoiceNumber: invoice.invoiceNumber,
+            issueDate: invoice.issueDate,
+            customerName: booking.customerName,
+            customerPhone: booking.customerPhone,
+            customerIdNumber: booking.customerIdNumber,
+            bookingNumber: booking.bookingNumber,
+            hallName: booking.hallName,
+            eventDate: booking.date,
+            subtotal: baseAmount,
+            vatAmount: vat,
+            totalAmount: subtotal,
+            paidAmount: invoice.paidAmount,
+            remainingAmount: subtotal - invoice.paidAmount
+        })
+    }
+
+    // Calculate invoice summary for selected booking
+    const getInvoiceSummary = () => {
+        if (!selectedBookingForInvoice) return { total: 0, invoiced: 0, remaining: 0 }
+        const total = selectedBookingForInvoice.finalAmount
+        const invoiced = bookingInvoices
+            .filter(inv => inv.status !== 'CANCELLED')
+            .reduce((sum, inv) => sum + inv.totalAmount, 0)
+        return { total, invoiced, remaining: total - invoiced }
     }
 
     // Stats
@@ -551,6 +679,13 @@ export default function BookingsPage() {
                                                 >
                                                     <FileText size={16} className="text-blue-600" />
                                                 </Link>
+                                                <button
+                                                    onClick={() => openInvoiceModal(booking)}
+                                                    className="p-2 hover:bg-green-50 rounded-md"
+                                                    title="الفواتير"
+                                                >
+                                                    <Receipt size={16} className="text-green-600" />
+                                                </button>
                                                 <button
                                                     onClick={() => openEditModal(booking)}
                                                     className="p-2 hover:bg-gray-100 rounded-md"
@@ -1091,6 +1226,187 @@ export default function BookingsPage() {
                                     إغلاق
                                 </button>
                             </div>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Invoice Modal */}
+            {showInvoiceModal && selectedBookingForInvoice && (
+                <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+                    <div className="bg-white rounded-lg shadow-xl w-full max-w-lg mx-4 max-h-[90vh] overflow-y-auto">
+                        <div className="flex items-center justify-between p-4 border-b border-[var(--border-color)]">
+                            <h3 className="text-lg font-bold">
+                                فواتير الحجز #{selectedBookingForInvoice.bookingNumber}
+                            </h3>
+                            <button
+                                onClick={() => {
+                                    setShowInvoiceModal(false)
+                                    setSelectedBookingForInvoice(null)
+                                    setShowCreateInvoiceForm(false)
+                                }}
+                                className="p-2 hover:bg-gray-100 rounded-md"
+                            >
+                                <X size={20} />
+                            </button>
+                        </div>
+
+                        <div className="p-4 space-y-4">
+                            {/* Invoice Summary */}
+                            <div className="bg-slate-50 p-3 rounded-lg border border-slate-100">
+                                <div className="grid grid-cols-3 gap-2 text-sm text-center">
+                                    <div>
+                                        <p className="text-xs text-[var(--text-muted)]">إجمالي الحجز</p>
+                                        <p className="font-bold text-[var(--text-primary)]">
+                                            {getInvoiceSummary().total.toLocaleString()} ر.س
+                                        </p>
+                                    </div>
+                                    <div>
+                                        <p className="text-xs text-[var(--text-muted)]">المُفوتر</p>
+                                        <p className="font-bold text-green-600">
+                                            {getInvoiceSummary().invoiced.toLocaleString()} ر.س
+                                        </p>
+                                    </div>
+                                    <div>
+                                        <p className="text-xs text-[var(--text-muted)]">المتبقي</p>
+                                        <p className="font-bold text-red-600">
+                                            {getInvoiceSummary().remaining.toLocaleString()} ر.س
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Invoices List */}
+                            {loadingInvoices ? (
+                                <div className="text-center py-4 text-gray-500">جاري التحميل...</div>
+                            ) : bookingInvoices.length === 0 ? (
+                                <div className="text-center py-6 bg-gray-50 rounded-lg">
+                                    <Receipt className="mx-auto text-gray-300 mb-2" size={40} />
+                                    <p className="text-[var(--text-muted)]">لا توجد فواتير لهذا الحجز</p>
+                                </div>
+                            ) : (
+                                <div className="space-y-2">
+                                    <p className="text-sm font-medium text-[var(--text-secondary)]">الفواتير ({bookingInvoices.length})</p>
+                                    {bookingInvoices.map(invoice => (
+                                        <div key={invoice.id} className="border border-[var(--border-color)] rounded-lg p-3">
+                                            <div className="flex items-center justify-between mb-2">
+                                                <span className="font-medium text-[var(--primary-700)]">{invoice.invoiceNumber}</span>
+                                                <span className={`
+                                                    inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium
+                                                    ${INVOICE_STATUS[invoice.status]?.color || 'bg-gray-100 text-gray-700'}
+                                                `}>
+                                                    {INVOICE_STATUS[invoice.status]?.icon}
+                                                    {INVOICE_STATUS[invoice.status]?.label || invoice.status}
+                                                </span>
+                                            </div>
+                                            <div className="flex items-center justify-between text-sm">
+                                                <div>
+                                                    <span className="text-[var(--text-muted)]">المبلغ: </span>
+                                                    <span className="font-bold">{invoice.totalAmount.toLocaleString()} ر.س</span>
+                                                </div>
+                                                <span className="text-xs text-[var(--text-muted)]">
+                                                    {new Date(invoice.issueDate).toLocaleDateString('ar-SA')}
+                                                </span>
+                                            </div>
+                                            <div className="flex gap-2 mt-2 pt-2 border-t border-dashed border-gray-200">
+                                                <button
+                                                    onClick={() => printInvoice(invoice)}
+                                                    className="flex items-center gap-1 text-xs text-gray-600 hover:text-blue-600 px-2 py-1 rounded hover:bg-blue-50"
+                                                >
+                                                    <Printer size={14} />
+                                                    طباعة
+                                                </button>
+                                                <button
+                                                    className="flex items-center gap-1 text-xs text-gray-600 hover:text-green-600 px-2 py-1 rounded hover:bg-green-50"
+                                                    title="سيتم إضافة المشاركة لاحقاً"
+                                                >
+                                                    <Share2 size={14} />
+                                                    مشاركة
+                                                </button>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
+
+                            {/* Create Invoice Section */}
+                            {getInvoiceSummary().remaining > 0 && !showCreateInvoiceForm && (
+                                <button
+                                    onClick={() => {
+                                        setShowCreateInvoiceForm(true)
+                                        setInvoiceForm({
+                                            amount: getInvoiceSummary().remaining.toString(),
+                                            paymentMethod: 'CASH',
+                                            notes: ''
+                                        })
+                                    }}
+                                    className="btn-primary w-full flex items-center justify-center gap-2"
+                                >
+                                    <Plus size={18} />
+                                    إصدار فاتورة جديدة
+                                </button>
+                            )}
+
+                            {/* Create Invoice Form */}
+                            {showCreateInvoiceForm && (
+                                <div className="border border-[var(--primary-200)] bg-[var(--primary-50)/30] rounded-lg p-4 space-y-3">
+                                    <p className="font-medium text-[var(--primary-700)]">إصدار فاتورة جديدة</p>
+
+                                    <div>
+                                        <label className="form-label">المبلغ *</label>
+                                        <input
+                                            type="number"
+                                            required
+                                            min="1"
+                                            step="0.01"
+                                            max={getInvoiceSummary().remaining}
+                                            value={invoiceForm.amount}
+                                            onChange={(e) => setInvoiceForm({ ...invoiceForm, amount: e.target.value })}
+                                            className="form-input w-full"
+                                            placeholder="0.00"
+                                        />
+                                    </div>
+
+                                    <div>
+                                        <label className="form-label">طريقة الدفع *</label>
+                                        <select
+                                            value={invoiceForm.paymentMethod}
+                                            onChange={(e) => setInvoiceForm({ ...invoiceForm, paymentMethod: e.target.value })}
+                                            className="form-input w-full"
+                                        >
+                                            <option value="CASH">نقداً</option>
+                                            <option value="CARD">بطاقة</option>
+                                            <option value="BANK_TRANSFER">تحويل بنكي</option>
+                                        </select>
+                                    </div>
+
+                                    <div>
+                                        <label className="form-label">ملاحظات</label>
+                                        <textarea
+                                            value={invoiceForm.notes}
+                                            onChange={(e) => setInvoiceForm({ ...invoiceForm, notes: e.target.value })}
+                                            className="form-input w-full h-16"
+                                            placeholder="ملاحظات إضافية..."
+                                        />
+                                    </div>
+
+                                    <div className="flex gap-3 pt-2">
+                                        <button
+                                            onClick={handleCreateBookingInvoice}
+                                            disabled={savingInvoice || !invoiceForm.amount}
+                                            className="btn-primary flex-1"
+                                        >
+                                            {savingInvoice ? 'جاري الإصدار...' : 'إصدار الفاتورة'}
+                                        </button>
+                                        <button
+                                            onClick={() => setShowCreateInvoiceForm(false)}
+                                            className="btn-secondary flex-1"
+                                        >
+                                            إلغاء
+                                        </button>
+                                    </div>
+                                </div>
+                            )}
                         </div>
                     </div>
                 </div>

@@ -11,7 +11,10 @@ import {
     XCircle,
     Link2,
     Eye,
-    EyeOff
+    EyeOff,
+    Upload,
+    Trash2,
+    ImageIcon
 } from 'lucide-react'
 
 interface SettingsData {
@@ -232,6 +235,56 @@ export default function SettingsPage() {
                     </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
+                    {/* Logo Upload Section */}
+                    <div className="flex items-start gap-6 p-4 bg-gray-50 rounded-lg border border-dashed border-gray-300">
+                        <div className="flex-shrink-0">
+                            {settings.companyLogo ? (
+                                <div className="relative">
+                                    <img
+                                        src={settings.companyLogo}
+                                        alt="شعار الشركة"
+                                        className="w-24 h-24 object-contain rounded-lg border border-gray-200 bg-white p-1"
+                                    />
+                                    <button
+                                        onClick={() => setSettings({ ...settings, companyLogo: null })}
+                                        className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600 shadow-md"
+                                        title="حذف الشعار"
+                                    >
+                                        <Trash2 size={14} />
+                                    </button>
+                                </div>
+                            ) : (
+                                <div className="w-24 h-24 flex items-center justify-center rounded-lg border-2 border-dashed border-gray-300 bg-white">
+                                    <ImageIcon size={32} className="text-gray-400" />
+                                </div>
+                            )}
+                        </div>
+                        <div className="flex-1">
+                            <label className="form-label">شعار الشركة</label>
+                            <p className="text-sm text-gray-500 mb-2">سيظهر الشعار في الفواتير والعقود المطبوعة</p>
+                            <label className="inline-flex items-center gap-2 px-4 py-2 bg-white border border-gray-300 rounded-lg cursor-pointer hover:bg-gray-50 transition-colors">
+                                <Upload size={18} className="text-gray-600" />
+                                <span className="text-sm font-medium text-gray-700">رفع صورة</span>
+                                <input
+                                    type="file"
+                                    accept="image/*"
+                                    className="hidden"
+                                    onChange={(e) => {
+                                        const file = e.target.files?.[0]
+                                        if (file) {
+                                            const reader = new FileReader()
+                                            reader.onload = (event) => {
+                                                setSettings({ ...settings, companyLogo: event.target?.result as string })
+                                            }
+                                            reader.readAsDataURL(file)
+                                        }
+                                    }}
+                                />
+                            </label>
+                            <p className="text-xs text-gray-400 mt-2">PNG, JPG أو SVG (حجم أقصى 2MB)</p>
+                        </div>
+                    </div>
+
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
                             <label className="form-label">اسم الشركة</label>

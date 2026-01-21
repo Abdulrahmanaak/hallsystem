@@ -19,6 +19,7 @@ import {
     Link2,
     Trash2
 } from 'lucide-react'
+import { printInvoice as printInvoiceUtil } from '@/lib/invoice-utils'
 
 interface Invoice {
     id: string
@@ -385,92 +386,37 @@ export default function FinancePage() {
     }
 
     // Print functions
-    const printInvoice = (invoice: Invoice) => {
-        const printWindow = window.open('', '_blank')
-        if (!printWindow) return
+    const printInvoice = async (invoice: Invoice) => {
+        // Fetch additional booking details (event date, customer ID)
+        let eventDate = invoice.issueDate // Fallback
+        let customerIdNumber = ''
 
-        printWindow.document.write(`
-            <!DOCTYPE html>
-            <html dir="rtl" lang="ar">
-            <head>
-                <meta charset="UTF-8">
-                <title>فاتورة ${invoice.invoiceNumber}</title>
-                <style>
-                    body { font-family: 'Segoe UI', Tahoma, sans-serif; padding: 40px; direction: rtl; }
-                    .header { text-align: center; margin-bottom: 30px; border-bottom: 2px solid #1e40af; padding-bottom: 20px; }
-                    .header h1 { color: #1e40af; margin: 0; font-size: 28px; }
-                    .invoice-info { display: flex; justify-content: space-between; margin-bottom: 30px; }
-                    .info-block { }
-                    .info-block h3 { color: #374151; margin-bottom: 10px; }
-                    .info-block p { margin: 5px 0; color: #6b7280; }
-                    table { width: 100%; border-collapse: collapse; margin: 20px 0; }
-                    th, td { padding: 12px; text-align: right; border-bottom: 1px solid #e5e7eb; }
-                    th { background: #f3f4f6; color: #374151; }
-                    .totals { margin-top: 20px; }
-                    .totals table { width: 300px; margin-right: auto; }
-                    .totals td { border: none; padding: 8px 0; }
-                    .totals .total-row { font-size: 18px; font-weight: bold; color: #1e40af; border-top: 2px solid #1e40af; }
-                    .footer { margin-top: 40px; text-align: center; color: #9ca3af; font-size: 12px; }
-                    @media print { body { padding: 20px; } }
-                </style>
-            </head>
-            <body>
-                <div class="header">
-                    <h1>نظام إدارة القاعات</h1>
-                    <p>فاتورة ضريبية</p>
-                </div>
-                
-                <div class="invoice-info">
-                    <div class="info-block">
-                        <h3>معلومات الفاتورة</h3>
-                        <p><strong>رقم الفاتورة:</strong> ${invoice.invoiceNumber}</p>
-                        <p><strong>تاريخ الإصدار:</strong> ${new Date(invoice.issueDate).toLocaleDateString('ar-SA')}</p>
-                        <p><strong>تاريخ الاستحقاق:</strong> ${new Date(invoice.dueDate).toLocaleDateString('ar-SA')}</p>
-                    </div>
-                    <div class="info-block">
-                        <h3>معلومات العميل</h3>
-                        <p><strong>الاسم:</strong> ${invoice.customerName}</p>
-                        <p><strong>الهاتف:</strong> ${invoice.customerPhone}</p>
-                    </div>
-                </div>
-                
-                <table>
-                    <thead>
-                        <tr>
-                            <th>البيان</th>
-                            <th>القاعة</th>
-                            <th>رقم الحجز</th>
-                            <th>المبلغ</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td>حجز قاعة</td>
-                            <td>${invoice.hallName}</td>
-                            <td>${invoice.bookingNumber}</td>
-                            <td>${invoice.subtotal.toLocaleString()} ر.س</td>
-                        </tr>
-                    </tbody>
-                </table>
-                
-                <div class="totals">
-                    <table>
-                        <tr><td>المبلغ الإجمالي</td><td>${invoice.subtotal.toLocaleString()} ر.س</td></tr>
-                        <tr><td>الخصم</td><td>${invoice.discountAmount.toLocaleString()} ر.س</td></tr>
-                        <tr><td>ضريبة القيمة المضافة (15%)</td><td>${invoice.vatAmount.toLocaleString()} ر.س</td></tr>
-                        <tr class="total-row"><td>الإجمالي النهائي</td><td>${invoice.totalAmount.toLocaleString()} ر.س</td></tr>
-                    </table>
-                </div>
-                
-                <div class="footer">
-                    <p>شكراً لتعاملكم معنا</p>
-                </div>
-                
-                <script>window.onload = function() { window.print(); }</script>
-            </body>
-            </html>
-        `)
-        printWindow.document.close()
+        try {
+            const res = await fetch(`/api/bookings/${invoice.bookingId}`)
+            if (res.ok) {
+                const booking = await res.json()
+                eventDate = booking.date || invoice.issueDate
+                customerIdNumber = booking.customerIdNumber
+            }
+        } catch (e) {
+            console.warn('Could not fetch booking details for print')
+        }
+
+        await printInvoiceUtil({
+            invoiceNumber: invoice.invoiceNumber,
+            issueDate: invoice.issueDate,
+            customerName: invoice.customerName,
+            customerPhone: invoice.customerPhone,
+            customerIdNumber: customerIdNumber,
+            bookingNumber: invoice.bookingNumber,
+            hallName: invoice.hallName,
+            eventDate: eventDate,
+            subtotal: invoice.subtotal,
+            vatAmount: invoice.vatAmount,
+            totalAmount: invoice.totalAmount,
+            paidAmount: invoice.paidAmount,
+            remainingAmount: invoice.remainingAmount
+        })
     }
 
     const printReceipt = (payment: Payment) => {
