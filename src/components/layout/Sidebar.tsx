@@ -14,6 +14,7 @@ import {
     X
 } from 'lucide-react'
 import type { UserRole } from '@/types/enums'
+import HelpMenu from '@/components/tutorial/HelpMenu'
 
 interface SidebarProps {
     user: {
@@ -90,7 +91,7 @@ export default function Sidebar({ user, onCloseMobile }: SidebarProps) {
     )
 
     return (
-        <aside className="sidebar">
+        <aside className="sidebar flex flex-col h-full">
             {/* Logo/Brand */}
             <div className="p-6 border-b border-[var(--border-color)]">
                 <h2 className="text-xl font-bold text-[var(--primary-700)]">
@@ -112,7 +113,7 @@ export default function Sidebar({ user, onCloseMobile }: SidebarProps) {
             </div>
 
             {/* Navigation Menu */}
-            <nav className="p-4">
+            <nav className="p-4 flex-1">
                 <ul className="space-y-1">
                     {visibleMenuItems.map((item) => {
                         const isActive = pathname === item.href ||
@@ -132,6 +133,11 @@ export default function Sidebar({ user, onCloseMobile }: SidebarProps) {
                     })}
                 </ul>
             </nav>
+
+            {/* Help Menu at Bottom */}
+            <div className="p-4 border-t border-[var(--border-color)]">
+                <HelpMenu currentPath={pathname} />
+            </div>
         </aside>
     )
 }
