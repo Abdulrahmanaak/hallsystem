@@ -9,7 +9,7 @@ export async function POST(request: Request) {
         const { nameAr, username, password, email, phone, commercialRegNo, vatRegNo } = body
 
         // Validate required fields
-        if (!nameAr || !username || !password || !email || !phone) {
+        if (!nameAr || !username || !password || !email) {
             return NextResponse.json(
                 { error: 'جميع الحقول المطلوبة يجب تعبئتها' },
                 { status: 400 }
@@ -58,7 +58,7 @@ export async function POST(request: Request) {
                 password: hashedPassword,
                 nameAr,
                 email,
-                phone,
+                phone: phone || null,
                 role: 'HALL_OWNER',
                 status: 'ACTIVE',
                 ownerId: null, // Hall owners have null ownerId
@@ -80,7 +80,7 @@ export async function POST(request: Request) {
                 ownerId: user.id,
                 companyNameAr: nameAr,
                 companyEmail: email,
-                companyPhone: phone,
+                companyPhone: phone || null,
                 commercialRegNo: commercialRegNo || null,
                 vatRegNo: vatRegNo || null
             }

@@ -163,7 +163,7 @@ export default function SignupPage() {
                     {/* Phone */}
                     <div>
                         <label htmlFor="phone" className="form-label">
-                            رقم الجوال <span className="text-red-500">*</span>
+                            رقم الجوال
                         </label>
                         <div className="relative">
                             <input
@@ -174,7 +174,7 @@ export default function SignupPage() {
                                 onChange={handleChange}
                                 className="form-input pl-10"
                                 placeholder="05xxxxxxxx"
-                                required
+
                                 disabled={isLoading}
                                 dir="ltr"
                             />
