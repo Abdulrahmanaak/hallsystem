@@ -7,6 +7,7 @@ import {
     Calendar,
     FileText,
     Users,
+    User,
     Building2,
     DollarSign,
     UserCog,
@@ -76,6 +77,12 @@ export default function Sidebar({ user, onCloseMobile }: SidebarProps) {
             icon: <UserCog size={20} />,
             href: '/dashboard/users',
             roles: ['SUPER_ADMIN', 'HALL_OWNER']
+        },
+        {
+            label: 'الملف الشخصي',
+            icon: <User size={20} />,
+            href: '/dashboard/profile',
+            roles: ['SUPER_ADMIN', 'HALL_OWNER', 'ROOM_SUPERVISOR', 'ACCOUNTANT', 'EMPLOYEE']
         },
         {
             label: 'الإعدادات',

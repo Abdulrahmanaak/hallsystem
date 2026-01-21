@@ -132,11 +132,16 @@ function LoginForm() {
             </form>
 
             {/* Signup Link */}
-            <div className="mt-6 text-center">
+            <div className="mt-6 text-center space-y-2">
                 <p className="text-sm text-gray-600">
                     ليس لديك حساب؟{' '}
                     <Link href="/signup" className="text-[var(--primary)] hover:underline font-medium">
                         إنشاء حساب جديد
+                    </Link>
+                </p>
+                <p className="text-sm text-gray-600">
+                    <Link href="/forgot-password" className="text-[var(--primary)] hover:underline">
+                        نسيت كلمة المرور؟
                     </Link>
                 </p>
             </div>
