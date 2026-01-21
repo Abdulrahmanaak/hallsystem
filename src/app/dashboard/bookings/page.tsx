@@ -362,7 +362,7 @@ export default function BookingsPage() {
                     </p>
                 </div>
 
-                <Link href="/dashboard/bookings/new" className="btn-primary flex items-center gap-2">
+                <Link id="tour-add-booking-btn" href="/dashboard/bookings/new" className="btn-primary flex items-center gap-2">
                     <Plus size={20} />
                     حجز جديد
                 </Link>
@@ -433,7 +433,7 @@ export default function BookingsPage() {
             <Card className="bg-white border border-[var(--border-color)]">
                 <CardContent className="py-4">
                     <div className="flex flex-col md:flex-row gap-4">
-                        <div className="relative flex-1">
+                        <div id="tour-booking-search" className="relative flex-1">
                             <Search className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
                             <input
                                 type="text"
@@ -444,6 +444,7 @@ export default function BookingsPage() {
                             />
                         </div>
                         <select
+                            id="tour-booking-filter"
                             value={statusFilter}
                             onChange={(e) => setStatusFilter(e.target.value)}
                             className="form-input w-full md:w-48"
@@ -461,7 +462,7 @@ export default function BookingsPage() {
             {/* Bookings Table */}
             <Card className="bg-white border border-[var(--border-color)]">
                 <CardContent className="p-0">
-                    <div className="overflow-x-auto">
+                    <div id="tour-booking-table" className="overflow-x-auto">
                         <table className="table">
                             <thead>
                                 <tr>

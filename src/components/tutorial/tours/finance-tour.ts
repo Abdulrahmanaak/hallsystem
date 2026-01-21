@@ -21,7 +21,7 @@ export const financeTourSteps: StepOptions[] = [
   },
   {
     id: 'stats',
-
+    attachTo: { element: '#tour-finance-stats', on: 'auto' },
     title: '📊 ملخص مالي',
     text: `
       <p>الإحصائيات المالية:</p>
@@ -34,7 +34,7 @@ export const financeTourSteps: StepOptions[] = [
   },
   {
     id: 'create-invoice',
-
+    attachTo: { element: '#tour-create-invoice-btn', on: 'auto' },
     title: '📄 إصدار فاتورة',
     text: `
       <p>اضغط لإصدار فاتورة جديدة.</p>
@@ -43,7 +43,7 @@ export const financeTourSteps: StepOptions[] = [
   },
   {
     id: 'invoice-table',
-    attachTo: { element: 'table', on: 'top' },
+    attachTo: { element: '#tour-invoice-table', on: 'auto' },
     title: '📋 قائمة الفواتير',
     text: `
       <p>جدول الفواتير يعرض:</p>
@@ -57,7 +57,7 @@ export const financeTourSteps: StepOptions[] = [
   },
   {
     id: 'qoyod-sync',
-
+    attachTo: { element: '#tour-invoice-table', on: 'auto' },
     title: '🔗 مزامنة قيود',
     text: `
       <p>تكامل قيود المحاسبي:</p>
@@ -70,7 +70,7 @@ export const financeTourSteps: StepOptions[] = [
   },
   {
     id: 'print',
-
+    attachTo: { element: '#tour-invoice-table', on: 'auto' },
     title: '🖨️ طباعة',
     text: `
       <p>يمكنك طباعة:</p>

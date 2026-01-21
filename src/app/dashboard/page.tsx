@@ -7,13 +7,13 @@ export default async function DashboardPage() {
                 <h1 className="text-2xl font-bold text-[var(--text-primary)]">
                     لوحة التحكم
                 </h1>
-                <Link href="/dashboard/bookings/new" className="bg-[var(--primary-600)] text-white px-4 py-2 rounded-lg hover:bg-[var(--primary-700)] transition-colors flex items-center gap-2">
+                <Link id="tour-new-booking-btn" href="/dashboard/bookings/new" className="bg-[var(--primary-600)] text-white px-4 py-2 rounded-lg hover:bg-[var(--primary-700)] transition-colors flex items-center gap-2">
                     <span className="text-xl">+</span>
                     <span>حجز جديد</span>
                 </Link>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            <div id="tour-stats-cards" className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
                 {/* Stats Cards - Will be implemented next */}
                 <div className="card">
                     <div className="text-sm text-[var(--text-secondary)] mb-1">

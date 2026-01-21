@@ -21,7 +21,7 @@ export const calendarTourSteps: StepOptions[] = [
   },
   {
     id: 'navigation',
-
+    attachTo: { element: '#tour-calendar-nav', on: 'auto' },
     title: '⬅️ التنقل بين الأشهر',
     text: `
       <p>استخدم الأسهم للتنقل:</p>
@@ -34,7 +34,7 @@ export const calendarTourSteps: StepOptions[] = [
   },
   {
     id: 'calendar-grid',
-
+    attachTo: { element: '#tour-calendar-grid', on: 'auto' },
     title: '📅 شبكة التقويم',
     text: `
       <p>كل خلية تمثل يوماً في الشهر:</p>
@@ -47,6 +47,7 @@ export const calendarTourSteps: StepOptions[] = [
   },
   {
     id: 'booking-preview',
+    attachTo: { element: '#tour-booking-preview', on: 'auto' },
     title: '👁️ معاينة الحجز',
     text: `
       <p>عند النقر على حجز في التقويم:</p>

@@ -21,7 +21,7 @@ export const usersTourSteps: StepOptions[] = [
   },
   {
     id: 'add-user',
-
+    attachTo: { element: '#add-user-btn', on: 'auto' },
     title: '➕ إضافة مستخدم',
     text: `
       <p>اضغط لإضافة مستخدم جديد.</p>
@@ -30,6 +30,7 @@ export const usersTourSteps: StepOptions[] = [
   },
   {
     id: 'roles',
+    attachTo: { element: '#tour-users-table', on: 'auto' },
     title: '🎭 الأدوار والصلاحيات',
     text: `
       <p>أدوار المستخدمين:</p>
@@ -44,7 +45,7 @@ export const usersTourSteps: StepOptions[] = [
   },
   {
     id: 'status',
-
+    attachTo: { element: '#tour-users-table', on: 'auto' },
     title: '✅ حالة المستخدم',
     text: `
       <p>يمكنك تفعيل أو تعطيل المستخدم:</p>

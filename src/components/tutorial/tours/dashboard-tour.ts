@@ -21,7 +21,7 @@ export const dashboardTourSteps: StepOptions[] = [
   },
   {
     id: 'stats-cards',
-
+    attachTo: { element: '#tour-stats-cards', on: 'auto' },
     title: '📊 البطاقات الإحصائية',
     text: `
       <p>هنا تجد ملخصاً سريعاً لأداء القاعة:</p>
@@ -35,7 +35,7 @@ export const dashboardTourSteps: StepOptions[] = [
   },
   {
     id: 'new-booking-button',
-
+    attachTo: { element: '#tour-new-booking-btn', on: 'auto' },
     title: '➕ إنشاء حجز جديد',
     text: `
       <p>اضغط هنا لإنشاء حجز جديد بسرعة.</p>
@@ -44,7 +44,7 @@ export const dashboardTourSteps: StepOptions[] = [
   },
   {
     id: 'sidebar-nav',
-
+    attachTo: { element: '#tour-sidebar-nav', on: 'auto' },
     title: '📋 القائمة الجانبية',
     text: `
       <p>من هنا يمكنك التنقل بين صفحات النظام:</p>

@@ -208,6 +208,7 @@ export default function ExpensesPage() {
                 </div>
 
                 <button
+                    id="tour-add-expense-btn"
                     onClick={() => setShowModal(true)}
                     className="btn-primary flex items-center gap-2"
                 >

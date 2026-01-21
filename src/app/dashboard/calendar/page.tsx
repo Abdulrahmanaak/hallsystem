@@ -178,7 +178,7 @@ export default function CalendarPage() {
                 <div className="lg:col-span-2">
                     <Card className="bg-white border border-[var(--border-color)]">
                         <CardHeader className="flex flex-row items-center justify-between pb-4 border-b border-[var(--border-color)]">
-                            <div className="flex items-center gap-4">
+                            <div id="tour-calendar-nav" className="flex items-center gap-4">
                                 <button
                                     onClick={nextMonth}
                                     className="p-2 hover:bg-gray-100 rounded-md transition-colors"
@@ -209,7 +209,7 @@ export default function CalendarPage() {
                             </div>
 
                             {/* Calendar Grid */}
-                            <div className="grid grid-cols-7 gap-1">
+                            <div id="tour-calendar-grid" className="grid grid-cols-7 gap-1">
                                 {calendarDays.map((day, index) => {
                                     if (day === null) {
                                         return <div key={index} className="min-h-[80px]" />
@@ -267,7 +267,7 @@ export default function CalendarPage() {
 
                 {/* Selected Day Details */}
                 <div className="lg:col-span-1">
-                    <Card className="bg-white border border-[var(--border-color)] sticky top-4">
+                    <Card id="tour-booking-preview" className="bg-white border border-[var(--border-color)] sticky top-4">
                         <CardHeader className="border-b border-[var(--border-color)]">
                             <CardTitle className="text-lg">
                                 {selectedDay

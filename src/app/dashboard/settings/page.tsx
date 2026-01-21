@@ -224,7 +224,7 @@ export default function SettingsPage() {
             )}
 
             {/* Company Information */}
-            <Card className="bg-white border border-[var(--border-color)]">
+            <Card id="tour-company-info" className="bg-white border border-[var(--border-color)]">
                 <CardHeader>
                     <CardTitle className="flex items-center gap-2">
                         <Building2 size={20} />
@@ -318,7 +318,7 @@ export default function SettingsPage() {
             </Card>
 
             {/* Qoyod Integration */}
-            <Card className="bg-white border border-[var(--border-color)]">
+            <Card id="tour-qoyod-settings" className="bg-white border border-[var(--border-color)]">
                 <CardHeader>
                     <CardTitle className="flex items-center gap-2">
                         <Link2 size={20} />

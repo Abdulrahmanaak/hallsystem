@@ -31,6 +31,10 @@
 - **ملفات العملاء**: تخزين تفاصيل الاتصال، وأرقام الهوية، وسجل الحجوزات.
 - **مزامنة قيود**: ربط ملفات العملاء بجهات الاتصال في قيود.
 
+### 🎓 نظام المساعدة التفاعلي
+- **جولات تعريفية**: جولات تفاعلية مدمجة (Built-in Tours) تشرح وظائف كل صفحة.
+- **قائمة المساعدة**: زر مساعدة مخصص للوصول السريع إلى الجولات في أي وقت.
+
 ## التقنيات المستخدمة
 
 - **إطار العمل**: [Next.js 15](https://nextjs.org/) (App Router)
@@ -141,6 +145,10 @@ A comprehensive, multi-tenant Hall Management System designed to streamline book
 ### 👥 Customer CRM
 - **Customer Profiles**: Store contact details, ID numbers, and booking history.
 - **Qoyod Sync**: Link customer profiles to Qoyod contacts.
+
+### 🎓 Interactive Help System
+- **Guided Tours**: Built-in interactive tours explaining the functionality of each page.
+- **Help Menu**: Dedicated help button for quick access to tours at any time.
 
 ## Tech Stack
 

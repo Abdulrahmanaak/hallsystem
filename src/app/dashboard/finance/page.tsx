@@ -572,6 +572,7 @@ export default function FinancePage() {
                         تحقق من المزامنة
                     </button>
                     <button
+                        id="tour-create-invoice-btn"
                         onClick={() => setShowInvoiceModal(true)}
                         className="btn-primary flex items-center gap-2"
                     >
@@ -582,7 +583,7 @@ export default function FinancePage() {
             </div>
 
             {/* Stats Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div id="tour-finance-stats" className="grid grid-cols-1 md:grid-cols-4 gap-4">
                 <Card className="bg-white border border-[var(--border-color)]">
                     <CardContent className="pt-6">
                         <div className="flex items-center gap-4">
@@ -661,7 +662,7 @@ export default function FinancePage() {
             {/* Invoices List */}
             <Card className="bg-white border border-[var(--border-color)]">
                 <CardContent className="p-0">
-                    <div className="overflow-x-auto">
+                    <div id="tour-invoice-table" className="overflow-x-auto">
                         <table className="table">
                             <thead>
                                 <tr>

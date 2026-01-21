@@ -21,7 +21,7 @@ export const bookingsTourSteps: StepOptions[] = [
   },
   {
     id: 'add-booking',
-
+    attachTo: { element: '#tour-add-booking-btn', on: 'auto' },
     title: '➕ حجز جديد',
     text: `
       <p>اضغط هنا لإنشاء حجز جديد.</p>
@@ -30,7 +30,7 @@ export const bookingsTourSteps: StepOptions[] = [
   },
   {
     id: 'search',
-
+    attachTo: { element: '#tour-booking-search', on: 'auto' },
     title: '🔍 البحث',
     text: `
       <p>ابحث عن الحجوزات باستخدام:</p>
@@ -43,7 +43,7 @@ export const bookingsTourSteps: StepOptions[] = [
   },
   {
     id: 'filters',
-
+    attachTo: { element: '#tour-booking-filter', on: 'auto' },
     title: '🎯 التصفية',
     text: `
       <p>استخدم الفلاتر لتصفية الحجوزات حسب:</p>
@@ -56,7 +56,7 @@ export const bookingsTourSteps: StepOptions[] = [
   },
   {
     id: 'booking-table',
-
+    attachTo: { element: '#tour-booking-table', on: 'auto' },
     title: '📋 قائمة الحجوزات',
     text: `
       <p>هنا تظهر جميع الحجوزات مع:</p>

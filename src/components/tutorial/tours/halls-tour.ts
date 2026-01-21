@@ -21,7 +21,7 @@ export const hallsTourSteps: StepOptions[] = [
   },
   {
     id: 'add-hall',
-
+    attachTo: { element: '#tour-add-hall-btn', on: 'auto' },
     title: '➕ إضافة قاعة',
     text: `
       <p>اضغط هنا لإضافة قاعة جديدة.</p>
@@ -30,7 +30,7 @@ export const hallsTourSteps: StepOptions[] = [
   },
   {
     id: 'hall-card',
-
+    attachTo: { element: '#tour-halls-grid', on: 'auto' },
     title: '🎫 بطاقة القاعة',
     text: `
       <p>كل بطاقة تعرض معلومات القاعة:</p>
@@ -44,6 +44,7 @@ export const hallsTourSteps: StepOptions[] = [
   },
   {
     id: 'pricing',
+    attachTo: { element: '#tour-halls-grid', on: 'auto' },
     title: '💰 إعداد الأسعار',
     text: `
       <p>لكل قاعة يمكنك تحديد:</p>
@@ -57,7 +58,7 @@ export const hallsTourSteps: StepOptions[] = [
   },
   {
     id: 'status',
-
+    attachTo: { element: '#tour-halls-grid', on: 'auto' },
     title: '🏷️ حالة القاعة',
     text: `
       <p>حالات القاعة:</p>

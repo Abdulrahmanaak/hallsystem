@@ -358,7 +358,7 @@ export default function HallsPage() {
                     </p>
                 </div>
 
-                <button onClick={openAddModal} className="btn-primary flex items-center gap-2">
+                <button id="tour-add-hall-btn" onClick={openAddModal} className="btn-primary flex items-center gap-2">
                     <Plus size={20} />
                     إضافة قاعة
                 </button>
@@ -442,7 +442,7 @@ export default function HallsPage() {
             </Card>
 
             {/* Halls Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div id="tour-halls-grid" className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {filteredHalls.map(hall => (
                     <Card key={hall.id} className="bg-white border border-[var(--border-color)] hover:shadow-md transition-shadow">
                         <CardHeader className="pb-3">

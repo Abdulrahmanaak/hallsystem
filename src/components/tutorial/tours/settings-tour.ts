@@ -21,7 +21,7 @@ export const settingsTourSteps: StepOptions[] = [
   },
   {
     id: 'company-info',
-
+    attachTo: { element: '#tour-company-info', on: 'auto' },
     title: '🏢 بيانات المؤسسة',
     text: `
       <p>أدخل بيانات المؤسسة:</p>
@@ -35,7 +35,7 @@ export const settingsTourSteps: StepOptions[] = [
   },
   {
     id: 'vat',
-
+    attachTo: { element: '#tour-company-info', on: 'auto' },
     title: '💵 ضريبة القيمة المضافة',
     text: `
       <p>حدد نسبة الضريبة المطبقة.</p>
@@ -44,7 +44,7 @@ export const settingsTourSteps: StepOptions[] = [
   },
   {
     id: 'qoyod-toggle',
-
+    attachTo: { element: '#tour-qoyod-settings', on: 'auto' },
     title: '🔗 تفعيل قيود',
     text: `
       <p>فعّل التكامل مع قيود المحاسبي.</p>
@@ -53,7 +53,7 @@ export const settingsTourSteps: StepOptions[] = [
   },
   {
     id: 'qoyod-api',
-
+    attachTo: { element: '#tour-qoyod-settings', on: 'auto' },
     title: '🔑 مفتاح API',
     text: `
       <p>أدخل مفتاح API من قيود:</p>

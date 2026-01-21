@@ -21,7 +21,7 @@ export const expensesTourSteps: StepOptions[] = [
   },
   {
     id: 'add-expense',
-
+    attachTo: { element: '#tour-add-expense-btn', on: 'auto' },
     title: '➕ إضافة مصروف',
     text: `
       <p>اضغط لتسجيل مصروف جديد.</p>
@@ -30,7 +30,7 @@ export const expensesTourSteps: StepOptions[] = [
   },
   {
     id: 'vendor-select',
-
+    attachTo: { element: '#tour-add-expense-btn', on: 'auto' },
     title: '🏪 اختيار المورد',
     text: `
       <p>حدد المورد (البائع) للمصروف:</p>
@@ -42,7 +42,7 @@ export const expensesTourSteps: StepOptions[] = [
   },
   {
     id: 'image-upload',
-
+    attachTo: { element: '#tour-add-expense-btn', on: 'auto' },
     title: '📷 رفع الصورة',
     text: `
       <p>يمكنك إرفاق صورة الفاتورة أو الإيصال.</p>

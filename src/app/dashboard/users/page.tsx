@@ -261,7 +261,7 @@ export default function UsersPage() {
             {/* Users Table */}
             <Card className="bg-white border border-[var(--border-color)]">
                 <CardContent className="p-0">
-                    <div className="overflow-x-auto">
+                    <div id="tour-users-table" className="overflow-x-auto">
                         <table className="table">
                             <thead>
                                 <tr>

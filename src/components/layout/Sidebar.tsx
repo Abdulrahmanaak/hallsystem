@@ -113,7 +113,7 @@ export default function Sidebar({ user, onCloseMobile }: SidebarProps) {
             </div>
 
             {/* Navigation Menu */}
-            <nav className="p-4 flex-1">
+            <nav id="tour-sidebar-nav" className="p-4 flex-1">
                 <ul className="space-y-1">
                     {visibleMenuItems.map((item) => {
                         const isActive = pathname === item.href ||
