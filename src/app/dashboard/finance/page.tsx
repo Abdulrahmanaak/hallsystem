@@ -905,13 +905,22 @@ export default function FinancePage() {
                 }
 
                 // Booking Balance Logic
-                const bookingTotal = showViewInvoice.bookingTotalAmount || 0
+                // Try to get total from invoice object, fallback to finding it in bookings list
+                let bookingTotal = showViewInvoice.bookingTotalAmount || 0
+                if (!bookingTotal) {
+                    const foundBooking = bookings.find(b => b.bookingNumber === showViewInvoice.bookingNumber)
+                    if (foundBooking) bookingTotal = foundBooking.finalAmount
+                }
                 // Calculate total paid for this booking across all invoices
                 const totalPaidForBooking = invoices
                     .filter(i => i.bookingId === showViewInvoice.bookingId && i.status !== 'CANCELLED')
                     .reduce((sum, i) => sum + i.paidAmount, 0)
 
                 const bookingRemaining = bookingTotal - totalPaidForBooking
+
+                // Helper for currency format
+                const formatCurrency = (amount: number) =>
+                    amount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
 
                 return (
                     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
@@ -944,15 +953,15 @@ export default function FinancePage() {
                                     <div className="bg-amber-50 border border-amber-200 p-3 rounded-lg text-sm space-y-1 text-amber-900">
                                         <div className="flex justify-between font-semibold border-b border-amber-200 pb-1 mb-1">
                                             <span>إجمالي قيمة الحجز</span>
-                                            <span>{bookingTotal.toLocaleString()} ر.س</span>
+                                            <span>{formatCurrency(bookingTotal)} ر.س</span>
                                         </div>
                                         <div className="flex justify-between">
                                             <span>إجمالي المدفوع للحجز</span>
-                                            <span className="text-green-700">{totalPaidForBooking.toLocaleString()} ر.س</span>
+                                            <span className="text-green-700">{formatCurrency(totalPaidForBooking)} ر.س</span>
                                         </div>
                                         <div className="flex justify-between font-bold">
                                             <span>المتبقي من الحجز</span>
-                                            <span className="text-red-700">{bookingRemaining.toLocaleString()} ر.س</span>
+                                            <span className="text-red-700">{formatCurrency(bookingRemaining)} ر.س</span>
                                         </div>
                                     </div>
                                 )}
@@ -961,12 +970,12 @@ export default function FinancePage() {
                                     <div className="flex justify-between text-[var(--text-secondary)] py-1 border-b">
                                         <span>تفاصيل الفاتورة الحالية</span>
                                     </div>
-                                    <div className="flex justify-between"><span>المبلغ</span><span>{displaySubtotal.toLocaleString('en-US', { minimumFractionDigits: 2 })} ر.س</span></div>
-                                    <div className="flex justify-between text-red-600"><span>الخصم</span><span>-{showViewInvoice.discountAmount.toLocaleString()} ر.س</span></div>
-                                    <div className="flex justify-between"><span>الضريبة (15%)</span><span>{displayVatAmount.toLocaleString('en-US', { minimumFractionDigits: 2 })} ر.س</span></div>
-                                    <div className="flex justify-between font-bold text-lg border-t pt-2"><span>إجمالي الفاتورة</span><span>{displayTotal.toLocaleString('en-US', { minimumFractionDigits: 2 })} ر.س</span></div>
-                                    <div className="flex justify-between text-green-600"><span>المدفوع من الفاتورة</span><span>{showViewInvoice.paidAmount.toLocaleString()} ر.س</span></div>
-                                    <div className="flex justify-between font-bold text-red-600"><span>المتبقي من الفاتورة</span><span>{showViewInvoice.remainingAmount.toLocaleString()} ر.س</span></div>
+                                    <div className="flex justify-between"><span>المبلغ</span><span>{formatCurrency(displaySubtotal)} ر.س</span></div>
+                                    <div className="flex justify-between text-red-600"><span>الخصم</span><span>-{formatCurrency(showViewInvoice.discountAmount)} ر.س</span></div>
+                                    <div className="flex justify-between"><span>الضريبة (15%)</span><span>{formatCurrency(displayVatAmount)} ر.س</span></div>
+                                    <div className="flex justify-between font-bold text-lg border-t pt-2"><span>إجمالي الفاتورة</span><span>{formatCurrency(displayTotal)} ر.س</span></div>
+                                    <div className="flex justify-between text-green-600"><span>المدفوع من الفاتورة</span><span>{formatCurrency(showViewInvoice.paidAmount)} ر.س</span></div>
+                                    <div className="flex justify-between font-bold text-red-600"><span>المتبقي من الفاتورة</span><span>{formatCurrency(showViewInvoice.remainingAmount)} ر.س</span></div>
                                 </div>
 
                                 <div className="flex gap-3">
