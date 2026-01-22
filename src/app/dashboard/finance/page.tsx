@@ -26,6 +26,7 @@ interface Invoice {
     invoiceNumber: string
     bookingId: string
     bookingNumber: string
+    bookingTotalAmount?: number
     hallName: string
     customerName: string
     customerPhone: string
@@ -891,48 +892,91 @@ export default function FinancePage() {
             )}
 
             {/* View Invoice Modal */}
-            {showViewInvoice && (
-                <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-                    <div className="bg-white rounded-lg shadow-xl w-full max-w-lg mx-4">
-                        <div className="flex items-center justify-between p-4 border-b border-[var(--border-color)]">
-                            <h3 className="text-lg font-bold">تفاصيل الفاتورة</h3>
-                            <button onClick={() => setShowViewInvoice(null)} className="p-2 hover:bg-gray-100 rounded-md">
-                                <X size={20} />
-                            </button>
-                        </div>
+            {showViewInvoice && (() => {
+                // VAT Fix Logic (Legacy 0-VAT handling)
+                let displaySubtotal = showViewInvoice.subtotal
+                let displayVatAmount = showViewInvoice.vatAmount
+                let displayTotal = showViewInvoice.totalAmount
 
-                        <div className="p-4 space-y-4">
-                            <div className="flex justify-between items-center">
-                                <span className="text-2xl font-bold text-[var(--primary-700)]">{showViewInvoice.invoiceNumber}</span>
-                                <span className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-sm font-medium ${INVOICE_STATUS[showViewInvoice.status]?.color}`}>
-                                    {INVOICE_STATUS[showViewInvoice.status]?.icon}
-                                    {INVOICE_STATUS[showViewInvoice.status]?.label}
-                                </span>
+                if (displayVatAmount <= 0.1 && displayTotal > 0) {
+                    const vatRate = 0.15
+                    displaySubtotal = displayTotal / (1 + vatRate)
+                    displayVatAmount = displayTotal - displaySubtotal
+                }
+
+                // Booking Balance Logic
+                const bookingTotal = showViewInvoice.bookingTotalAmount || 0
+                // Calculate total paid for this booking across all invoices
+                const totalPaidForBooking = invoices
+                    .filter(i => i.bookingId === showViewInvoice.bookingId && i.status !== 'CANCELLED')
+                    .reduce((sum, i) => sum + i.paidAmount, 0)
+
+                const bookingRemaining = bookingTotal - totalPaidForBooking
+
+                return (
+                    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+                        <div className="bg-white rounded-lg shadow-xl w-full max-w-lg mx-4">
+                            <div className="flex items-center justify-between p-4 border-b border-[var(--border-color)]">
+                                <h3 className="text-lg font-bold">تفاصيل الفاتورة</h3>
+                                <button onClick={() => setShowViewInvoice(null)} className="p-2 hover:bg-gray-100 rounded-md">
+                                    <X size={20} />
+                                </button>
                             </div>
 
-                            <div className="grid grid-cols-2 gap-4 text-sm">
-                                <div><span className="text-[var(--text-muted)]">العميل:</span> <strong>{showViewInvoice.customerName}</strong></div>
-                                <div><span className="text-[var(--text-muted)]">رقم الحجز:</span> <strong>{showViewInvoice.bookingNumber}</strong></div>
-                                <div><span className="text-[var(--text-muted)]">القاعة:</span> <strong>{showViewInvoice.hallName}</strong></div>
-                                <div><span className="text-[var(--text-muted)]">تاريخ الإصدار:</span> <strong>{new Date(showViewInvoice.issueDate).toLocaleDateString('ar-SA')}</strong></div>
-                            </div>
+                            <div className="p-4 space-y-4">
+                                <div className="flex justify-between items-center">
+                                    <span className="text-2xl font-bold text-[var(--primary-700)]">{showViewInvoice.invoiceNumber}</span>
+                                    <span className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-sm font-medium ${INVOICE_STATUS[showViewInvoice.status]?.color}`}>
+                                        {INVOICE_STATUS[showViewInvoice.status]?.icon}
+                                        {INVOICE_STATUS[showViewInvoice.status]?.label}
+                                    </span>
+                                </div>
 
-                            <div className="bg-gray-50 p-4 rounded-lg space-y-2">
-                                <div className="flex justify-between"><span>المبلغ</span><span>{showViewInvoice.subtotal.toLocaleString()} ر.س</span></div>
-                                <div className="flex justify-between text-red-600"><span>الخصم</span><span>-{showViewInvoice.discountAmount.toLocaleString()} ر.س</span></div>
-                                <div className="flex justify-between"><span>الضريبة (15%)</span><span>{showViewInvoice.vatAmount.toLocaleString()} ر.س</span></div>
-                                <div className="flex justify-between font-bold text-lg border-t pt-2"><span>الإجمالي</span><span>{showViewInvoice.totalAmount.toLocaleString()} ر.س</span></div>
-                                <div className="flex justify-between text-green-600"><span>المدفوع</span><span>{showViewInvoice.paidAmount.toLocaleString()} ر.س</span></div>
-                                <div className="flex justify-between font-bold text-red-600"><span>المتبقي</span><span>{showViewInvoice.remainingAmount.toLocaleString()} ر.س</span></div>
-                            </div>
+                                <div className="grid grid-cols-2 gap-4 text-sm">
+                                    <div><span className="text-[var(--text-muted)]">العميل:</span> <strong>{showViewInvoice.customerName}</strong></div>
+                                    <div><span className="text-[var(--text-muted)]">رقم الحجز:</span> <strong>{showViewInvoice.bookingNumber}</strong></div>
+                                    <div><span className="text-[var(--text-muted)]">القاعة:</span> <strong>{showViewInvoice.hallName}</strong></div>
+                                    <div><span className="text-[var(--text-muted)]">تاريخ الإصدار:</span> <strong>{new Date(showViewInvoice.issueDate).toLocaleDateString('ar-SA')}</strong></div>
+                                </div>
 
-                            <div className="flex gap-3">
-                                <button onClick={() => setShowViewInvoice(null)} className="btn-secondary flex-1">إغلاق</button>
+                                {/* Booking Summary Box */}
+                                {bookingTotal > 0 && (
+                                    <div className="bg-amber-50 border border-amber-200 p-3 rounded-lg text-sm space-y-1 text-amber-900">
+                                        <div className="flex justify-between font-semibold border-b border-amber-200 pb-1 mb-1">
+                                            <span>إجمالي قيمة الحجز</span>
+                                            <span>{bookingTotal.toLocaleString()} ر.س</span>
+                                        </div>
+                                        <div className="flex justify-between">
+                                            <span>إجمالي المدفوع للحجز</span>
+                                            <span className="text-green-700">{totalPaidForBooking.toLocaleString()} ر.س</span>
+                                        </div>
+                                        <div className="flex justify-between font-bold">
+                                            <span>المتبقي من الحجز</span>
+                                            <span className="text-red-700">{bookingRemaining.toLocaleString()} ر.س</span>
+                                        </div>
+                                    </div>
+                                )}
+
+                                <div className="bg-gray-50 p-4 rounded-lg space-y-2">
+                                    <div className="flex justify-between text-[var(--text-secondary)] py-1 border-b">
+                                        <span>تفاصيل الفاتورة الحالية</span>
+                                    </div>
+                                    <div className="flex justify-between"><span>المبلغ</span><span>{displaySubtotal.toLocaleString('en-US', { minimumFractionDigits: 2 })} ر.س</span></div>
+                                    <div className="flex justify-between text-red-600"><span>الخصم</span><span>-{showViewInvoice.discountAmount.toLocaleString()} ر.س</span></div>
+                                    <div className="flex justify-between"><span>الضريبة (15%)</span><span>{displayVatAmount.toLocaleString('en-US', { minimumFractionDigits: 2 })} ر.س</span></div>
+                                    <div className="flex justify-between font-bold text-lg border-t pt-2"><span>إجمالي الفاتورة</span><span>{displayTotal.toLocaleString('en-US', { minimumFractionDigits: 2 })} ر.س</span></div>
+                                    <div className="flex justify-between text-green-600"><span>المدفوع من الفاتورة</span><span>{showViewInvoice.paidAmount.toLocaleString()} ر.س</span></div>
+                                    <div className="flex justify-between font-bold text-red-600"><span>المتبقي من الفاتورة</span><span>{showViewInvoice.remainingAmount.toLocaleString()} ر.س</span></div>
+                                </div>
+
+                                <div className="flex gap-3">
+                                    <button onClick={() => setShowViewInvoice(null)} className="btn-secondary flex-1">إغلاق</button>
+                                </div>
                             </div>
                         </div>
                     </div>
-                </div>
-            )}
+                )
+            })()}
 
             {/* View Payment Modal */}
             {showViewPayment && (

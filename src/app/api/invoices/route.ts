@@ -47,6 +47,7 @@ export async function GET() {
                 booking: {
                     select: {
                         bookingNumber: true,
+                        finalAmount: true,
                         hall: { select: { nameAr: true } }
                     }
                 },
@@ -76,6 +77,7 @@ export async function GET() {
             bookingId: invoice.bookingId,
             bookingNumber: invoice.booking.bookingNumber,
             hallName: invoice.booking.hall.nameAr,
+            bookingTotalAmount: Number(invoice.booking.finalAmount), // Included for Invoice View
             customerId: invoice.customerId,
             customerName: invoice.customer.nameAr,
             customerPhone: invoice.customer.phone,
