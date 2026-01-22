@@ -173,6 +173,18 @@ export async function POST(request: Request) {
         // Payment date (use provided or today)
         const paymentDate = body.paymentDate ? new Date(body.paymentDate) : new Date()
 
+        // Fetch settings for VAT percentage
+        const settings = await prisma.settings.findUnique({
+            where: { ownerId: session.user.ownerId }
+        })
+        const vatRate = (Number(settings?.vatPercentage) || 15) / 100
+
+        // Calculate VAT (Inclusive)
+        // Subtotal = Total / (1 + Rate)
+        // VAT = Total - Subtotal
+        const subtotal = invoiceAmount / (1 + vatRate)
+        const vatAmount = invoiceAmount - subtotal
+
         // Use transaction to create both invoice and payment atomically
         const result = await prisma.$transaction(async (tx) => {
             // Create Invoice - always PAID since we're creating payment simultaneously
@@ -182,9 +194,9 @@ export async function POST(request: Request) {
                     bookingId: booking.id,
                     customerId: booking.customerId,
                     ownerId: session.user.ownerId,
-                    subtotal: invoiceAmount,
+                    subtotal: subtotal,
                     discountAmount: 0,
-                    vatAmount: 0,
+                    vatAmount: vatAmount,
                     totalAmount: invoiceAmount,
                     paidAmount: invoiceAmount, // Fully paid
                     issueDate: new Date(),

@@ -208,8 +208,20 @@ export default function InvoicePrintPage() {
 
     const printTimestamp = new Date().toLocaleString('en-GB')
 
-    // Calculate remaining amount
-    const remainingAmount = invoice.totalAmount - invoice.paidAmount
+    // Prepare Invoice Calculations (Handling Legacy Data)
+    // If VAT is 0 but Total > 0, we derive VAT from Total (assuming Total is inclusive)
+    let displaySubtotal = Number(invoice.subtotal)
+    let displayVatAmount = Number(invoice.vatAmount)
+    let displayTotal = Number(invoice.totalAmount)
+
+    // Legacy fix: If VAT is approximately 0 and we have a total, calculate it based on 15%
+    if (displayVatAmount <= 0.1 && displayTotal > 0) {
+        const vatRate = 0.15
+        displaySubtotal = displayTotal / (1 + vatRate)
+        displayVatAmount = displayTotal - displaySubtotal
+    }
+
+    const remainingAmount = displayTotal - invoice.paidAmount
 
     return (
         <>
@@ -339,10 +351,10 @@ export default function InvoicePrintPage() {
                                     <td style={{ padding: '8px 6px', textAlign: 'center', borderBottom: '1px solid #e5e7eb', fontSize: '11px' }}>{issueDateGregorian}</td>
                                     <td style={{ padding: '8px 6px', textAlign: 'center', borderBottom: '1px solid #e5e7eb', fontSize: '11px' }}>دفعة حجز - {invoice.booking.bookingNumber}</td>
                                     <td style={{ padding: '8px 6px', textAlign: 'center', borderBottom: '1px solid #e5e7eb', fontSize: '11px' }}>1</td>
-                                    <td style={{ padding: '8px 6px', textAlign: 'center', borderBottom: '1px solid #e5e7eb', fontSize: '11px' }}>{(invoice.totalAmount - invoice.vatAmount).toLocaleString('en-US', { minimumFractionDigits: 2 })}</td>
-                                    <td style={{ padding: '8px 6px', textAlign: 'center', borderBottom: '1px solid #e5e7eb', fontSize: '11px' }}>{(invoice.totalAmount - invoice.vatAmount).toLocaleString('en-US', { minimumFractionDigits: 2 })}</td>
-                                    <td style={{ padding: '8px 6px', textAlign: 'center', borderBottom: '1px solid #e5e7eb', fontSize: '11px' }}>{invoice.vatAmount.toLocaleString('en-US', { minimumFractionDigits: 2 })}</td>
-                                    <td style={{ padding: '8px 6px', textAlign: 'center', borderBottom: '1px solid #e5e7eb', fontSize: '11px' }}>{invoice.totalAmount.toLocaleString('en-US', { minimumFractionDigits: 2 })}</td>
+                                    <td style={{ padding: '8px 6px', textAlign: 'center', borderBottom: '1px solid #e5e7eb', fontSize: '11px' }}>{displaySubtotal.toLocaleString('en-US', { minimumFractionDigits: 2 })}</td>
+                                    <td style={{ padding: '8px 6px', textAlign: 'center', borderBottom: '1px solid #e5e7eb', fontSize: '11px' }}>{displaySubtotal.toLocaleString('en-US', { minimumFractionDigits: 2 })}</td>
+                                    <td style={{ padding: '8px 6px', textAlign: 'center', borderBottom: '1px solid #e5e7eb', fontSize: '11px' }}>{displayVatAmount.toLocaleString('en-US', { minimumFractionDigits: 2 })}</td>
+                                    <td style={{ padding: '8px 6px', textAlign: 'center', borderBottom: '1px solid #e5e7eb', fontSize: '11px' }}>{displayTotal.toLocaleString('en-US', { minimumFractionDigits: 2 })}</td>
                                 </tr>
                             </tbody>
                         </table>
@@ -354,7 +366,7 @@ export default function InvoicePrintPage() {
                             <div style={{ background: '#fbbf24', color: '#1e40af', padding: '6px', textAlign: 'center', fontWeight: 700, fontSize: '11px', margin: '-12px -12px 10px -12px' }}>حساب إيجار القاعة</div>
                             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px', fontSize: '10px' }}>
                                 <span>إيجار القاعة:</span>
-                                <span>{(invoice.totalAmount - invoice.vatAmount).toLocaleString('en-US', { minimumFractionDigits: 2 })}</span>
+                                <span>{displaySubtotal.toLocaleString('en-US', { minimumFractionDigits: 2 })}</span>
                             </div>
                             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px', fontSize: '10px' }}>
                                 <span>خصم:</span>
@@ -362,12 +374,12 @@ export default function InvoicePrintPage() {
                             </div>
                             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px', fontSize: '10px' }}>
                                 <span>الضريبة:</span>
-                                <span>{invoice.vatAmount.toLocaleString('en-US', { minimumFractionDigits: 2 })}</span>
+                                <span>{displayVatAmount.toLocaleString('en-US', { minimumFractionDigits: 2 })}</span>
                             </div>
                             <div style={{ background: '#dbeafe', padding: '6px', borderRadius: '4px', marginTop: '8px' }}>
                                 <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 700, color: '#1e40af', fontSize: '10px' }}>
                                     <span>الصافي:</span>
-                                    <span>{invoice.totalAmount.toLocaleString('en-US', { minimumFractionDigits: 2 })}</span>
+                                    <span>{displayTotal.toLocaleString('en-US', { minimumFractionDigits: 2 })}</span>
                                 </div>
                             </div>
                         </div>
@@ -398,15 +410,15 @@ export default function InvoicePrintPage() {
                             <div style={{ background: '#fbbf24', color: '#1e40af', padding: '6px', textAlign: 'center', fontWeight: 700, fontSize: '11px', margin: '-12px -12px 10px -12px' }}>الحساب النهائي</div>
                             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px', fontSize: '10px' }}>
                                 <span>إجمالي الفاتورة:</span>
-                                <span>{(invoice.totalAmount - invoice.vatAmount).toLocaleString('en-US', { minimumFractionDigits: 2 })}</span>
+                                <span>{displaySubtotal.toLocaleString('en-US', { minimumFractionDigits: 2 })}</span>
                             </div>
                             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px', fontSize: '10px' }}>
                                 <span>إجمالي الضريبة:</span>
-                                <span>{invoice.vatAmount.toLocaleString('en-US', { minimumFractionDigits: 2 })}</span>
+                                <span>{displayVatAmount.toLocaleString('en-US', { minimumFractionDigits: 2 })}</span>
                             </div>
                             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px', fontSize: '10px' }}>
                                 <span>صافي الفاتورة:</span>
-                                <span>{invoice.totalAmount.toLocaleString('en-US', { minimumFractionDigits: 2 })}</span>
+                                <span>{displayTotal.toLocaleString('en-US', { minimumFractionDigits: 2 })}</span>
                             </div>
                             <div style={{ background: '#fef3c7', border: '2px solid #f59e0b', padding: '6px', borderRadius: '4px', marginTop: '8px' }}>
                                 <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 700, color: '#b45309', fontSize: '10px' }}>
