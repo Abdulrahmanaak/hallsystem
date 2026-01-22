@@ -664,6 +664,16 @@ export default function FinancePage() {
                                                 >
                                                     <Printer size={16} className="text-gray-500" />
                                                 </button>
+                                                {!invoice.syncedToQoyod && (
+                                                    <button
+                                                        onClick={() => handleDeleteLocalInvoice(invoice.id, invoice.invoiceNumber)}
+                                                        className="p-2 hover:bg-red-50 rounded-md"
+                                                        title="حذف"
+                                                        disabled={saving}
+                                                    >
+                                                        <Trash2 size={16} className="text-red-500" />
+                                                    </button>
+                                                )}
                                             </div>
                                         </td>
                                     </tr>
