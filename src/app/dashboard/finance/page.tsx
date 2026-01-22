@@ -927,10 +927,6 @@ export default function FinancePage() {
                             </div>
 
                             <div className="flex gap-3">
-                                <button onClick={() => printInvoice(showViewInvoice)} className="btn-primary flex-1 flex items-center justify-center gap-2">
-                                    <Printer size={18} />
-                                    طباعة
-                                </button>
                                 <button onClick={() => setShowViewInvoice(null)} className="btn-secondary flex-1">إغلاق</button>
                             </div>
                         </div>
