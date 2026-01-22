@@ -19,7 +19,7 @@ import {
     Link2,
     Trash2
 } from 'lucide-react'
-import { printInvoice as printInvoiceUtil } from '@/lib/invoice-utils'
+
 
 interface Invoice {
     id: string
@@ -386,38 +386,11 @@ export default function FinancePage() {
     }
 
     // Print functions
-    const printInvoice = async (invoice: Invoice) => {
-        // Fetch additional booking details (event date, customer ID)
-        let eventDate = invoice.issueDate // Fallback
-        let customerIdNumber = ''
-
-        try {
-            const res = await fetch(`/api/bookings/${invoice.bookingId}`)
-            if (res.ok) {
-                const booking = await res.json()
-                eventDate = booking.date || invoice.issueDate
-                customerIdNumber = booking.customerIdNumber
-            }
-        } catch (e) {
-            console.warn('Could not fetch booking details for print')
-        }
-
-        await printInvoiceUtil({
-            invoiceNumber: invoice.invoiceNumber,
-            issueDate: invoice.issueDate,
-            customerName: invoice.customerName,
-            customerPhone: invoice.customerPhone,
-            customerIdNumber: customerIdNumber,
-            bookingNumber: invoice.bookingNumber,
-            hallName: invoice.hallName,
-            eventDate: eventDate,
-            subtotal: invoice.subtotal,
-            vatAmount: invoice.vatAmount,
-            totalAmount: invoice.totalAmount,
-            paidAmount: invoice.paidAmount,
-            remainingAmount: invoice.remainingAmount
-        })
+    const printInvoice = (invoice: Invoice) => {
+        // Navigate to the dedicated print page (Safari-compatible)
+        window.open(`/dashboard/invoices/${invoice.id}/print`, '_blank')
     }
+
 
     const printReceipt = (payment: Payment) => {
         const printWindow = window.open('', '_blank')

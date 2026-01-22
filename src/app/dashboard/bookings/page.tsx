@@ -78,7 +78,7 @@ import {
     Share2,
     Printer
 } from 'lucide-react'
-import { printInvoice as printInvoiceUtil } from '@/lib/invoice-utils'
+
 
 interface Booking {
     id: string
@@ -424,30 +424,10 @@ export default function BookingsPage() {
     }
 
     const printInvoice = async (invoice: Invoice) => {
-        const booking = selectedBookingForInvoice
-        if (!booking) return
-
-        const subtotal = invoice.totalAmount
-        const vat = Math.round(subtotal / 1.15 * 0.15 * 100) / 100
-        const baseAmount = subtotal - vat
-        // paidAmount is already available in invoice object
-
-        await printInvoiceUtil({
-            invoiceNumber: invoice.invoiceNumber,
-            issueDate: invoice.issueDate,
-            customerName: booking.customerName,
-            customerPhone: booking.customerPhone,
-            customerIdNumber: booking.customerIdNumber,
-            bookingNumber: booking.bookingNumber,
-            hallName: booking.hallName,
-            eventDate: booking.date,
-            subtotal: baseAmount,
-            vatAmount: vat,
-            totalAmount: subtotal,
-            paidAmount: invoice.paidAmount,
-            remainingAmount: subtotal - invoice.paidAmount
-        })
+        // Navigate to the dedicated print page (Safari-compatible)
+        window.open(`/dashboard/invoices/${invoice.id}/print`, '_blank')
     }
+
 
     // Calculate invoice summary for selected booking
     const getInvoiceSummary = () => {
