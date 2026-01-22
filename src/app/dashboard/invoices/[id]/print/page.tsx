@@ -30,12 +30,25 @@ interface InvoiceData {
         id: string
         bookingNumber: string
         eventDate: string
+        finalAmount: number
         hall: {
             name: string
         }
+        payments: {
+            id: string
+            amount: number
+            paymentDate: string
+        }[]
+        invoices: {
+            id: string
+            paidAmount: number
+            totalAmount: number
+            status: string
+        }[]
     }
     customer: {
         name: string
+        nameAr?: string
         phone: string
         idNumber?: string
     }
@@ -303,7 +316,7 @@ export default function InvoicePrintPage() {
                         <div style={{ background: 'white', padding: '12px' }}>
                             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '6px' }}>
                                 <span style={{ color: '#6b7280' }}>اسم العميل:</span>
-                                <span style={{ fontWeight: 600, color: '#1f2937' }}>{invoice.customer.name}</span>
+                                <span style={{ fontWeight: 600, color: '#1f2937' }}>{invoice.customer.nameAr || invoice.customer.name}</span>
                             </div>
                             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '6px' }}>
                                 <span style={{ color: '#6b7280' }}>رقم الجوال:</span>
@@ -429,6 +442,27 @@ export default function InvoicePrintPage() {
                         </div>
                     </div>
 
+                    {/* Booking Summary Section - Yellow Background */}
+                    <div style={{ background: '#fffef5', borderBottom: '1px solid #e5e7eb', padding: '15px' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                            <span style={{ fontSize: '12px', fontWeight: 600, color: '#6b7280' }}>إجمالي قيمة الحجز</span>
+                            <span style={{ fontSize: '14px', fontWeight: 700, color: '#1f2937' }}>
+                                {Number(invoice.booking.finalAmount || 0).toLocaleString('en-US', { minimumFractionDigits: 2 })} ر.س
+                            </span>
+                        </div>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                            <span style={{ fontSize: '12px', color: '#6b7280' }}>إجمالي المدفوع للحجز</span>
+                            <span style={{ fontSize: '12px', fontWeight: 600, color: '#059669' }}>
+                                {(invoice.booking.invoices?.reduce((sum: number, inv: { paidAmount: number }) => sum + Number(inv.paidAmount), 0) || 0).toLocaleString('en-US', { minimumFractionDigits: 2 })} ر.س
+                            </span>
+                        </div>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                            <span style={{ fontSize: '12px', color: '#b45309' }}>المتبقي من الحجز</span>
+                            <span style={{ fontSize: '12px', fontWeight: 600, color: '#dc2626' }}>
+                                {(Number(invoice.booking.finalAmount || 0) - (invoice.booking.invoices?.reduce((sum: number, inv: { paidAmount: number }) => sum + Number(inv.paidAmount), 0) || 0)).toLocaleString('en-US', { minimumFractionDigits: 2 })} ر.س
+                            </span>
+                        </div>
+                    </div>
                     {/* Footer */}
                     <div style={{ background: '#f3f4f6', padding: '15px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                         <div style={{ width: '100px', textAlign: 'center' }}>

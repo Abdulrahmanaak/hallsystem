@@ -14,7 +14,23 @@ export async function GET(
             include: {
                 booking: {
                     include: {
-                        hall: true
+                        hall: true,
+                        payments: {
+                            where: { isDeleted: false },
+                            orderBy: { paymentDate: 'desc' }
+                        },
+                        invoices: {
+                            where: {
+                                isDeleted: false,
+                                status: { not: 'CANCELLED' }
+                            },
+                            select: {
+                                id: true,
+                                paidAmount: true,
+                                totalAmount: true,
+                                status: true
+                            }
+                        }
                     }
                 },
                 customer: true,
