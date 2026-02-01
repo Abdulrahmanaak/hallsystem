@@ -1,6 +1,7 @@
 'use client'
 
 import Link from 'next/link'
+import Image from 'next/image'
 import { useState, useEffect } from 'react'
 import {
     Calendar,
@@ -49,13 +50,19 @@ function Navbar({ scrolled }: { scrolled: boolean }) {
                 </div>
 
                 {/* Nav Links */}
-                <div className="hidden md:flex items-center gap-8">
-                    <a href="#features" className={`font-medium transition-colors ${scrolled ? 'text-[#8492a6] hover:text-[#2f55d4]' : 'text-white/80 hover:text-white'
-                        }`}>المميزات</a>
+                <div className="hidden md:flex items-center gap-6 lg:gap-8">
+                    <a href="#home" className={`font-medium transition-colors ${scrolled ? 'text-[#8492a6] hover:text-[#2f55d4]' : 'text-white/80 hover:text-white'
+                        }`}>الرئيسية</a>
+                    <a href="#partners" className={`font-medium transition-colors ${scrolled ? 'text-[#8492a6] hover:text-[#2f55d4]' : 'text-white/80 hover:text-white'
+                        }`}>شركاؤنا</a>
                     <a href="#how-it-works" className={`font-medium transition-colors ${scrolled ? 'text-[#8492a6] hover:text-[#2f55d4]' : 'text-white/80 hover:text-white'
                         }`}>كيف يعمل</a>
-                    <a href="#halls" className={`font-medium transition-colors ${scrolled ? 'text-[#8492a6] hover:text-[#2f55d4]' : 'text-white/80 hover:text-white'
-                        }`}>القاعات</a>
+                    <a href="#features" className={`font-medium transition-colors ${scrolled ? 'text-[#8492a6] hover:text-[#2f55d4]' : 'text-white/80 hover:text-white'
+                        }`}>المميزات</a>
+                    <a href="#faq" className={`font-medium transition-colors ${scrolled ? 'text-[#8492a6] hover:text-[#2f55d4]' : 'text-white/80 hover:text-white'
+                        }`}>الأسئلة</a>
+                    <a href="#contact" className={`font-medium transition-colors ${scrolled ? 'text-[#8492a6] hover:text-[#2f55d4]' : 'text-white/80 hover:text-white'
+                        }`}>تواصل معنا</a>
                 </div>
 
                 {/* Mobile Menu Button */}
@@ -86,11 +93,18 @@ function Navbar({ scrolled }: { scrolled: boolean }) {
             {mobileMenuOpen && (
                 <div className="md:hidden absolute top-full left-0 right-0 bg-white shadow-xl border-t border-gray-100 py-4 px-6 flex flex-col gap-4 animate-in slide-in-from-top-5">
                     <a
-                        href="#features"
+                        href="#home"
                         className="text-[#8492a6] hover:text-[#2f55d4] font-medium py-2"
                         onClick={() => setMobileMenuOpen(false)}
                     >
-                        المميزات
+                        الرئيسية
+                    </a>
+                    <a
+                        href="#partners"
+                        className="text-[#8492a6] hover:text-[#2f55d4] font-medium py-2"
+                        onClick={() => setMobileMenuOpen(false)}
+                    >
+                        شركاؤنا
                     </a>
                     <a
                         href="#how-it-works"
@@ -100,12 +114,20 @@ function Navbar({ scrolled }: { scrolled: boolean }) {
                         كيف يعمل
                     </a>
                     <a
-                        href="#halls"
+                        href="#features"
                         className="text-[#8492a6] hover:text-[#2f55d4] font-medium py-2"
                         onClick={() => setMobileMenuOpen(false)}
                     >
-                        القاعات
+                        المميزات
                     </a>
+                    <a
+                        href="#contact"
+                        className="text-[#8492a6] hover:text-[#2f55d4] font-medium py-2"
+                        onClick={() => setMobileMenuOpen(false)}
+                    >
+                        تواصل معنا
+                    </a>
+
                     <Link
                         href="/login"
                         className="bg-[#2f55d4] text-white py-3 rounded-lg text-center font-bold hover:bg-[#2343ab] transition-colors"
@@ -154,59 +176,9 @@ function FeatureItem({ text }: { text: string }) {
     )
 }
 
-// Hall Preview Card
-function HallCard({ name, capacity, price, location }: {
-    name: string
-    capacity: number
-    price: number
-    location: string
-}) {
-    return (
-        <div className="bg-white rounded-2xl overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 group border border-gray-100">
-            {/* Image Placeholder */}
-            <div className="h-52 bg-gradient-to-br from-[#5576d6] to-[#2f55d4] flex items-center justify-center relative overflow-hidden">
-                <div className="absolute inset-0 opacity-20" style={{
-                    backgroundImage: 'radial-gradient(circle, rgba(255,255,255,0.3) 1px, transparent 1px)',
-                    backgroundSize: '20px 20px'
-                }}></div>
-                <Building2 className="text-white/80 group-hover:scale-110 transition-transform duration-500" size={64} />
-            </div>
-            <div className="p-6">
-                <h3 className="text-xl font-bold text-[#161c2d] mb-4">{name}</h3>
-                <div className="space-y-3 text-sm">
-                    <div className="flex items-center gap-3 text-[#8492a6]">
-                        <Users size={18} className="text-[#2f55d4]" />
-                        <span>السعة: {capacity} شخص</span>
-                    </div>
-                    <div className="flex items-center gap-3 text-[#8492a6]">
-                        <Star size={18} className="text-yellow-500 fill-yellow-500" />
-                        <span>يبدأ من {price.toLocaleString()} ر.س</span>
-                    </div>
-                    <div className="flex items-center gap-3 text-[#8492a6]">
-                        <MapPin size={18} className="text-[#2f55d4]" />
-                        <span>{location}</span>
-                    </div>
-                </div>
-                <Link
-                    href="/dashboard/halls"
-                    className="mt-5 block text-center py-3 rounded-full border-2 border-[#2f55d4] text-[#2f55d4] font-bold hover:bg-[#2f55d4] hover:text-white transition-all duration-300"
-                >
-                    عرض التفاصيل
-                </Link>
-            </div>
-        </div>
-    )
-}
 
-// Stats Counter
-function StatItem({ value, label }: { value: string; label: string }) {
-    return (
-        <div className="text-center">
-            <div className="text-4xl md:text-5xl font-bold text-white mb-2">{value}</div>
-            <div className="text-blue-200 text-sm md:text-base">{label}</div>
-        </div>
-    )
-}
+
+
 
 export default function LandingPage() {
     const [scrolled, setScrolled] = useState(false)
@@ -219,11 +191,7 @@ export default function LandingPage() {
         return () => window.removeEventListener('scroll', handleScroll)
     }, [])
 
-    const sampleHalls = [
-        { name: 'القاعة الكبرى', capacity: 500, price: 5000, location: 'الدور الأرضي' },
-        { name: 'قاعة الحديقة', capacity: 300, price: 3500, location: 'الحديقة الخارجية' },
-        { name: 'الجناح الملكي', capacity: 100, price: 1500, location: 'الدور الثاني' }
-    ]
+
 
     return (
         <div className="min-h-screen bg-white" style={{ direction: 'rtl' }}>
@@ -231,7 +199,7 @@ export default function LandingPage() {
             <Navbar scrolled={scrolled} />
 
             {/* Hero Section */}
-            <section className="relative min-h-screen flex items-center overflow-hidden">
+            <section id="home" className="relative min-h-screen flex items-center overflow-hidden">
                 {/* Gradient Background */}
                 <div className="absolute inset-0 bg-gradient-to-br from-[#2a4cc0] via-[#2f55d4] to-[#2343ab]" />
 
@@ -249,18 +217,17 @@ export default function LandingPage() {
                     {/* Text Content */}
                     <div className="text-center lg:text-right">
                         <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm text-white px-4 py-2 rounded-full text-sm font-medium mb-6 border border-white/20">
-                            <Calendar size={16} />
-                            <span>يدعم التقويم الهجري والميلادي</span>
+                            <Star size={16} className="text-yellow-400" fill="currentColor" />
+                            <span>نظام سحابي متكامل لإدارة القاعات</span>
                         </div>
 
                         <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-6 leading-tight">
-                            أتمت إدارة قاعتك
-                            <span className="block text-blue-200">بالكامل</span>
+                            نظّم إدارة قاعتك (حجوزات، مالية)
+                            <span className="block text-blue-200">بسهولة تامة</span>
                         </h1>
 
                         <p className="text-xl text-white/80 max-w-xl mb-10 leading-relaxed lg:mx-0 mx-auto">
-                            من الحجز إلى التحصيل - كل شيء في منصة واحدة.
-                            الحجوزات، الفواتير، المدفوعات، والمزامنة مع قيود تلقائياً.
+                            منصة شاملة لملاك القاعات. أدِر الحجوزات، تابع المصروفات، أصدر فواتير ضريبية، وزامن مع البرامج المحاسبية تلقائياً.
                         </p>
 
                         <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
@@ -271,14 +238,7 @@ export default function LandingPage() {
                                 <span>ابدأ الآن</span>
                                 <ChevronLeft className="group-hover:-translate-x-1 transition-transform" size={20} />
                             </Link>
-                            <button
-                                className="flex items-center justify-center gap-3 text-white font-medium hover:text-white/80 transition-colors"
-                            >
-                                <div className="w-12 h-12 rounded-full bg-white/20 flex items-center justify-center backdrop-blur-sm">
-                                    <Play size={20} fill="white" className="text-white mr-[-2px]" />
-                                </div>
-                                <span>شاهد الفيديو</span>
-                            </button>
+
                         </div>
                     </div>
 
@@ -340,10 +300,55 @@ export default function LandingPage() {
                 </div>
             </section>
 
+            {/* Partners & Integrations Bar */}
+            <section id="partners" className="py-20 bg-white border-b border-gray-100">
+                <div className="max-w-7xl mx-auto px-6">
+                    <p className="text-center text-[#8492a6] text-lg font-medium mb-12">
+                        شركاء النجاح والأنظمة المتكاملة معنا
+                    </p>
+                    <div className="flex flex-wrap justify-center items-center gap-16 md:gap-24 opacity-80 grayscale hover:grayscale-0 transition-all duration-500">
+                        {/* Client Hall */}
+                        <div className="flex items-center gap-2">
+                            <Image
+                                src="/images/partners/hafawah.png"
+                                alt="قاعة حفاوة"
+                                width={240}
+                                height={120}
+                                className="object-contain h-28 w-auto"
+                            />
+                        </div>
+
+                        {/* Qoyod Integration */}
+                        <div className="flex items-center gap-2">
+                            <Image
+                                src="/images/partners/qoyod.png"
+                                alt="نظام قيود"
+                                width={180}
+                                height={90}
+                                className="object-contain h-16 w-auto"
+                            />
+                        </div>
+
+                        {/* ZATCA Compliance */}
+                        <div className="flex items-center gap-2">
+                            <Image
+                                src="/images/partners/zatca.svg"
+                                alt="هيئة الزكاة والضريبة والجمارك"
+                                width={180}
+                                height={90}
+                                className="object-contain h-20 w-auto"
+                            />
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+
+
             {/* How It Works Section */}
             <section id="how-it-works" className="py-24 px-6 bg-white">
                 <div className="max-w-7xl mx-auto">
-                    <div className="text-center mb-16">
+                    <div className="flex flex-col items-center text-center mb-16">
                         <span className="text-[#2f55d4] font-bold text-sm tracking-wider uppercase">كيف يعمل النظام</span>
                         <h2 className="text-3xl md:text-4xl font-bold text-[#161c2d] mt-3 mb-4">
                             أربع خطوات للأتمتة الكاملة
@@ -375,8 +380,8 @@ export default function LandingPage() {
                         <ProcessCard
                             icon={Link2}
                             step={4}
-                            title="تزامن مع قيود"
-                            description="مزامنة تلقائية للفواتير والمدفوعات مع نظام قيود المحاسبي"
+                            title="تابع الأرباح والمصروفات"
+                            description="سجل المصروفات التشغيلية واعرف صافي ربحك بدقة مع تقارير مفصلة"
                         />
                     </div>
                 </div>
@@ -385,7 +390,7 @@ export default function LandingPage() {
             {/* Features Section - 6 Epic Features */}
             <section id="features" className="py-24 px-6 bg-[#f8f9fa]">
                 <div className="max-w-7xl mx-auto">
-                    <div className="text-center mb-16">
+                    <div className="flex flex-col items-center text-center mb-16">
                         <span className="text-[#2f55d4] font-bold text-sm tracking-wider uppercase">المميزات الرئيسية</span>
                         <h2 className="text-3xl md:text-4xl font-bold text-[#161c2d] mt-3 mb-4">
                             كل ما تحتاجه لإدارة قاعتك
@@ -444,19 +449,19 @@ export default function LandingPage() {
                             </div>
                         </div>
 
-                        {/* Feature 4: Qoyod */}
+                        {/* Feature 4: Expenses */}
                         <div className="bg-white rounded-2xl p-8 shadow-lg hover:shadow-xl transition-all duration-300 border border-gray-100 group">
                             <div className="w-14 h-14 rounded-xl bg-orange-100 flex items-center justify-center mb-6 group-hover:bg-orange-200 transition-colors">
-                                <Link2 className="text-orange-600" size={28} />
+                                <Receipt className="text-orange-600" size={28} />
                             </div>
-                            <h3 className="text-xl font-bold text-[#161c2d] mb-3">تكامل قيود المحاسبي</h3>
+                            <h3 className="text-xl font-bold text-[#161c2d] mb-3">إدارة المصروفات والأرباح</h3>
                             <p className="text-[#8492a6] mb-4 leading-relaxed">
-                                ربط مباشر مع نظام قيود لمزامنة الفواتير والمدفوعات والعملاء تلقائياً.
+                                سجل فواتير الكهرباء، الصيانة، والرواتب لتعرف صافي ربحك الحقيقي بدقة.
                             </p>
                             <div className="space-y-2">
-                                <FeatureItem text="مزامنة الفواتير والمدفوعات" />
-                                <FeatureItem text="ربط حسابات الإيرادات" />
-                                <FeatureItem text="إنشاء إشعارات دائنة" />
+                                <FeatureItem text="تصنيف المصروفات التشغيلية" />
+                                <FeatureItem text="حساب صافي الربح تلقائياً" />
+                                <FeatureItem text="تقارير شهرية وسنوية" />
                             </div>
                         </div>
 
@@ -476,69 +481,54 @@ export default function LandingPage() {
                             </div>
                         </div>
 
-                        {/* Feature 6: Dashboard */}
+                        {/* Feature 6: Staff & Users */}
                         <div className="bg-white rounded-2xl p-8 shadow-lg hover:shadow-xl transition-all duration-300 border border-gray-100 group">
                             <div className="w-14 h-14 rounded-xl bg-cyan-100 flex items-center justify-center mb-6 group-hover:bg-cyan-200 transition-colors">
-                                <BarChart3 className="text-cyan-600" size={28} />
+                                <Users className="text-cyan-600" size={28} />
                             </div>
-                            <h3 className="text-xl font-bold text-[#161c2d] mb-3">لوحة تحكم شاملة</h3>
+                            <h3 className="text-xl font-bold text-[#161c2d] mb-3">إدارة الموظفين والصلاحيات</h3>
                             <p className="text-[#8492a6] mb-4 leading-relaxed">
-                                تابع أداء قاعاتك مع إحصائيات الحجوزات والإيرادات في مكان واحد.
+                                امنح موظفيك صلاحيات محددة (مشرف، موظف استقبال) مع سجل تدقيق كامل.
                             </p>
                             <div className="space-y-2">
-                                <FeatureItem text="إحصائيات الحجوزات" />
-                                <FeatureItem text="تتبع المستحقات" />
-                                <FeatureItem text="تقارير الإيرادات" />
+                                <FeatureItem text="تعدد المستخدمين" />
+                                <FeatureItem text="صلاحيات مخصصة لكل دور" />
+                                <FeatureItem text="تتبع سجل العمليات" />
                             </div>
                         </div>
                     </div>
                 </div>
             </section>
 
-            {/* Stats Section */}
-            <section className="py-20 px-6 bg-gradient-to-l from-[#2a4cc0] to-[#2343ab] relative overflow-hidden">
-                {/* Background Pattern */}
-                <div className="absolute inset-0 opacity-10" style={{
-                    backgroundImage: 'radial-gradient(circle, rgba(255,255,255,0.5) 1px, transparent 1px)',
-                    backgroundSize: '25px 25px'
-                }}></div>
 
-                <div className="max-w-5xl mx-auto relative">
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
-                        <StatItem value="📅" label="تقويم هجري وميلادي" />
-                        <StatItem value="🔗" label="تكامل مع قيود" />
-                        <StatItem value="🧾" label="فواتير ضريبية 15%" />
-                        <StatItem value="☕" label="ضيافة ووجبات وذبائح" />
+
+            {/* FAQ Section */}
+            <section id="faq" className="py-20 px-6 bg-white">
+                <div className="max-w-3xl mx-auto">
+                    <div className="text-center mb-12">
+                        <h2 className="text-3xl font-bold text-[#161c2d] mb-4">الأسئلة الشائعة</h2>
+                    </div>
+
+                    <div className="space-y-4">
+                        <div className="bg-[#f8f9fa] rounded-xl p-6">
+                            <h3 className="font-bold text-[#161c2d] mb-2 text-lg">هل النظام معتمد من الزكاة والدخل؟</h3>
+                            <p className="text-[#8492a6]">نعم، النظام يصدر فواتير ضريبية إلكترونية متوافقة كلياً مع متطلبات هيئة الزكاة والضريبة والجمارك (FATURAH).</p>
+                        </div>
+
+                        <div className="bg-[#f8f9fa] rounded-xl p-6">
+                            <h3 className="font-bold text-[#161c2d] mb-2 text-lg">هل يمكنني استخدام النظام من الجوال؟</h3>
+                            <p className="text-[#8492a6]">بالتأكيد. النظام سحابي (Cloud-based) ويعمل بكفاءة على جميع الأجهزة: الكمبيوتر، التابلت، والجوال دون الحاجة لتثبيت برامج.</p>
+                        </div>
+
+                        <div className="bg-[#f8f9fa] rounded-xl p-6">
+                            <h3 className="font-bold text-[#161c2d] mb-2 text-lg">هل بياناتي آمنة؟</h3>
+                            <p className="text-[#8492a6]">نحن نستخدم أعلى معايير التشفير (SSL) وسيرفرات محمية، مع نسخ احتياطي دوري لضمان عدم فقدان أي بيانات.</p>
+                        </div>
                     </div>
                 </div>
             </section>
 
-            {/* Halls Preview Section */}
-            <section id="halls" className="py-24 px-6 bg-white">
-                <div className="max-w-7xl mx-auto">
-                    <div className="text-center mb-16">
-                        <span className="text-[#2f55d4] font-bold text-sm tracking-wider uppercase">قاعاتنا</span>
-                        <h2 className="text-3xl md:text-4xl font-bold text-[#161c2d] mt-3 mb-4">
-                            اكتشف قاعاتنا المميزة
-                        </h2>
-                        <p className="text-lg text-[#8492a6] max-w-2xl mx-auto">
-                            مجموعة متنوعة من القاعات لجميع المناسبات والاحتياجات
-                        </p>
-                    </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                        {sampleHalls.map((hall, index) => (
-                            <HallCard
-                                key={index}
-                                name={hall.name}
-                                capacity={hall.capacity}
-                                price={hall.price}
-                                location={hall.location}
-                            />
-                        ))}
-                    </div>
-                </div>
-            </section>
 
             {/* CTA Section */}
             <section className="py-20 px-6 bg-[#f8f9fa]">
@@ -568,7 +558,7 @@ export default function LandingPage() {
             </section>
 
             {/* Footer */}
-            <footer className="bg-[#161c2d] text-white py-16 px-6">
+            <footer id="contact" className="bg-[#161c2d] text-white py-16 px-6">
                 <div className="max-w-7xl mx-auto">
                     <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-12">
                         {/* Brand */}
@@ -598,20 +588,9 @@ export default function LandingPage() {
                         {/* Contact */}
                         <div>
                             <h4 className="font-bold text-lg mb-6">تواصل معنا</h4>
-                            <ul className="space-y-3 text-[#8492a6]">
-                                <li className="flex items-center gap-3">
-                                    <Mail size={18} className="text-[#5576d6]" />
-                                    <span>info@hallsystem.com</span>
-                                </li>
-                                <li className="flex items-center gap-3">
-                                    <Phone size={18} className="text-[#5576d6]" />
-                                    <span>+966 XX XXX XXXX</span>
-                                </li>
-                                <li className="flex items-center gap-3">
-                                    <Clock size={18} className="text-[#5576d6]" />
-                                    <span>24/7 دعم متواصل</span>
-                                </li>
-                            </ul>
+                            <p className="text-[#8492a6]">
+                                تواصل معنا عبر نموذج الموقع أو من خلال لوحة التحكم الخاصة بك.
+                            </p>
                         </div>
 
                         {/* Features */}
@@ -640,16 +619,7 @@ export default function LandingPage() {
                             © {new Date().getFullYear()} نظام إدارة القاعات. جميع الحقوق محفوظة
                         </p>
                         <div className="flex gap-4">
-                            {['facebook', 'twitter', 'instagram'].map((social) => (
-                                <a
-                                    key={social}
-                                    href="#"
-                                    className="w-10 h-10 rounded-full border border-white/20 flex items-center justify-center text-[#8492a6] hover:bg-[#2f55d4] hover:border-[#2f55d4] hover:text-white transition-all"
-                                >
-                                    <span className="sr-only">{social}</span>
-                                    <div className="w-4 h-4 bg-current rounded-sm"></div>
-                                </a>
-                            ))}
+                            {/* Social media links removed as requested */}
                         </div>
                     </div>
                 </div>

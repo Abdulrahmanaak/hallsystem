@@ -23,7 +23,8 @@ import {
     Printer,
     Gem,
     Menu,
-    X
+    X,
+    Quote
 } from 'lucide-react'
 
 // Theme Colors
@@ -62,9 +63,12 @@ function Navbar({ scrolled }: { scrolled: boolean }) {
 
                 {/* Nav Links */}
                 <div className="hidden md:flex items-center gap-8">
-                    <a href="#features" className="text-gray-600 hover:text-[#0F4C81] transition-colors font-medium">المميزات</a>
+                    <a href="#home" className="text-gray-600 hover:text-[#0F4C81] transition-colors font-medium">الرئيسية</a>
+                    <a href="#partners" className="text-gray-600 hover:text-[#0F4C81] transition-colors font-medium">شركاؤنا</a>
                     <a href="#how-it-works" className="text-gray-600 hover:text-[#0F4C81] transition-colors font-medium">كيف يعمل</a>
-                    <a href="#halls" className="text-gray-600 hover:text-[#0F4C81] transition-colors font-medium">القاعات</a>
+                    <a href="#features" className="text-gray-600 hover:text-[#0F4C81] transition-colors font-medium">المميزات</a>
+                    <a href="#faq" className="text-gray-600 hover:text-[#0F4C81] transition-colors font-medium">الأسئلة</a>
+                    <a href="#contact" className="text-gray-600 hover:text-[#0F4C81] transition-colors font-medium">تواصل معنا</a>
                 </div>
 
                 {/* Mobile Menu Button */}
@@ -88,11 +92,18 @@ function Navbar({ scrolled }: { scrolled: boolean }) {
             {mobileMenuOpen && (
                 <div className="md:hidden absolute top-full left-0 right-0 bg-white shadow-xl border-t border-gray-100 py-4 px-6 flex flex-col gap-4 animate-in slide-in-from-top-5">
                     <a
-                        href="#features"
+                        href="#home"
                         className="text-gray-600 hover:text-[#0F4C81] font-medium py-2"
                         onClick={() => setMobileMenuOpen(false)}
                     >
-                        المميزات
+                        الرئيسية
+                    </a>
+                    <a
+                        href="#partners"
+                        className="text-gray-600 hover:text-[#0F4C81] font-medium py-2"
+                        onClick={() => setMobileMenuOpen(false)}
+                    >
+                        شركاؤنا
                     </a>
                     <a
                         href="#how-it-works"
@@ -102,12 +113,27 @@ function Navbar({ scrolled }: { scrolled: boolean }) {
                         كيف يعمل
                     </a>
                     <a
-                        href="#halls"
+                        href="#features"
                         className="text-gray-600 hover:text-[#0F4C81] font-medium py-2"
                         onClick={() => setMobileMenuOpen(false)}
                     >
-                        القاعات
+                        المميزات
                     </a>
+                    <a
+                        href="#faq"
+                        className="text-gray-600 hover:text-[#0F4C81] font-medium py-2"
+                        onClick={() => setMobileMenuOpen(false)}
+                    >
+                        الأسئلة
+                    </a>
+                    <a
+                        href="#contact"
+                        className="text-gray-600 hover:text-[#0F4C81] font-medium py-2"
+                        onClick={() => setMobileMenuOpen(false)}
+                    >
+                        تواصل معنا
+                    </a>
+
                     <Link
                         href="/login"
                         className="bg-[#0F4C81] text-white py-3 rounded-lg text-center font-bold hover:bg-[#0a3d68] transition-colors"
@@ -156,61 +182,9 @@ function FeatureItem({ text }: { text: string }) {
     )
 }
 
-// Premium Hall Card
-function HallCard({ name, capacity, price, location }: {
-    name: string
-    capacity: number
-    price: number
-    location: string
-}) {
-    return (
-        <div className="group relative bg-white rounded-2xl overflow-hidden border border-gray-100 hover:border-[#D4AF37] shadow-lg hover:shadow-xl transition-all duration-300">
-            {/* Image Placeholder */}
-            <div className="h-52 bg-gradient-to-br from-[#E8F4FC] to-[#0F4C81]/10 flex items-center justify-center relative overflow-hidden">
-                <div className="absolute inset-0 opacity-20" style={{
-                    backgroundImage: 'radial-gradient(circle, rgba(15, 76, 129, 0.3) 1px, transparent 1px)',
-                    backgroundSize: '20px 20px'
-                }}></div>
-                <Building2 className="text-[#0F4C81]/40 group-hover:text-[#0F4C81] group-hover:scale-110 transition-all duration-500" size={64} />
 
-                {/* Price Tag */}
-                <div className="absolute top-4 left-4 bg-[#D4AF37] text-white px-3 py-1 rounded-lg font-bold text-sm shadow-lg">
-                    {price.toLocaleString()} ر.س
-                </div>
-            </div>
 
-            <div className="p-6">
-                <h3 className="text-xl font-bold text-gray-800 mb-4">{name}</h3>
-                <div className="space-y-3 text-sm">
-                    <div className="flex items-center gap-3 text-gray-500">
-                        <Users size={16} className="text-[#0F4C81]" />
-                        <span>السعة: {capacity} شخص</span>
-                    </div>
-                    <div className="flex items-center gap-3 text-gray-500">
-                        <MapPin size={16} className="text-[#0F4C81]" />
-                        <span>{location}</span>
-                    </div>
-                </div>
-                <Link
-                    href="/dashboard/halls"
-                    className="mt-6 block text-center py-3 rounded-xl border-2 border-[#0F4C81] text-[#0F4C81] font-bold hover:bg-[#0F4C81] hover:text-white transition-all duration-300"
-                >
-                    عرض التفاصيل
-                </Link>
-            </div>
-        </div>
-    )
-}
 
-// Stats Counter
-function StatItem({ icon, label }: { icon: string; label: string }) {
-    return (
-        <div className="text-center p-6 rounded-2xl bg-white shadow-md border border-gray-100 hover:border-[#D4AF37] transition-all duration-300">
-            <div className="text-4xl mb-4">{icon}</div>
-            <h4 className="text-[#0F4C81] font-bold">{label}</h4>
-        </div>
-    )
-}
 
 export default function LandingPage2() {
     const [scrolled, setScrolled] = useState(false)
@@ -223,11 +197,7 @@ export default function LandingPage2() {
         return () => window.removeEventListener('scroll', handleScroll)
     }, [])
 
-    const sampleHalls = [
-        { name: 'القاعة الكبرى', capacity: 500, price: 5000, location: 'الدور الأرضي' },
-        { name: 'قاعة الحديقة', capacity: 300, price: 3500, location: 'الحديقة الخارجية' },
-        { name: 'الجناح الملكي', capacity: 100, price: 1500, location: 'الدور الثاني' }
-    ]
+
 
     return (
         <div className="min-h-screen bg-white text-gray-800 selection:bg-[#D4AF37] selection:text-white" style={{ direction: 'rtl' }}>
@@ -235,7 +205,7 @@ export default function LandingPage2() {
             <Navbar scrolled={scrolled} />
 
             {/* Hero Section */}
-            <section className="relative min-h-screen flex items-center pt-20 bg-gradient-to-b from-[#F8FAFC] to-white overflow-hidden">
+            <section id="home" className="relative min-h-screen flex items-center pt-20 bg-gradient-to-b from-[#F8FAFC] to-white overflow-hidden">
                 {/* Decorative Background */}
                 <div className="absolute inset-0 opacity-[0.03]" style={{
                     backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%230F4C81' fill-opacity='1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
@@ -256,13 +226,12 @@ export default function LandingPage2() {
                         <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold text-gray-800 mb-8 leading-tight">
                             نظام إدارة
                             <span className="block text-transparent bg-clip-text bg-gradient-to-l from-[#0F4C81] via-[#1e5f99] to-[#D4AF37] mt-2 pb-2">
-                                القاعات
+                                القاعات الشامل
                             </span>
                         </h1>
 
                         <p className="text-xl text-gray-500 max-w-xl mb-10 leading-relaxed lg:mx-0 mx-auto">
-                            الحل المتكامل لإدارة وتنظيم قاعات المناسبات والزواج بكفاءة.
-                            من الحجز إلى التحصيل - كل شيء في منصة واحدة.
+                            الحل المتكامل لإدارة القاعات: حجوزات، عقود، مصروفات، وفواتير ضريبية. منصة واحدة تغنيك عن عشرة برامج.
                         </p>
 
                         <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
@@ -273,14 +242,7 @@ export default function LandingPage2() {
                                 <span>ابدأ الآن</span>
                                 <ChevronLeft className="group-hover:-translate-x-1 transition-transform" size={20} />
                             </Link>
-                            <button
-                                className="flex items-center justify-center gap-3 text-[#0F4C81] font-medium hover:text-[#D4AF37] transition-colors group"
-                            >
-                                <div className="w-14 h-14 rounded-full bg-[#0F4C81]/10 border border-[#0F4C81]/20 flex items-center justify-center group-hover:bg-[#D4AF37]/10 group-hover:border-[#D4AF37]/30 transition-colors">
-                                    <Play size={24} fill="currentColor" className="mr-[-2px]" />
-                                </div>
-                                <span>شاهد العرض</span>
-                            </button>
+
                         </div>
                     </div>
 
@@ -298,10 +260,53 @@ export default function LandingPage2() {
                 </div>
             </section>
 
+            {/* Partners & Integrations Bar */}
+            <section id="partners" className="py-20 bg-white border-b border-gray-100">
+                <div className="max-w-7xl mx-auto px-6">
+                    <p className="text-center text-[#8492a6] text-lg font-medium mb-12">
+                        شركاء النجاح والأنظمة المتكاملة معنا
+                    </p>
+                    <div className="flex flex-wrap justify-center items-center gap-16 md:gap-24 opacity-80 grayscale hover:grayscale-0 transition-all duration-500">
+                        {/* Client Hall */}
+                        <div className="flex items-center gap-2">
+                            <Image
+                                src="/images/partners/hafawah.png"
+                                alt="قاعة حفاوة"
+                                width={240}
+                                height={120}
+                                className="object-contain h-28 w-auto"
+                            />
+                        </div>
+
+                        {/* Qoyod Integration */}
+                        <div className="flex items-center gap-2">
+                            <Image
+                                src="/images/partners/qoyod.png"
+                                alt="نظام قيود"
+                                width={180}
+                                height={90}
+                                className="object-contain h-16 w-auto"
+                            />
+                        </div>
+
+                        {/* ZATCA Compliance */}
+                        <div className="flex items-center gap-2">
+                            <Image
+                                src="/images/partners/zatca.svg"
+                                alt="هيئة الزكاة والضريبة والجمارك"
+                                width={180}
+                                height={90}
+                                className="object-contain h-20 w-auto"
+                            />
+                        </div>
+                    </div>
+                </div>
+            </section>
+
             {/* How It Works */}
             <section id="how-it-works" className="py-32 bg-[#F8FAFC]">
                 <div className="max-w-7xl mx-auto px-6">
-                    <div className="text-center mb-20">
+                    <div className="flex flex-col items-center text-center mb-20">
                         <span className="text-[#D4AF37] font-bold tracking-wider uppercase text-sm">رحلة العميل</span>
                         <h2 className="text-3xl md:text-5xl font-bold mt-4 mb-4 text-gray-800">أتمتة كاملة في 4 خطوات</h2>
                         <p className="text-gray-500 text-lg max-w-2xl mx-auto">من إدخال البيانات إلى الإدارة المالية، نظامنا يقوم بالعمل الشاق نيابة عنك</p>
@@ -327,117 +332,108 @@ export default function LandingPage2() {
                             description="عقود قانونية وفواتير ضريبية جاهزة للطباعة بنقرة زر واحدة."
                         />
                         <ProcessCard
-                            icon={Link2}
+                            icon={BarChart3}
                             step={4}
-                            title="تزامن وتكامل"
-                            description="ربط مباشر مع نظام قيود للمحاسبة السلسة دون تدخل يدوي."
+                            title="راقب أرباحك"
+                            description="تقارير مالية دقيقة توضح لك الإيرادات والمصروفات وصافي الربح."
                         />
                     </div>
                 </div>
             </section>
 
-            {/* Features Grid */}
-            <section id="features" className="py-32 bg-white">
+            {/* Zig-Zag Features Section */}
+            <section id="features" className="py-32 bg-white overflow-hidden">
                 <div className="max-w-7xl mx-auto px-6">
-                    <div className="text-center mb-20">
+                    <div className="flex flex-col items-center text-center mb-24">
                         <span className="text-[#D4AF37] font-bold tracking-wider uppercase text-sm">إمكانيات النظام</span>
-                        <h2 className="text-3xl md:text-5xl font-bold mt-4 mb-4 text-gray-800">كل ما تحتاجه للنجاح</h2>
-                        <p className="text-gray-500 text-lg max-w-2xl mx-auto">أدوات احترافية صممت خصيصاً لتلبية احتياجات أصحاب القاعات في المملكة</p>
+                        <h2 className="text-3xl md:text-5xl font-bold mt-4 mb-4 text-gray-800">تجربة إدارة استثنائية</h2>
+                        <p className="text-gray-500 text-lg max-w-2xl mx-auto">صمم ليعطيك السيطرة الكاملة على قاعتك بأناقة وذكاء</p>
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                        {/* Card 1 */}
-                        <div className="group bg-white p-8 rounded-2xl border border-gray-100 hover:border-[#D4AF37] shadow-lg hover:shadow-xl transition-all duration-300 relative overflow-hidden">
-                            <div className="absolute top-0 right-0 w-32 h-32 bg-[#0F4C81]/5 rounded-bl-full -mr-8 -mt-8 transition-transform group-hover:scale-150"></div>
-                            <div className="relative">
-                                <div className="w-14 h-14 rounded-xl bg-[#E8F4FC] flex items-center justify-center mb-6">
-                                    <Calendar className="text-[#0F4C81]" size={28} />
+                    <div className="space-y-32">
+                        {/* Feature 1: Booking */}
+                        <div className="grid lg:grid-cols-2 gap-16 items-center">
+                            <div className="order-2 lg:order-1">
+                                <div className="relative">
+                                    <div className="absolute -inset-4 bg-[#0F4C81]/5 rounded-3xl transform rotate-3"></div>
+                                    <div className="relative bg-white p-8 rounded-2xl shadow-xl border border-gray-100 flex items-center justify-center min-h-[300px]">
+                                        <div className="text-center">
+                                            <Calendar size={64} className="text-[#0F4C81] mx-auto mb-6" />
+                                            <div className="text-lg font-bold text-gray-800 mb-2">التقويم الذكي</div>
+                                            <div className="text-sm text-gray-400">Hijri & Gregorian Calendar</div>
+                                        </div>
+                                    </div>
                                 </div>
-                                <h3 className="text-xl font-bold text-gray-800 mb-3">التقويم الهجري المعتمد</h3>
-                                <p className="text-gray-500 mb-6 text-sm leading-relaxed">دعم أصلي للتاريخ الهجري مع تحويل دقيق للميلادي، مما يسهل حجز المناسبات والأعياد.</p>
-                                <ul className="space-y-2">
-                                    <FeatureItem text="تحويل فوري للتاريخ" />
-                                    <FeatureItem text="عرض التقويمين معاً" />
+                            </div>
+                            <div className="order-1 lg:order-2 text-right">
+                                <div className="w-16 h-16 rounded-2xl bg-[#E8F4FC] flex items-center justify-center mb-6">
+                                    <Calendar className="text-[#0F4C81]" size={32} />
+                                </div>
+                                <h3 className="text-3xl font-bold text-gray-800 mb-4">منع التعارضات، تلقائياً</h3>
+                                <p className="text-gray-500 text-lg leading-relaxed mb-6">
+                                    وداعاً لدفاتر الحجز الورقية. نظامنا الذكي يكتشف التعارضات فوراً، ويدعم التحويل المباشر بين التاريخ الهجري والميلادي لضمان دقة مواعيدك.
+                                </p>
+                                <ul className="space-y-3">
+                                    <FeatureItem text="تزامن فوري للحجوزات" />
+                                    <FeatureItem text="عقود إلكترونية جاهزة للطباعة" />
                                 </ul>
                             </div>
                         </div>
 
-                        {/* Card 2 */}
-                        <div className="group bg-white p-8 rounded-2xl border border-gray-100 hover:border-[#D4AF37] shadow-lg hover:shadow-xl transition-all duration-300 relative overflow-hidden">
-                            <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-500/5 rounded-bl-full -mr-8 -mt-8 transition-transform group-hover:scale-150"></div>
-                            <div className="relative">
-                                <div className="w-14 h-14 rounded-xl bg-emerald-100 flex items-center justify-center mb-6">
-                                    <Coffee className="text-emerald-600" size={28} />
+                        {/* Feature 2: Finance (Reversed) */}
+                        <div className="grid lg:grid-cols-2 gap-16 items-center">
+                            <div className="order-1 lg:order-1 text-right">
+                                <div className="w-16 h-16 rounded-2xl bg-emerald-100 flex items-center justify-center mb-6">
+                                    <BarChart3 className="text-emerald-600" size={32} />
                                 </div>
-                                <h3 className="text-xl font-bold text-gray-800 mb-3">إدارة الضيافة والخدمات</h3>
-                                <p className="text-gray-500 mb-6 text-sm leading-relaxed">تحكم كامل في القهوجية، الوجبات، والذبائح. النظام يحسب التكاليف ويضيفها للفاتورة.</p>
-                                <ul className="space-y-2">
-                                    <FeatureItem text="إدارة مخزون الخدمات" />
-                                    <FeatureItem text="تسعير مرن للمواسم" />
+                                <h3 className="text-3xl font-bold text-gray-800 mb-4">كل ريال، محسوب</h3>
+                                <p className="text-gray-500 text-lg leading-relaxed mb-6">
+                                    تتبع الإيرادات، سجل المصروفات التشغيلية، واعرف صافي ربحك لحظياً. مع ربط محاسبي مباشر (قيود) وفواتير ضريبية معتمدة.
+                                </p>
+                                <ul className="space-y-3">
+                                    <FeatureItem text="فواتير ضريبية (VAT 15%)" />
+                                    <FeatureItem text="تقارير الأرباح والمصروفات" />
                                 </ul>
+                            </div>
+                            <div className="order-2 lg:order-2">
+                                <div className="relative">
+                                    <div className="absolute -inset-4 bg-emerald-500/5 rounded-3xl transform -rotate-3"></div>
+                                    <div className="relative bg-white p-8 rounded-2xl shadow-xl border border-gray-100 flex items-center justify-center min-h-[300px]">
+                                        <div className="text-center">
+                                            <BarChart3 size={64} className="text-emerald-600 mx-auto mb-6" />
+                                            <div className="text-lg font-bold text-gray-800 mb-2">لوحة التحكم المالية</div>
+                                            <div className="text-sm text-gray-400">Financial Dashboard</div>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
 
-                        {/* Card 3 */}
-                        <div className="group bg-white p-8 rounded-2xl border border-gray-100 hover:border-[#D4AF37] shadow-lg hover:shadow-xl transition-all duration-300 relative overflow-hidden">
-                            <div className="absolute top-0 right-0 w-32 h-32 bg-purple-500/5 rounded-bl-full -mr-8 -mt-8 transition-transform group-hover:scale-150"></div>
-                            <div className="relative">
-                                <div className="w-14 h-14 rounded-xl bg-purple-100 flex items-center justify-center mb-6">
-                                    <FileText className="text-purple-600" size={28} />
+                        {/* Feature 3: Staff Security */}
+                        <div className="grid lg:grid-cols-2 gap-16 items-center">
+                            <div className="order-2 lg:order-1">
+                                <div className="relative">
+                                    <div className="absolute -inset-4 bg-cyan-500/5 rounded-3xl transform rotate-3"></div>
+                                    <div className="relative bg-white p-8 rounded-2xl shadow-xl border border-gray-100 flex items-center justify-center min-h-[300px]">
+                                        <div className="text-center">
+                                            <Shield size={64} className="text-cyan-600 mx-auto mb-6" />
+                                            <div className="text-lg font-bold text-gray-800 mb-2">أمان عالي</div>
+                                            <div className="text-sm text-gray-400">Role-Based Access</div>
+                                        </div>
+                                    </div>
                                 </div>
-                                <h3 className="text-xl font-bold text-gray-800 mb-3">نظام الفوترة المتوافق</h3>
-                                <p className="text-gray-500 mb-6 text-sm leading-relaxed">فواتير ضريبية إلكترونية متوافقة مع متطلبات الزكاة والدخل (15%) جاهزة للطباعة.</p>
-                                <ul className="space-y-2">
-                                    <FeatureItem text="QR Code للفواتير" />
-                                    <FeatureItem text="سندات قبض وصرف" />
-                                </ul>
                             </div>
-                        </div>
-
-                        {/* Card 4 */}
-                        <div className="group bg-white p-8 rounded-2xl border border-gray-100 hover:border-[#D4AF37] shadow-lg hover:shadow-xl transition-all duration-300 relative overflow-hidden">
-                            <div className="absolute top-0 right-0 w-32 h-32 bg-orange-500/5 rounded-bl-full -mr-8 -mt-8 transition-transform group-hover:scale-150"></div>
-                            <div className="relative">
-                                <div className="w-14 h-14 rounded-xl bg-orange-100 flex items-center justify-center mb-6">
-                                    <Link2 className="text-orange-600" size={28} />
+                            <div className="order-1 lg:order-2 text-right">
+                                <div className="w-16 h-16 rounded-2xl bg-cyan-100 flex items-center justify-center mb-6">
+                                    <Users className="text-cyan-600" size={32} />
                                 </div>
-                                <h3 className="text-xl font-bold text-gray-800 mb-3">تكامل محاسبي (قيود)</h3>
-                                <p className="text-gray-500 mb-6 text-sm leading-relaxed">لا داعي للإدخال المزدوج. كل فاتورة هنا ترحل تلقائياً إلى نظام قيود.</p>
-                                <ul className="space-y-2">
-                                    <FeatureItem text="مزامنة تلقائية" />
-                                    <FeatureItem text="تطابق الحسابات" />
-                                </ul>
-                            </div>
-                        </div>
-
-                        {/* Card 5 */}
-                        <div className="group bg-white p-8 rounded-2xl border border-gray-100 hover:border-[#D4AF37] shadow-lg hover:shadow-xl transition-all duration-300 relative overflow-hidden">
-                            <div className="absolute top-0 right-0 w-32 h-32 bg-rose-500/5 rounded-bl-full -mr-8 -mt-8 transition-transform group-hover:scale-150"></div>
-                            <div className="relative">
-                                <div className="w-14 h-14 rounded-xl bg-rose-100 flex items-center justify-center mb-6">
-                                    <Printer className="text-rose-600" size={28} />
-                                </div>
-                                <h3 className="text-xl font-bold text-gray-800 mb-3">طباعة العقود الرسمية</h3>
-                                <p className="text-gray-500 mb-6 text-sm leading-relaxed">عقود مفصلة تحوي كافة الشروط والأحكام، مع تفقيط المبالغ تلقائياً.</p>
-                                <ul className="space-y-2">
-                                    <FeatureItem text="شروط قانونية" />
-                                    <FeatureItem text="تفقيط الأرقام" />
-                                </ul>
-                            </div>
-                        </div>
-
-                        {/* Card 6 */}
-                        <div className="group bg-white p-8 rounded-2xl border border-gray-100 hover:border-[#D4AF37] shadow-lg hover:shadow-xl transition-all duration-300 relative overflow-hidden">
-                            <div className="absolute top-0 right-0 w-32 h-32 bg-cyan-500/5 rounded-bl-full -mr-8 -mt-8 transition-transform group-hover:scale-150"></div>
-                            <div className="relative">
-                                <div className="w-14 h-14 rounded-xl bg-cyan-100 flex items-center justify-center mb-6">
-                                    <BarChart3 className="text-cyan-600" size={28} />
-                                </div>
-                                <h3 className="text-xl font-bold text-gray-800 mb-3">لوحة تحكم تنفيذية</h3>
-                                <p className="text-gray-500 mb-6 text-sm leading-relaxed">رؤية شاملة لأداء قاعاتك: الإيرادات، الحجوزات القادمة، ونسب الإشغال.</p>
-                                <ul className="space-y-2">
-                                    <FeatureItem text="تقارير لحظية" />
-                                    <FeatureItem text="تحليل الأداء" />
+                                <h3 className="text-3xl font-bold text-gray-800 mb-4">تحكم بمن يرى ماذا</h3>
+                                <p className="text-gray-500 text-lg leading-relaxed mb-6">
+                                    لا تدع بياناتك المالية مشاعة. حدد صلاحيات دقيقة لموظفي الاستقبال، بينما تحتفظ أنت بالصلاحيات الكاملة كمالك للقاعة.
+                                </p>
+                                <ul className="space-y-3">
+                                    <FeatureItem text="صلاحيات مخصصة لكل موظف" />
+                                    <FeatureItem text="سجل مراقبة العمليات" />
                                 </ul>
                             </div>
                         </div>
@@ -445,58 +441,38 @@ export default function LandingPage2() {
                 </div>
             </section>
 
-            {/* Stats Bar */}
-            <section className="py-16 bg-[#0F4C81]">
-                <div className="max-w-7xl mx-auto px-6">
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
-                        <div className="text-center">
-                            <div className="text-4xl mb-2">📅</div>
-                            <h4 className="text-white font-bold">تقويم هجري</h4>
-                            <p className="text-blue-200 text-sm">وميلادي</p>
-                        </div>
-                        <div className="text-center">
-                            <div className="text-4xl mb-2">🔗</div>
-                            <h4 className="text-white font-bold">ربط محاسبي</h4>
-                            <p className="text-blue-200 text-sm">مع قيود</p>
-                        </div>
-                        <div className="text-center">
-                            <div className="text-4xl mb-2">🧾</div>
-                            <h4 className="text-white font-bold">فوترة ضريبية</h4>
-                            <p className="text-blue-200 text-sm">15% VAT</p>
-                        </div>
-                        <div className="text-center">
-                            <div className="text-4xl mb-2">☕</div>
-                            <h4 className="text-white font-bold">إدارة ضيافة</h4>
-                            <p className="text-blue-200 text-sm">ووجبات</p>
-                        </div>
-                    </div>
-                </div>
-            </section>
+            {/* Testimonials Section - Hidden as requested */}
+            {/* <section className="py-24 bg-[#F8FAFC]">
+                ...
+            </section> */}
 
-            {/* Halls Preview */}
-            <section id="halls" className="py-32 bg-[#F8FAFC]">
-                <div className="max-w-7xl mx-auto px-6">
-                    <div className="flex justify-between items-end mb-12">
-                        <div>
-                            <span className="text-[#D4AF37] font-bold tracking-wider uppercase text-sm">مساحاتك</span>
-                            <h2 className="text-4xl font-bold mt-2 text-gray-800">القاعات المتاحة</h2>
-                        </div>
-                        <Link href="/dashboard" className="hidden md:flex items-center gap-2 text-[#0F4C81] hover:text-[#D4AF37] hover:gap-4 transition-all font-medium">
-                            <span>عرض الكل</span>
-                            <ChevronLeft size={20} />
-                        </Link>
+
+
+
+
+            {/* FAQ Section */}
+            <section id="faq" className="py-24 px-6 bg-white border-t border-gray-100">
+                <div className="max-w-3xl mx-auto">
+                    <div className="text-center mb-16">
+                        <span className="text-[#0F4C81] font-bold tracking-wider uppercase text-sm">أسئلة شائعة</span>
+                        <h2 className="text-3xl font-bold text-gray-800 mt-3 mb-4">كل ما تود معرفته</h2>
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                        {sampleHalls.map((hall, index) => (
-                            <HallCard
-                                key={index}
-                                name={hall.name}
-                                capacity={hall.capacity}
-                                price={hall.price}
-                                location={hall.location}
-                            />
-                        ))}
+                    <div className="space-y-4">
+                        <div className="bg-[#F8FAFC] rounded-2xl p-8 border border-gray-100 text-center">
+                            <h3 className="font-bold text-gray-800 mb-3 text-lg">هل النظام معتمد من الزكاة والدخل؟</h3>
+                            <p className="text-gray-500 leading-relaxed">نعم، النظام يصدر فواتير ضريبية إلكترونية متوافقة كلياً مع متطلبات هيئة الزكاة والضريبة والجمارك (FATURAH).</p>
+                        </div>
+
+                        <div className="bg-[#F8FAFC] rounded-2xl p-8 border border-gray-100 text-center">
+                            <h3 className="font-bold text-gray-800 mb-3 text-lg">هل يمكنني استخدام النظام من الجوال؟</h3>
+                            <p className="text-gray-500 leading-relaxed">بالتأكيد. النظام سحابي (Cloud-based) ويعمل بكفاءة على جميع الأجهزة: الكمبيوتر، التابلت، والجوال دون الحاجة لتثبيت برامج.</p>
+                        </div>
+
+                        <div className="bg-[#F8FAFC] rounded-2xl p-8 border border-gray-100 text-center">
+                            <h3 className="font-bold text-gray-800 mb-3 text-lg">هل بياناتي آمنة؟</h3>
+                            <p className="text-gray-500 leading-relaxed">نحن نستخدم أعلى معايير التشفير (SSL) وسيرفرات محمية، مع نسخ احتياطي دوري لضمان عدم فقدان أي بيانات.</p>
+                        </div>
                     </div>
                 </div>
             </section>
@@ -510,34 +486,31 @@ export default function LandingPage2() {
                 }}></div>
 
                 <div className="max-w-4xl mx-auto px-6 text-center relative z-10">
-                    <h2 className="text-3xl md:text-5xl font-bold text-white mb-6 leading-tight">
-                        هل أنت جاهز للارتقاء بإدارة قاعتك؟
+                    <span className="text-white/80 font-bold tracking-widest uppercase text-sm mb-4 block">انضم للنخبة</span>
+                    <h2 className="text-4xl md:text-6xl font-bold text-white mb-6 leading-tight">
+                        حول قاعتك إلى <br /> مشروع مؤسسي ناجح
                     </h2>
-                    <p className="text-white/90 text-xl mb-10 font-medium">
-                        انضم الآن إلى النخبة واستمتع بتجربة إدارة لا تضاهى.
+                    <p className="text-white/90 text-xl mb-12 font-medium max-w-2xl mx-auto">
+                        آلاف الريالات تضيع بسبب سوء الإدارة. ابدأ اليوم بضبط الأمور.
                     </p>
                     <div className="flex flex-col sm:flex-row gap-4 justify-center">
                         <Link
                             href="/dashboard"
-                            className="bg-white text-[#0F4C81] px-10 py-5 rounded-full font-bold text-lg shadow-2xl hover:scale-105 transition-all duration-300 flex items-center justify-center gap-3"
+                            className="bg-white text-[#0F4C81] px-12 py-5 rounded-full font-bold text-xl shadow-2xl hover:scale-105 transition-all duration-300 flex items-center justify-center gap-3"
                         >
-                            <span>اشترك مجاناً</span>
-                            <ChevronLeft size={20} />
-                        </Link>
-                        <Link
-                            href="/login"
-                            className="bg-transparent border-2 border-white text-white px-10 py-5 rounded-full font-bold text-lg hover:bg-white hover:text-[#D4AF37] transition-all duration-300"
-                        >
-                            دخول الأعضاء
+                            <span>ابدأ النسخة التجريبية</span>
+                            <ChevronLeft size={24} />
                         </Link>
                     </div>
                 </div>
             </section>
 
+
+
             {/* Footer */}
-            <footer className="bg-[#0F4C81] text-white py-20 px-6">
+            <footer id="contact" className="bg-[#0F4C81] text-white py-20 px-6">
                 <div className="max-w-7xl mx-auto">
-                    <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-16">
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-12 mb-16">
                         <div className="md:col-span-1">
                             <div className="flex items-center gap-3 mb-6">
                                 <Image
@@ -554,22 +527,13 @@ export default function LandingPage2() {
                             </p>
                         </div>
 
-                        <div>
-                            <h4 className="font-bold text-lg mb-6 text-[#D4AF37]">روابط هامة</h4>
-                            <ul className="space-y-3 text-blue-200 text-sm">
-                                <li><Link href="#" className="hover:text-white transition-colors">عن النظام</Link></li>
-                                <li><Link href="#" className="hover:text-white transition-colors">الباقات والأسعار</Link></li>
-                                <li><Link href="#" className="hover:text-white transition-colors">سجل التحديثات</Link></li>
-                            </ul>
-                        </div>
+
 
                         <div>
                             <h4 className="font-bold text-lg mb-6 text-[#D4AF37]">تواصل معنا</h4>
-                            <ul className="space-y-3 text-blue-200 text-sm">
-                                <li className="flex items-center gap-3"><Mail size={16} /> info@hallsystem.sa</li>
-                                <li className="flex items-center gap-3"><Phone size={16} /> 920000000</li>
-                                <li className="flex items-center gap-3"><Clock size={16} /> دعم 24/7</li>
-                            </ul>
+                            <p className="text-blue-200 text-sm leading-relaxed">
+                                تواصل معنا عبر نموذج الموقع أو من خلال لوحة التحكم الخاصة بك.
+                            </p>
                         </div>
 
                         <div>
