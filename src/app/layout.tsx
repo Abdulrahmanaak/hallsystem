@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
 import './globals.css'
 
-const siteUrl = process.env.NEXTAUTH_URL || ('https://' + 'hall-system.netlify.app')
+const siteUrl = process.env.NEXTAUTH_URL || 'http://localhost:3000'
 
 export const metadata: Metadata = {
     metadataBase: new URL(siteUrl),
