@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import './globals.css'
 
 export const metadata: Metadata = {
+    metadataBase: new URL('https://hall-system.netlify.app'),
     title: {
         default: 'نظام إدارة القاعات | Hall Management System',
         template: '%s | نظام إدارة القاعات'
@@ -19,7 +20,7 @@ export const metadata: Metadata = {
     openGraph: {
         type: 'website',
         locale: 'ar_SA',
-        url: 'https://hallsystem.sa',
+        url: 'https://hall-system.netlify.app',
         siteName: 'نظام إدارة القاعات',
         title: 'نظام إدارة القاعات | الحل الأمثل لإدارة مناسباتك',
         description: 'أدِر حجوزاتك وفواتيرك الضريبية ومصروفاتك في مكان واحد.',
