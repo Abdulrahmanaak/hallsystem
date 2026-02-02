@@ -1,8 +1,10 @@
 import type { Metadata } from 'next'
 import './globals.css'
 
+const siteUrl = process.env.NEXTAUTH_URL || ('https://' + 'hall-system.netlify.app')
+
 export const metadata: Metadata = {
-    metadataBase: new URL('https://hall-system.netlify.app'),
+    metadataBase: new URL(siteUrl),
     title: {
         default: 'نظام إدارة القاعات | Hall Management System',
         template: '%s | نظام إدارة القاعات'
@@ -20,7 +22,7 @@ export const metadata: Metadata = {
     openGraph: {
         type: 'website',
         locale: 'ar_SA',
-        url: 'https://hall-system.netlify.app',
+        url: siteUrl,
         siteName: 'نظام إدارة القاعات',
         title: 'نظام إدارة القاعات | الحل الأمثل لإدارة مناسباتك',
         description: 'أدِر حجوزاتك وفواتيرك الضريبية ومصروفاتك في مكان واحد.',
