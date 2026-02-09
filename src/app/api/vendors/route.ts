@@ -59,6 +59,37 @@ export async function POST(req: Request) {
             }
         })
 
+        // Sync to Qoyod if enabled
+        try {
+            const { getQoyodConfig, qoyodRequest } = await import('@/lib/services/qoyod')
+            const config = await getQoyodConfig(ownerId)
+
+            if (config) {
+                const payload = {
+                    contact: {
+                        name: nameAr,
+                        // Qoyod might require more fields, but name is usually minimum.
+                        // Can add phone/email if needed.
+                        mobile: phone,
+                        email: email
+                    }
+                }
+
+                const qoyodRes = await qoyodRequest('/contacts', 'POST', payload, config) as { contact?: { id: number | string } }
+
+                if (qoyodRes?.contact?.id) {
+                    await prisma.vendor.update({
+                        where: { id: vendor.id },
+                        data: { qoyodVendorId: qoyodRes.contact.id.toString() }
+                    })
+                    vendor.qoyodVendorId = qoyodRes.contact.id.toString()
+                }
+            }
+        } catch (error) {
+            console.error('Error syncing new vendor to Qoyod:', error)
+            // Continue, don't fail the request
+        }
+
         return NextResponse.json(vendor)
 
     } catch (error) {

@@ -87,7 +87,7 @@ export function Calendar({ mode = 'gregorian', selected, onSelect, className }: 
 
     const renderCells = () => {
         const rows = [];
-        let days = [];
+        const days = [];
 
         let startOfMonth = new Date(viewDate);
 
@@ -95,7 +95,7 @@ export function Calendar({ mode = 'gregorian', selected, onSelect, className }: 
             startOfMonth.setDate(1);
         } else {
             const currentParts = getHijriParts(startOfMonth);
-            let temp = new Date(viewDate);
+            const temp = new Date(viewDate);
             // Search backwards for the 1st of the Hijri month
             let guard = 0;
             while (guard < 35) {
@@ -118,7 +118,7 @@ export function Calendar({ mode = 'gregorian', selected, onSelect, className }: 
         }
 
         // DAYS
-        let currentIter = new Date(startOfMonth);
+        const currentIter = new Date(startOfMonth);
         const currentMonthIdentifier = mode === 'gregorian' ? currentIter.getMonth() : getHijriParts(currentIter).month;
 
         while (true) {

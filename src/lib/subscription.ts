@@ -50,7 +50,7 @@ export async function checkSubscriptionStatus(userId: string): Promise<Subscript
     const { subscriptionStatus, trialEndsAt, subscriptionEndsAt } = user
 
     let endDate: Date | null = null
-    let status = subscriptionStatus || 'TRIAL'
+    const status = subscriptionStatus || 'TRIAL'
 
     // determine relevant end date
     if (status === 'SUBSCRIBED' && subscriptionEndsAt) {

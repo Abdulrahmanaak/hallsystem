@@ -225,7 +225,7 @@ export default function InvoicePrintPage() {
     // If VAT is 0 but Total > 0, we derive VAT from Total (assuming Total is inclusive)
     let displaySubtotal = Number(invoice.subtotal)
     let displayVatAmount = Number(invoice.vatAmount)
-    let displayTotal = Number(invoice.totalAmount)
+    const displayTotal = Number(invoice.totalAmount)
 
     // Legacy fix: If VAT is approximately 0 and we have a total, calculate it based on 15%
     if (displayVatAmount <= 0.1 && displayTotal > 0) {

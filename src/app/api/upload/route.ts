@@ -27,9 +27,9 @@ export async function POST(req: Request) {
             return NextResponse.json({ error: 'Only image and PDF files are allowed' }, { status: 400 })
         }
 
-        // 2MB limit
-        if (file.size > 2 * 1024 * 1024) {
-            return NextResponse.json({ error: 'File size too large (max 2MB)' }, { status: 400 })
+        // 10MB limit
+        if (file.size > 10 * 1024 * 1024) {
+            return NextResponse.json({ error: 'File size too large (max 10MB)' }, { status: 400 })
         }
 
         const buffer = Buffer.from(await file.arrayBuffer())

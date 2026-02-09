@@ -14,7 +14,9 @@ import {
     Loader2,
     Trash2,
     RefreshCw,
-    CheckCircle2
+    CheckCircle2,
+    Pencil,
+    Ban
 } from 'lucide-react'
 
 interface Expense {
@@ -25,9 +27,12 @@ interface Expense {
     category: string | null
     imageUrl: string | null
     syncedToQoyod: boolean
+    isDeleted: boolean
+    deletedAt: string | null
     vendor?: {
         id: string
         nameAr: string
+        qoyodVendorId?: string | null
     } | null
     createdBy: {
         nameAr: string
@@ -38,6 +43,7 @@ interface Expense {
 interface Vendor {
     id: string
     nameAr: string
+    qoyodVendorId?: string | null
 }
 
 import { useSubscription } from '@/hooks/useSubscription'
@@ -55,6 +61,8 @@ export default function ExpensesPage() {
     // Modal
     const [showModal, setShowModal] = useState(false)
     const [viewImage, setViewImage] = useState<string | null>(null)
+    const [isEditing, setIsEditing] = useState(false)
+    const [editId, setEditId] = useState<string | null>(null)
 
     // Form data
     const [formData, setFormData] = useState({
@@ -63,9 +71,11 @@ export default function ExpensesPage() {
         expenseDate: new Date().toISOString().split('T')[0],
         category: '',
         vendorId: '',
-        file: null as File | null
+        file: null as File | null,
+        existingImageUrl: null as string | null
     })
     const [saving, setSaving] = useState(false)
+    const [deletingId, setDeletingId] = useState<string | null>(null)
 
     const fetchData = async () => {
         try {
@@ -115,22 +125,121 @@ export default function ExpensesPage() {
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.target.files && e.target.files[0]) {
-            setFormData({ ...formData, file: e.target.files[0] })
+            const file = e.target.files[0]
+            // 10MB limit
+            if (file.size > 10 * 1024 * 1024) {
+                alert('عفواً، حجم الملف يجب أن يكون أقل من 10 ميجابايت')
+                e.target.value = ''
+                return
+            }
+            setFormData({ ...formData, file })
+        }
+    }
+
+    const startAdd = () => {
+        setIsEditing(false)
+        setEditId(null)
+        setFormData({
+            amount: '',
+            description: '',
+            expenseDate: new Date().toISOString().split('T')[0],
+            category: '',
+            vendorId: '',
+            file: null,
+            existingImageUrl: null
+        })
+        setVendorSearch('')
+        setShowModal(true)
+    }
+
+    const startEdit = (expense: Expense) => {
+        setIsEditing(true)
+        setEditId(expense.id)
+        setFormData({
+            amount: expense.amount.toString(),
+            description: expense.description,
+            expenseDate: new Date(expense.expenseDate).toISOString().split('T')[0],
+            category: expense.category || '',
+            vendorId: expense.vendor?.id || '',
+            file: null,
+            existingImageUrl: expense.imageUrl
+        })
+        setVendorSearch(expense.vendor?.nameAr || '')
+        setShowModal(true)
+    }
+
+    const handleDelete = async (id: string) => {
+        if (!confirm('هل أنت متأكد من حذف هذا المصروف؟ سيتم حذفه من قيود أيضاً إذا كان مرتبطاً.')) return
+
+        setDeletingId(id)
+        try {
+            const res = await fetch(`/api/expenses/${id}`, {
+                method: 'DELETE'
+            })
+
+            if (res.ok) {
+                const data = await res.json()
+                if (data.qoyodDeleted) {
+                    alert('تم حذف المصروف محلياً ومن قيود بنجاح')
+                } else {
+                    alert('تم حذف المصروف بنجاح')
+                }
+                fetchData()
+            } else {
+                const data = await res.json()
+                alert(data.error || 'فشل حذف المصروف')
+            }
+        } catch (error) {
+            console.error('Error deleting expense:', error)
+            alert('حدث خطأ أثناء الحذف')
+        } finally {
+            setDeletingId(null)
         }
     }
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
         if (isReadOnly) {
-            alert('عفواً، لا يمكن تسجيل مصروفات في وضع القراءة فقط.')
+            alert('عفواً، لا يمكن تعديل البيانات في وضع القراءة فقط.')
             return
         }
         setSaving(true)
 
         try {
-            let imageUrl = null
+            let imageUrl = formData.existingImageUrl
 
-            // 1. Upload file if exists
+            // 1. Handle Vendor Creation if new
+            let finalVendorId = formData.vendorId
+
+            if (!finalVendorId && vendorSearch.trim()) {
+                // User typed a name but selected no existing vendor
+                // Create new vendor
+                try {
+                    const vendorRes = await fetch('/api/vendors', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ nameAr: vendorSearch.trim() })
+                    })
+
+                    if (!vendorRes.ok) {
+                        const err = await vendorRes.json()
+                        throw new Error(err.error || 'فشل إنشاء المورد الجديد')
+                    }
+
+                    const newVendor = await vendorRes.json()
+                    finalVendorId = newVendor.id
+
+                    // Refresh vendors list silently
+                    fetchVendors()
+                } catch (error: unknown) {
+                    const errorMessage = error instanceof Error ? error.message : String(error)
+                    alert(`خطأ: ${errorMessage}`)
+                    setSaving(false)
+                    return
+                }
+            }
+
+            // 2. Upload file if exists
             if (formData.file) {
                 const uploadFormData = new FormData()
                 uploadFormData.append('file', formData.file)
@@ -141,43 +250,47 @@ export default function ExpensesPage() {
                 })
 
                 if (!uploadRes.ok) {
-                    throw new Error('Upload failed')
+                    const err = await uploadRes.json()
+                    throw new Error(err.error || 'Upload failed')
                 }
 
                 const uploadData = await uploadRes.json()
                 imageUrl = uploadData.url
             }
 
-            // 2. Create expense
-            const res = await fetch('/api/expenses', {
-                method: 'POST',
+            // 2. Create or Update expense
+            const url = isEditing && editId ? `/api/expenses/${editId}` : '/api/expenses'
+            const method = isEditing ? 'PUT' : 'POST'
+
+            const res = await fetch(url, {
+                method: method,
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     amount: parseFloat(formData.amount),
                     description: formData.description,
                     expenseDate: formData.expenseDate,
                     category: formData.category,
-                    vendorId: formData.vendorId || null,
+                    vendorId: finalVendorId || null,
                     imageUrl
                 })
             })
 
+            const data = await res.json()
+
             if (res.ok) {
                 setShowModal(false)
-                setFormData({
-                    amount: '',
-                    description: '',
-                    expenseDate: new Date().toISOString().split('T')[0],
-                    category: '',
-                    vendorId: '',
-                    file: null
-                })
-                setVendorSearch('')
                 fetchData()
+                if (isEditing) {
+                    // Check if it was synced, maybe show a toast that Qoyod was updated?
+                    // For now silent update is fine as per requirements (just work)
+                }
+            } else {
+                alert(data.error || 'حدث خطأ غير متوقع')
             }
-        } catch (error) {
+        } catch (error: unknown) {
             console.error('Error saving expense:', error)
-            alert('حدث خطأ أثناء حفظ المصروف')
+            const errorMessage = error instanceof Error ? error.message : String(error)
+            alert(errorMessage || 'حدث خطأ أثناء حفظ المصروف')
         } finally {
             setSaving(false)
         }
@@ -188,9 +301,12 @@ export default function ExpensesPage() {
         (e.category && e.category.toLowerCase().includes(searchTerm.toLowerCase()))
     )
 
+    // Calculate totals excluding deleted expenses
     const totalStats = {
-        count: expenses.length,
-        amount: expenses.reduce((sum, e) => sum + Number(e.amount), 0)
+        count: expenses.filter(e => !e.isDeleted).length,
+        amount: expenses
+            .filter(e => !e.isDeleted)
+            .reduce((sum, e) => sum + Number(e.amount), 0)
     }
 
     if (loading) {
@@ -216,7 +332,7 @@ export default function ExpensesPage() {
 
                 <button
                     id="tour-add-expense-btn"
-                    onClick={() => setShowModal(true)}
+                    onClick={startAdd}
                     disabled={isReadOnly}
                     className={`btn-primary flex items-center gap-2 ${isReadOnly ? 'opacity-50 cursor-not-allowed' : ''}`}
                     title={isReadOnly ? "غير متاح في وضع القراءة فقط" : ""}
@@ -235,7 +351,7 @@ export default function ExpensesPage() {
                                 <FileText className="text-[var(--primary-600)]" size={24} />
                             </div>
                             <div>
-                                <p className="text-sm text-[var(--text-secondary)]">عدد المصروفات</p>
+                                <p className="text-sm text-[var(--text-secondary)]">عدد المصروفات الفعالة</p>
                                 <p className="text-2xl font-bold text-[var(--text-primary)]">{totalStats.count}</p>
                             </div>
                         </div>
@@ -249,7 +365,7 @@ export default function ExpensesPage() {
                                 <DollarSign className="text-red-600" size={24} />
                             </div>
                             <div>
-                                <p className="text-sm text-[var(--text-secondary)]">إجمالي المصروفات</p>
+                                <p className="text-sm text-[var(--text-secondary)]">إجمالي المصروفات الفعالة</p>
                                 <p className="text-2xl font-bold text-red-600">{totalStats.amount.toLocaleString()} ر.س</p>
                             </div>
                         </div>
@@ -284,23 +400,40 @@ export default function ExpensesPage() {
                                     <th>البيان</th>
                                     <th>التصنيف</th>
                                     <th>المبلغ</th>
+                                    <th>الحالة</th>
                                     <th>سجل بواسطة</th>
                                     <th>المورد</th>
                                     <th>المرفقات</th>
                                     <th>قيود</th>
+                                    <th>إجراءات</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 {filteredExpenses.map(expense => (
                                     <tr key={expense.id}>
                                         <td>{new Date(expense.expenseDate).toLocaleDateString('ar-SA')}</td>
-                                        <td className="font-medium">{expense.description}</td>
+                                        <td className="font-medium">
+                                            {expense.description}
+                                        </td>
                                         <td>
                                             <span className="bg-gray-100 text-gray-700 px-2 py-1 rounded-full text-xs">
                                                 {expense.category || 'عام'}
                                             </span>
                                         </td>
-                                        <td className="font-bold text-red-600">{Number(expense.amount).toLocaleString()} ر.س</td>
+                                        <td className="font-bold text-red-600">
+                                            {Number(expense.amount).toLocaleString()} ر.س
+                                        </td>
+                                        <td>
+                                            {expense.isDeleted ? (
+                                                <span className="bg-red-100 text-red-700 px-2 py-1 rounded-full text-xs font-semibold">
+                                                    محذوف
+                                                </span>
+                                            ) : (
+                                                <span className="bg-green-100 text-green-700 px-2 py-1 rounded-full text-xs font-semibold">
+                                                    نشط
+                                                </span>
+                                            )}
+                                        </td>
                                         <td className="text-sm text-gray-500">{expense.createdBy.nameAr}</td>
                                         <td className="text-sm">{expense.vendor?.nameAr || '-'}</td>
                                         <td>
@@ -321,37 +454,12 @@ export default function ExpensesPage() {
                                             )}
                                         </td>
                                         <td>
-                                            <div className="flex items-center gap-1">
-                                                {expense.syncedToQoyod ? (
-                                                    <>
-                                                        <span className="flex items-center gap-1 text-green-600 text-sm">
-                                                            <CheckCircle2 size={16} />
-                                                            <span>تم</span>
-                                                        </span>
-                                                        <button
-                                                            onClick={async () => {
-                                                                if (!confirm('هل تريد حذف هذا المصروف من قيود؟')) return
-                                                                try {
-                                                                    const res = await fetch('/api/qoyod', {
-                                                                        method: 'POST',
-                                                                        headers: { 'Content-Type': 'application/json' },
-                                                                        body: JSON.stringify({ type: 'delete-expense', id: expense.id })
-                                                                    })
-                                                                    if (res.ok) {
-                                                                        alert('تم حذف المصروف من قيود بنجاح')
-                                                                        fetchData()
-                                                                    } else {
-                                                                        const data = await res.json()
-                                                                        alert(data.error || 'فشل الحذف من قيود')
-                                                                    }
-                                                                } catch { alert('حدث خطأ') }
-                                                            }}
-                                                            className="p-1 text-red-500 hover:bg-red-50 rounded-md"
-                                                            title="حذف من قيود"
-                                                        >
-                                                            <Trash2 size={14} />
-                                                        </button>
-                                                    </>
+                                            {!expense.isDeleted && (
+                                                expense.syncedToQoyod ? (
+                                                    <span className="flex items-center gap-1 text-green-600 text-sm">
+                                                        <CheckCircle2 size={16} />
+                                                        <span>مربوط</span>
+                                                    </span>
                                                 ) : (
                                                     <button
                                                         onClick={async () => {
@@ -370,13 +478,40 @@ export default function ExpensesPage() {
                                                                 }
                                                             } catch { alert('حدث خطأ في الاتصال') }
                                                         }}
-                                                        className="p-2 text-blue-600 hover:bg-blue-50 rounded-md flex items-center gap-1"
+                                                        className="p-1 px-2 text-blue-600 hover:bg-blue-50 rounded-md flex items-center gap-1 text-sm border border-blue-200"
                                                         title="مزامنة مع قيود"
                                                     >
-                                                        <RefreshCw size={16} />
+                                                        <RefreshCw size={14} />
+                                                        <span>ربط</span>
                                                     </button>
-                                                )}
-                                            </div>
+                                                )
+                                            )}
+                                        </td>
+                                        <td>
+                                            {!expense.isDeleted ? (
+                                                <div className="flex items-center gap-2">
+                                                    <button
+                                                        onClick={() => startEdit(expense)}
+                                                        className="p-1 text-gray-600 hover:text-[var(--primary-600)] hover:bg-gray-100 rounded-md transition-colors"
+                                                        title="تعديل"
+                                                        disabled={isReadOnly}
+                                                    >
+                                                        <Pencil size={16} />
+                                                    </button>
+                                                    <button
+                                                        onClick={() => handleDelete(expense.id)}
+                                                        disabled={deletingId === expense.id || isReadOnly}
+                                                        className="p-1 text-red-500 hover:bg-red-50 rounded-md transition-colors"
+                                                        title="حذف"
+                                                    >
+                                                        {deletingId === expense.id ? <Loader2 size={16} className="animate-spin" /> : <Trash2 size={16} />}
+                                                    </button>
+                                                </div>
+                                            ) : (
+                                                <span className="text-gray-400 flex justify-center">
+                                                    <Ban size={16} />
+                                                </span>
+                                            )}
                                         </td>
                                     </tr>
                                 ))}
@@ -392,12 +527,14 @@ export default function ExpensesPage() {
                 </CardContent>
             </Card>
 
-            {/* Add Modal */}
+            {/* Add/Edit Modal */}
             {showModal && (
                 <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
                     <div className="bg-white rounded-lg shadow-xl w-full max-w-md max-h-[90vh] flex flex-col">
                         <div className="flex items-center justify-between p-4 border-b flex-shrink-0">
-                            <h3 className="text-lg font-bold">تسجيل مصروف جديد</h3>
+                            <h3 className="text-lg font-bold">
+                                {isEditing ? 'تعديل المصروف' : 'تسجيل مصروف جديد'}
+                            </h3>
                             <button onClick={() => setShowModal(false)} className="p-2 hover:bg-gray-100 rounded-md">
                                 <X size={20} />
                             </button>
@@ -439,6 +576,7 @@ export default function ExpensesPage() {
                                         onChange={e => {
                                             setVendorSearch(e.target.value)
                                             setShowVendorDropdown(true)
+                                            setFormData({ ...formData, vendorId: '' }) // Clear ID if typing new
                                         }}
                                         onFocus={() => setShowVendorDropdown(true)}
                                         onBlur={() => setTimeout(() => setShowVendorDropdown(false), 150)}
@@ -517,19 +655,23 @@ export default function ExpensesPage() {
                                         <ImageIcon className="mx-auto h-12 w-12 text-gray-400" />
                                         <div className="flex text-sm text-gray-600">
                                             <label htmlFor="file-upload" className="relative cursor-pointer rounded-md font-medium text-[var(--primary-600)] hover:text-[var(--primary-500)] focus-within:outline-none">
-                                                <span>رفع ملف</span>
+                                                <span>{formData.file ? 'تغيير الملف' : 'رفع ملف'}</span>
                                                 <input id="file-upload" name="file-upload" type="file" className="sr-only" accept="image/*,.pdf" onChange={handleFileChange} />
                                             </label>
                                             <p className="pl-1">أو اسحب وأفلت</p>
                                         </div>
                                         <p className="text-xs text-gray-500">
-                                            PNG, JPG, GIF, PDF up to 2MB
+                                            PNG, JPG, GIF, PDF يصل إلى 10 ميجابايت
                                         </p>
-                                        {formData.file && (
+                                        {formData.file ? (
                                             <p className="text-sm font-medium text-green-600 mt-2">
                                                 تم اختيار الملف: {formData.file.name}
                                             </p>
-                                        )}
+                                        ) : formData.existingImageUrl ? (
+                                            <p className="text-sm font-medium text-blue-600 mt-2">
+                                                يوجد ملف مرفق حالياً
+                                            </p>
+                                        ) : null}
                                     </div>
                                 </div>
                             </div>
@@ -550,7 +692,7 @@ export default function ExpensesPage() {
                                     title={isReadOnly ? "غير متاح" : ""}
                                 >
                                     {saving && <Loader2 className="animate-spin" size={16} />}
-                                    حفظ
+                                    {isEditing ? 'حفظ التعديلات' : 'حفظ'}
                                 </button>
                             </div>
                         </form>
@@ -562,7 +704,11 @@ export default function ExpensesPage() {
             {viewImage && (
                 <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4" onClick={() => setViewImage(null)}>
                     <div className="max-w-4xl max-h-[90vh] relative">
-                        <img src={viewImage} alt="Invoice" className="max-w-full max-h-[85vh] object-contain rounded-lg" />
+                        {viewImage.endsWith('.pdf') ? (
+                            <iframe src={viewImage} className="w-full h-[85vh] rounded-lg bg-white" title="Invoice PDF"></iframe>
+                        ) : (
+                            <img src={viewImage} alt="Invoice" className="max-w-full max-h-[85vh] object-contain rounded-lg" />
+                        )}
                         <button
                             className="absolute -top-10 right-0 text-white hover:text-gray-300"
                             onClick={() => setViewImage(null)}

@@ -933,7 +933,7 @@ export default function FinancePage() {
                 // VAT Fix Logic (Legacy 0-VAT handling)
                 let displaySubtotal = showViewInvoice.subtotal
                 let displayVatAmount = showViewInvoice.vatAmount
-                let displayTotal = showViewInvoice.totalAmount
+                const displayTotal = showViewInvoice.totalAmount
 
                 if (displayVatAmount <= 0.1 && displayTotal > 0) {
                     const vatRate = 0.15
