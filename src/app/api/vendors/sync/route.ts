@@ -2,12 +2,18 @@ import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { auth } from '@/lib/auth'
 
+import { enforceSubscription } from '@/lib/subscription'
+
 export async function POST(req: Request) {
     try {
         const session = await auth()
         if (!session || !session.user) {
             return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
         }
+
+        // Check Subscription
+        const subscriptionError = await enforceSubscription(session.user.id)
+        if (subscriptionError) return subscriptionError
 
         const ownerId = session.user.role === 'HALL_OWNER' ? session.user.id : session.user.ownerId
         if (!ownerId) return NextResponse.json({ error: 'No Owner ID' }, { status: 500 })

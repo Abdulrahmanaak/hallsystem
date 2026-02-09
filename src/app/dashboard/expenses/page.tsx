@@ -40,7 +40,10 @@ interface Vendor {
     nameAr: string
 }
 
+import { useSubscription } from '@/hooks/useSubscription'
+
 export default function ExpensesPage() {
+    const { isReadOnly } = useSubscription()
     const [expenses, setExpenses] = useState<Expense[]>([])
     const [vendors, setVendors] = useState<Vendor[]>([])
     const [loading, setLoading] = useState(true)
@@ -118,6 +121,10 @@ export default function ExpensesPage() {
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
+        if (isReadOnly) {
+            alert('عفواً، لا يمكن تسجيل مصروفات في وضع القراءة فقط.')
+            return
+        }
         setSaving(true)
 
         try {
@@ -210,7 +217,9 @@ export default function ExpensesPage() {
                 <button
                     id="tour-add-expense-btn"
                     onClick={() => setShowModal(true)}
-                    className="btn-primary flex items-center gap-2"
+                    disabled={isReadOnly}
+                    className={`btn-primary flex items-center gap-2 ${isReadOnly ? 'opacity-50 cursor-not-allowed' : ''}`}
+                    title={isReadOnly ? "غير متاح في وضع القراءة فقط" : ""}
                 >
                     <Plus size={18} />
                     تسجيل مصروف
@@ -536,8 +545,9 @@ export default function ExpensesPage() {
                                 </button>
                                 <button
                                     type="submit"
-                                    className="btn-primary flex items-center gap-2"
-                                    disabled={saving}
+                                    className={`btn-primary flex items-center gap-2 ${isReadOnly ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                    disabled={saving || isReadOnly}
+                                    title={isReadOnly ? "غير متاح" : ""}
                                 >
                                     {saving && <Loader2 className="animate-spin" size={16} />}
                                     حفظ

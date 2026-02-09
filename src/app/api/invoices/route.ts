@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { auth } from '@/lib/auth'
+import { enforceSubscription } from '@/lib/subscription'
 
 // Generate invoice number: INV-2025-0001
 async function generateInvoiceNumber(): Promise<string> {
@@ -112,6 +113,10 @@ export async function POST(request: Request) {
         if (!session?.user) {
             return NextResponse.json({ error: 'غير مصرح' }, { status: 401 })
         }
+
+        // Check Subscription
+        const subscriptionError = await enforceSubscription(session.user.id)
+        if (subscriptionError) return subscriptionError
 
         const body = await request.json()
 

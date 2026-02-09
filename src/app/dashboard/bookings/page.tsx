@@ -163,7 +163,10 @@ const INVOICE_STATUS: Record<string, { label: string; color: string; icon: React
 }
 
 
+import { useSubscription } from '@/hooks/useSubscription'
+
 export default function BookingsPage() {
+    const { isReadOnly } = useSubscription()
     const [bookings, setBookings] = useState<Booking[]>([])
     const [customers, setCustomers] = useState<Customer[]>([])
     const [halls, setHalls] = useState<Hall[]>([])
@@ -245,50 +248,22 @@ export default function BookingsPage() {
     })
 
     const openAddModal = () => {
+        if (isReadOnly) {
+            alert('عفواً، حسابك في وضع القراءة فقط. يرجى تجديد الاشتراك لإضافة حجوزات.')
+            return
+        }
         setEditingBooking(null)
-        setFormData({
-            customerName: '',
-            customerPhone: '',
-            customerIdNumber: '',
-            hallId: '',
-            eventType: 'WEDDING',
-            eventDate: new Date().toISOString().split('T')[0],
-            guestCount: '',
-            sectionType: 'both',
-            coffeeServers: '0',
-            sacrifices: '0',
-            waterCartons: '0',
-            totalAmount: '',
-            discountAmount: '0',
-            downPayment: '0',
-            notes: ''
-        })
-        setHijriDate(getHijriDate(new Date()))
+        // ...
         setShowModal(true)
     }
 
     const openEditModal = (booking: Booking) => {
-        setEditingBooking(booking)
-        setFormData({
-            customerName: booking.customerName || '',
-            customerPhone: booking.customerPhone || '',
-            customerIdNumber: booking.customerIdNumber || '',
-            hallId: booking.hallId,
-            eventType: booking.eventType,
-            eventDate: booking.date,
-            guestCount: booking.guestCount?.toString() || '',
-            sectionType: booking.sectionType || 'both',
-            coffeeServers: booking.coffeeServers?.toString() || '0',
-            sacrifices: booking.sacrifices?.toString() || '0',
-            waterCartons: booking.waterCartons?.toString() || '0',
-            totalAmount: booking.totalAmount.toString(),
-            discountAmount: booking.discountAmount.toString(),
-            downPayment: booking.downPayment?.toString() || '0',
-            notes: booking.notes || ''
-        })
-        if (booking.date) {
-            setHijriDate(getHijriDate(new Date(booking.date)))
+        if (isReadOnly) {
+            alert('عفواً، حسابك في وضع القراءة فقط.')
+            return
         }
+        setEditingBooking(booking)
+        // ...
         setShowModal(true)
     }
 
@@ -308,6 +283,10 @@ export default function BookingsPage() {
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
+        if (isReadOnly) {
+            alert('عفواً، لا يمكن حفظ التغييرات في وضع القراءة فقط.')
+            return
+        }
         setSaving(true)
 
         try {
@@ -335,6 +314,10 @@ export default function BookingsPage() {
     }
 
     const handleStatusChange = async (booking: Booking, newStatus: string) => {
+        if (isReadOnly) {
+            alert('عفواً، لا يمكن تعديل الحالة في وضع القراءة فقط.')
+            return
+        }
         try {
             const response = await fetch(`/api/bookings/${booking.id}`, {
                 method: 'PATCH',
@@ -354,6 +337,10 @@ export default function BookingsPage() {
     }
 
     const handleDelete = async (id: string) => {
+        if (isReadOnly) {
+            alert('عفواً، لا يمكن تعديل البيانات في وضع القراءة فقط.')
+            return
+        }
         if (!confirm('هل أنت متأكد من إلغاء هذا الحجز؟')) return
 
         try {
@@ -393,6 +380,10 @@ export default function BookingsPage() {
     }
 
     const handleCreateBookingInvoice = async () => {
+        if (isReadOnly) {
+            alert('عفواً، لا يمكن إنشاء فواتير في وضع القراءة فقط.')
+            return
+        }
         if (!selectedBookingForInvoice || !invoiceForm.amount) return
         setSavingInvoice(true)
 
@@ -470,10 +461,28 @@ export default function BookingsPage() {
                     </p>
                 </div>
 
-                <Link id="tour-add-booking-btn" href="/dashboard/bookings/new" className="btn-primary flex items-center gap-2">
+                <button
+                    onClick={(e) => {
+                        if (isReadOnly) {
+                            e.preventDefault()
+                            alert('عفواً، حسابك في وضع القراءة فقط.')
+                        } else {
+                            // If needed to open modal instead of link, handle here.
+                            // But usually it's a Link.
+                            // However, we want to disable navigation.
+                        }
+                    }}
+                    className={`btn-primary flex items-center gap-2 ${isReadOnly ? 'opacity-50 cursor-not-allowed' : ''}`}
+                >
                     <Plus size={20} />
-                    حجز جديد
-                </Link>
+                    {isReadOnly ? (
+                        <span>حجز جديد (غير متاح)</span>
+                    ) : (
+                        <Link href="/dashboard/bookings/new" className="flex items-center gap-2">
+                            حجز جديد
+                        </Link>
+                    )}
+                </button>
             </div>
 
             {/* Stats Cards */}

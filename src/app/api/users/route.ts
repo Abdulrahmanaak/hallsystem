@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { auth } from '@/lib/auth'
+import { enforceSubscription } from '@/lib/subscription'
 import bcrypt from 'bcryptjs'
 
 // GET all users (filtered by owner for HALL_OWNER, all for SUPER_ADMIN)
@@ -41,14 +42,37 @@ export async function GET() {
                 status: true,
                 lastLogin: true,
                 createdAt: true,
-                ownerId: true
+                ownerId: true,
+                trialEndsAt: true,
+                subscriptionEndsAt: true,
+                subscriptionStatus: true,
+                owner: {
+                    select: {
+                        trialEndsAt: true,
+                        subscriptionEndsAt: true,
+                        subscriptionStatus: true
+                    }
+                }
             },
             orderBy: {
                 createdAt: 'desc'
             }
         })
 
-        return NextResponse.json(users)
+        // Derive effective subscription status for sub-users
+        const usersWithStatus = users.map(user => {
+            if (user.ownerId && user.owner) {
+                return {
+                    ...user,
+                    trialEndsAt: user.owner.trialEndsAt,
+                    subscriptionEndsAt: user.owner.subscriptionEndsAt,
+                    subscriptionStatus: user.owner.subscriptionStatus
+                }
+            }
+            return user
+        })
+
+        return NextResponse.json(usersWithStatus)
     } catch (error) {
         console.error('Error fetching users:', error)
         return NextResponse.json(
@@ -65,6 +89,10 @@ export async function POST(request: Request) {
         if (!session?.user) {
             return NextResponse.json({ error: 'غير مصرح' }, { status: 401 })
         }
+
+        // Check Subscription
+        const subscriptionError = await enforceSubscription(session.user.id)
+        if (subscriptionError) return subscriptionError
 
         // Only HALL_OWNER can create team members
         if (session.user.role !== 'HALL_OWNER' && session.user.role !== 'SUPER_ADMIN') {

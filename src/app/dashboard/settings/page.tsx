@@ -41,7 +41,10 @@ interface QoyodAccount {
     type: string
 }
 
+import { useSubscription } from '@/hooks/useSubscription'
+
 export default function SettingsPage() {
+    const { isReadOnly } = useSubscription()
     const [settings, setSettings] = useState<SettingsData | null>(null)
     const [loading, setLoading] = useState(true)
     const [saving, setSaving] = useState(false)
@@ -103,6 +106,10 @@ export default function SettingsPage() {
 
     const handleSave = async () => {
         if (!settings) return
+        if (isReadOnly) {
+            alert('عفواً، لا يمكن حفظ التغييرات في وضع القراءة فقط.')
+            return
+        }
         setSaving(true)
         setMessage(null)
 
@@ -209,11 +216,12 @@ export default function SettingsPage() {
 
                 <button
                     onClick={handleSave}
-                    disabled={saving}
-                    className="btn-primary flex items-center gap-2"
+                    disabled={saving || isReadOnly}
+                    className={`btn-primary flex items-center gap-2 ${isReadOnly ? 'opacity-50 cursor-not-allowed' : ''}`}
+                    title={isReadOnly ? "غير متاح في وضع القراءة فقط" : ""}
                 >
                     <Save size={18} />
-                    {saving ? 'جاري الحفظ...' : 'حفظ الإعدادات'}
+                    {saving ? 'جاري الحفظ...' : isReadOnly ? "غير متاح" : 'حفظ الإعدادات'}
                 </button>
             </div>
 

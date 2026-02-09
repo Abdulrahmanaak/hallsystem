@@ -78,7 +78,10 @@ const PAYMENT_METHODS: Record<string, string> = {
     'BANK_TRANSFER': 'تحويل بنكي'
 }
 
+import { useSubscription } from '@/hooks/useSubscription'
+
 export default function FinancePage() {
+    const { isReadOnly } = useSubscription()
     const [activeTab, setActiveTab] = useState<'invoices' | 'payments'>('invoices')
     const [invoices, setInvoices] = useState<Invoice[]>([])
     const [payments, setPayments] = useState<Payment[]>([])
@@ -165,6 +168,10 @@ export default function FinancePage() {
     // Create Invoice
     const handleCreateInvoice = async () => {
         if (!invoiceForm.bookingId || !invoiceForm.amount) return
+        if (isReadOnly) {
+            alert('عفواً، لا يمكن إصدار فواتير في وضع القراءة فقط.')
+            return
+        }
         setSaving(true)
 
         try {
@@ -197,6 +204,10 @@ export default function FinancePage() {
 
     // Sync to Qoyod (with verification)
     const handleSyncToQoyod = async (type: 'invoice' | 'payment', id: string) => {
+        if (isReadOnly) {
+            alert('عفواً، لا يمكن إجراء المزامنة في وضع القراءة فقط.')
+            return
+        }
         setSaving(true)
         try {
             const response = await fetch('/api/qoyod', {
@@ -265,6 +276,10 @@ export default function FinancePage() {
 
     // Delete invoice from Qoyod (only works for Draft invoices)
     const handleDeleteFromQoyod = async (id: string) => {
+        if (isReadOnly) {
+            alert('عفواً، لا يمكن الحذف في وضع القراءة فقط.')
+            return
+        }
         if (!confirm('هل تريد حذف هذه الفاتورة من قيود؟ (يعمل فقط للفواتير بحالة مسودة)')) {
             return
         }
@@ -300,6 +315,10 @@ export default function FinancePage() {
 
     // Cancel invoice with credit note (for approved invoices)
     const handleCancelInvoice = async (id: string) => {
+        if (isReadOnly) {
+            alert('عفواً، لا يمكن الإلغاء في وضع القراءة فقط.')
+            return
+        }
         if (!confirm('هل تريد إلغاء هذه الفاتورة؟ سيتم إنشاء إشعار دائن في قيود لإلغاء الفاتورة.')) {
             return
         }
@@ -330,6 +349,10 @@ export default function FinancePage() {
 
     // Delete local invoice (only for non-synced invoices)
     const handleDeleteLocalInvoice = async (id: string, invoiceNumber: string) => {
+        if (isReadOnly) {
+            alert('عفواً، لا يمكن الحذف في وضع القراءة فقط.')
+            return
+        }
         if (!confirm(`هل تريد حذف الفاتورة ${invoiceNumber} من النظام؟\n\nملاحظة: هذا سيحذف الفاتورة من النظام المحلي فقط.`)) {
             return
         }
@@ -358,6 +381,10 @@ export default function FinancePage() {
     // Create Payment
     const handleCreatePayment = async () => {
         if (!paymentForm.bookingId || !paymentForm.amount) return
+        if (isReadOnly) {
+            alert('عفواً، لا يمكن تسجيل مدفوعات في وضع القراءة فقط.')
+            return
+        }
         setSaving(true)
 
         try {

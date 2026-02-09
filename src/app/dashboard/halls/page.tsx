@@ -146,7 +146,10 @@ const STATUS_CONFIG: Record<string, { label: string; color: string; icon: React.
 
 
 
+import { useSubscription } from '@/hooks/useSubscription'
+
 export default function HallsPage() {
+    const { isReadOnly } = useSubscription()
     const [halls, setHalls] = useState<Hall[]>([])
     const [searchTerm, setSearchTerm] = useState('')
     const [showModal, setShowModal] = useState(false)
@@ -202,14 +205,16 @@ export default function HallsPage() {
         fetchHalls()
     }, [])
 
-
-
     const filteredHalls = halls.filter(h =>
         h.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
         (h.location && h.location.toLowerCase().includes(searchTerm.toLowerCase()))
     )
 
     const openAddModal = () => {
+        if (isReadOnly) {
+            alert('عفواً، حسابك في وضع القراءة فقط بسبب انتهاء الاشتراك. يرجى التجديد لإضافة قاعات.')
+            return
+        }
         setEditingHall(null)
         setFormData({
             nameAr: '',
@@ -238,7 +243,12 @@ export default function HallsPage() {
     }
 
     const openEditModal = (hall: Hall) => {
+        if (isReadOnly) {
+            alert('عفواً، لا يمكن تعديل البيانات في وضع القراءة فقط.')
+            return
+        }
         setEditingHall(hall)
+        // ... (rest of edit logic)
         setFormData({
             nameAr: hall.name,
             capacity: hall.capacity.toString(),
@@ -267,6 +277,10 @@ export default function HallsPage() {
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
+        if (isReadOnly) {
+            alert('عفواً، لا يمكن حفظ التغييرات في وضع القراءة فقط.')
+            return
+        }
 
         const hallData = {
             id: editingHall?.id,
@@ -338,6 +352,10 @@ export default function HallsPage() {
     }
 
     const handleDelete = (id: string) => {
+        if (isReadOnly) {
+            alert('عفواً، لا يمكن حذف البيانات في وضع القراءة فقط.')
+            return
+        }
         if (!confirm('هل أنت متأكد من حذف هذه القاعة؟')) return
         setHalls(halls.filter(h => h.id !== id))
     }
@@ -358,11 +376,18 @@ export default function HallsPage() {
                     </p>
                 </div>
 
-                <button id="tour-add-hall-btn" onClick={openAddModal} className="btn-primary flex items-center gap-2">
+                <button
+                    id="tour-add-hall-btn"
+                    onClick={openAddModal}
+                    disabled={isReadOnly}
+                    className={`btn-primary flex items-center gap-2 ${isReadOnly ? 'opacity-50 cursor-not-allowed' : ''}`}
+                    title={isReadOnly ? 'غير متاح في وضع القراءة فقط' : ''}
+                >
                     <Plus size={20} />
                     إضافة قاعة
                 </button>
             </div>
+
 
             {/* Stats Cards */}
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">

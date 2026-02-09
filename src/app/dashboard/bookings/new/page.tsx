@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useMemo } from "react"
 import { useRouter } from "next/navigation"
+import { useSubscription } from "@/hooks/useSubscription"
 import { bookingService } from "@/lib/services/booking"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card"
@@ -199,6 +200,7 @@ const loadHallsFromStorage = (): Hall[] => {
 }
 
 export default function NewBookingPage() {
+    const { isReadOnly } = useSubscription()
     const router = useRouter()
     const [loading, setLoading] = useState(false)
     const [loadingHalls, setLoadingHalls] = useState(true)
@@ -414,6 +416,10 @@ export default function NewBookingPage() {
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
+        if (isReadOnly) {
+            alert("عفواً، لا يمكن إنشاء حجوزات جديدة في وضع القراءة فقط. يرجى تجديد الاشتراك.")
+            return
+        }
         setLoading(true)
         try {
             await bookingService.createBooking({
@@ -721,10 +727,11 @@ export default function NewBookingPage() {
                         <CardFooter>
                             <Button
                                 type="submit"
-                                className="w-full h-12 text-lg font-bold bg-[var(--primary-600)] hover:bg-[var(--primary-700)] text-white"
-                                disabled={loading}
+                                className={`w-full h-12 text-lg font-bold bg-[var(--primary-600)] hover:bg-[var(--primary-700)] text-white ${isReadOnly ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                disabled={loading || isReadOnly}
+                                title={isReadOnly ? "غير متاح في وضع القراءة فقط" : ""}
                             >
-                                {loading ? "جاري الحفظ..." : "تأكيد الحجز"}
+                                {loading ? "جاري الحفظ..." : isReadOnly ? "غير متاح (اشتراك منتهي)" : "تأكيد الحجز"}
                             </Button>
                         </CardFooter>
                     </Card>

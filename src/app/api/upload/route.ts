@@ -2,12 +2,18 @@ import { auth } from '@/lib/auth'
 import { supabaseAdmin, STORAGE_BUCKET } from '@/lib/supabase'
 import { NextResponse } from 'next/server'
 
+import { enforceSubscription } from '@/lib/subscription'
+
 export async function POST(req: Request) {
     try {
         const session = await auth()
         if (!session || !session.user) {
             return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
         }
+
+        // Check Subscription
+        const subscriptionError = await enforceSubscription(session.user.id)
+        if (subscriptionError) return subscriptionError
 
         const formData = await req.formData()
         const file = formData.get('file') as File

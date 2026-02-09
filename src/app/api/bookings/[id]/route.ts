@@ -39,12 +39,24 @@ export async function GET(
     }
 }
 
+import { enforceSubscription } from '@/lib/subscription'
+import { auth } from '@/lib/auth'
+
 // PUT - Update booking
 export async function PUT(
     request: Request,
     { params }: { params: Promise<{ id: string }> }
 ) {
     try {
+        const session = await auth()
+        if (!session?.user) {
+            return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+        }
+
+        // Check Subscription
+        const subscriptionError = await enforceSubscription(session.user.id)
+        if (subscriptionError) return subscriptionError
+
         const { id } = await params
         const body = await request.json()
 
@@ -123,6 +135,15 @@ export async function DELETE(
     { params }: { params: Promise<{ id: string }> }
 ) {
     try {
+        const session = await auth()
+        if (!session?.user) {
+            return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+        }
+
+        // Check Subscription
+        const subscriptionError = await enforceSubscription(session.user.id)
+        if (subscriptionError) return subscriptionError
+
         const { id } = await params
 
         await prisma.booking.update({
@@ -150,6 +171,15 @@ export async function PATCH(
     { params }: { params: Promise<{ id: string }> }
 ) {
     try {
+        const session = await auth()
+        if (!session?.user) {
+            return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+        }
+
+        // Check Subscription
+        const subscriptionError = await enforceSubscription(session.user.id)
+        if (subscriptionError) return subscriptionError
+
         const { id } = await params
         const body = await request.json()
 

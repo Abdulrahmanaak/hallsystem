@@ -53,6 +53,8 @@ export async function GET() {
     }
 }
 
+import { enforceSubscription } from '@/lib/subscription'
+
 // PUT - Update settings for current owner
 export async function PUT(request: Request) {
     try {
@@ -60,6 +62,10 @@ export async function PUT(request: Request) {
         if (!session?.user) {
             return NextResponse.json({ error: 'غير مصرح' }, { status: 401 })
         }
+
+        // Check Subscription
+        const subscriptionError = await enforceSubscription(session.user.id)
+        if (subscriptionError) return subscriptionError
 
         // Only HALL_OWNER and SUPER_ADMIN can update settings
         if (session.user.role !== 'HALL_OWNER' && session.user.role !== 'SUPER_ADMIN') {

@@ -16,12 +16,11 @@ export default async function DashboardLayout({
         redirect('/login')
     }
 
-    console.log("✅ DashboardLayout: User authenticated:", session.user.username, session.user.role);
-
-    console.log("✅ DashboardLayout: User authenticated:", session.user.username, session.user.role);
+    const { checkSubscriptionStatus } = await import('@/lib/subscription')
+    const subscription = await checkSubscriptionStatus(session.user.id)
 
     return (
-        <DashboardLayoutClient user={session.user}>
+        <DashboardLayoutClient user={session.user} subscription={subscription}>
             {children}
         </DashboardLayoutClient>
     )

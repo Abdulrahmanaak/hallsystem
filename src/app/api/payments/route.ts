@@ -121,6 +121,8 @@ export async function GET() {
     }
 }
 
+import { enforceSubscription } from '@/lib/subscription'
+
 // POST - Record new payment
 export async function POST(request: Request) {
     try {
@@ -128,6 +130,10 @@ export async function POST(request: Request) {
         if (!session?.user) {
             return NextResponse.json({ error: 'غير مصرح' }, { status: 401 })
         }
+
+        // Check Subscription
+        const subscriptionError = await enforceSubscription(session.user.id)
+        if (subscriptionError) return subscriptionError
 
         const body = await request.json()
 

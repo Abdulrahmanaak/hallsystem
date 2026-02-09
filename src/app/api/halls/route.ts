@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { auth } from '@/lib/auth'
+import { enforceSubscription } from '@/lib/subscription'
 
 // Helper to get owner filter based on user role
 async function getOwnerFilter() {
@@ -89,6 +90,10 @@ export async function POST(request: Request) {
             return NextResponse.json({ error: 'غير مصرح' }, { status: 401 })
         }
 
+        // Check Subscription
+        const subscriptionError = await enforceSubscription(session.user.id)
+        if (subscriptionError) return subscriptionError
+
         // Only HALL_OWNER and SUPER_ADMIN can create halls
         if (session.user.role !== 'HALL_OWNER' && session.user.role !== 'SUPER_ADMIN') {
             return NextResponse.json({ error: 'ليس لديك صلاحية لإضافة قاعات' }, { status: 403 })
@@ -137,6 +142,10 @@ export async function PUT(request: Request) {
         if (!session?.user) {
             return NextResponse.json({ error: 'غير مصرح' }, { status: 401 })
         }
+
+        // Check Subscription
+        const subscriptionError = await enforceSubscription(session.user.id)
+        if (subscriptionError) return subscriptionError
 
         const body = await request.json()
         const { id, ...updateData } = body

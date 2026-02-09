@@ -526,9 +526,20 @@ export async function GET(request: Request) {
     }
 }
 
+import { enforceSubscription } from '@/lib/subscription'
+
 // POST - Sync Action
 export async function POST(request: Request) {
     try {
+        const session = await auth()
+        if (!session?.user) {
+            return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+        }
+
+        // Check Subscription
+        const subscriptionError = await enforceSubscription(session.user.id)
+        if (subscriptionError) return subscriptionError
+
         const body = await request.json()
         const { type, id } = body // type: 'invoice' or 'payment'
 

@@ -25,6 +25,11 @@ model User {
   role      String     // UserRole: SUPER_ADMIN, HALL_OWNER, ROOM_SUPERVISOR, ACCOUNTANT, EMPLOYEE
   status    String     @default("ACTIVE") // UserStatus
   
+  // Subscription & Trial
+  trialEndsAt        DateTime?
+  subscriptionEndsAt DateTime?
+  subscriptionStatus String    @default("TRIAL") // "TRIAL", "SUBSCRIBED", "EXPIRED", "CANCELLED"
+
   // Multi-tenant: For HALL_OWNER, ownerId is null (they are the owner)
   // For team members (ROOM_SUPERVISOR, ACCOUNTANT, EMPLOYEE), ownerId points to their hall owner
   ownerId   String?

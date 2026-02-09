@@ -22,6 +22,7 @@ interface SidebarProps {
         nameAr: string
         role: UserRole
     }
+    subscription: SubscriptionState
     onCloseMobile?: () => void
 }
 
@@ -32,7 +33,9 @@ interface MenuItem {
     roles: UserRole[] // Which roles can see this menu item
 }
 
-export default function Sidebar({ user, onCloseMobile }: SidebarProps) {
+import type { SubscriptionState } from '@/lib/subscription'
+
+export default function Sidebar({ user, subscription, onCloseMobile }: SidebarProps) {
     const pathname = usePathname()
 
     const menuItems: MenuItem[] = [
@@ -141,10 +144,12 @@ export default function Sidebar({ user, onCloseMobile }: SidebarProps) {
                 </ul>
             </nav>
 
+
+
             {/* Help Menu at Bottom */}
             <div className="p-4 border-t border-[var(--border-color)]">
                 <HelpMenu currentPath={pathname} />
             </div>
-        </aside>
+        </aside >
     )
 }

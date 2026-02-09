@@ -61,6 +61,9 @@ export async function POST(request: Request) {
                 phone: phone || null,
                 role: 'HALL_OWNER',
                 status: 'ACTIVE',
+                // Initialize 7-day trial
+                trialEndsAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 days from now
+                subscriptionStatus: 'TRIAL',
                 ownerId: null, // Hall owners have null ownerId
                 commercialRegNo: commercialRegNo || null,
                 vatRegNo: vatRegNo || null

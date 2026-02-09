@@ -24,6 +24,10 @@ interface User {
     status: string
     lastLogin: string | null
     createdAt: string
+    // Subscription fields
+    trialEndsAt: string | null
+    subscriptionEndsAt: string | null
+    subscriptionStatus: string
 }
 
 // All roles for display purposes
@@ -47,10 +51,25 @@ const STATUS_CONFIG: Record<string, { label: string; color: string }> = {
     'INACTIVE': { label: 'غير نشط', color: 'bg-red-100 text-red-800' }
 }
 
+const SUB_STATUS_CONFIG: Record<string, { label: string; color: string }> = {
+    'TRIAL': { label: 'تجريبي', color: 'bg-yellow-100 text-yellow-800' },
+    'SUBSCRIBED': { label: 'مشترك', color: 'bg-emerald-100 text-emerald-800' },
+    'EXPIRED': { label: 'منتهي', color: 'bg-red-100 text-red-800' },
+    'CANCELLED': { label: 'ملغي', color: 'bg-gray-100 text-gray-800' },
+    'GRACE_PERIOD': { label: 'فترة سماح', color: 'bg-orange-100 text-orange-800' }
+}
+
+import { useSubscription } from '@/hooks/useSubscription'
+import { useUser } from '@/providers/UserProvider'
+
 export default function UsersPage() {
+    const { isReadOnly } = useSubscription()
+    const currentUser = useUser()
     const [users, setUsers] = useState<User[]>([])
     const [loading, setLoading] = useState(true)
     const [searchTerm, setSearchTerm] = useState('')
+
+    // Add/Edit User Modal
     const [showModal, setShowModal] = useState(false)
     const [editingUser, setEditingUser] = useState<User | null>(null)
     const [formData, setFormData] = useState({
@@ -61,6 +80,14 @@ export default function UsersPage() {
         phone: '',
         role: 'EMPLOYEE',
         status: 'ACTIVE'
+    })
+
+    // Subscription Management Modal
+    const [showSubModal, setShowSubModal] = useState(false)
+    const [subUser, setSubUser] = useState<User | null>(null)
+    const [subFormData, setSubFormData] = useState({
+        action: 'EXTEND_TRIAL', // EXTEND_TRIAL, SET_YEARLY, CANCEL
+        days: 7 // Default extension days
     })
     const [saving, setSaving] = useState(false)
 
@@ -87,6 +114,10 @@ export default function UsersPage() {
     )
 
     const openAddModal = () => {
+        if (isReadOnly) {
+            alert('عفواً، حسابك في وضع القراءة فقط. يرجى تجديد الاشتراك لإضافة مستخدمين.')
+            return
+        }
         setEditingUser(null)
         setFormData({
             username: '',
@@ -101,6 +132,10 @@ export default function UsersPage() {
     }
 
     const openEditModal = (user: User) => {
+        if (isReadOnly) {
+            alert('عفواً، لا يمكن تعديل البيانات في وضع القراءة فقط.')
+            return
+        }
         setEditingUser(user)
         setFormData({
             username: user.username,
@@ -143,6 +178,8 @@ export default function UsersPage() {
                 const error = await response.json()
                 alert(error.error || 'حدث خطأ')
             }
+
+
         } catch (error) {
             console.error('Error saving user:', error)
         } finally {
@@ -150,7 +187,51 @@ export default function UsersPage() {
         }
     }
 
+    const openSubModal = (user: User) => {
+        if (currentUser?.role !== 'SUPER_ADMIN') {
+            alert('عفواً، هذه الخاصية للمدير العام فقط')
+            return
+        }
+        setSubUser(user)
+        setSubFormData({
+            action: 'EXTEND_TRIAL',
+            days: 7
+        })
+        setShowSubModal(true)
+    }
+
+    const handleSubSubmit = async (e: React.FormEvent) => {
+        e.preventDefault()
+        if (!subUser) return
+        setSaving(true)
+
+        try {
+            const response = await fetch(`/api/users/${subUser.id}/subscription`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(subFormData)
+            })
+
+            if (response.ok) {
+                setShowSubModal(false)
+                fetchUsers()
+                alert('تم تحديث حالة الاشتراك بنجاح')
+            } else {
+                const error = await response.json()
+                alert(error.error || 'حدث خطأ')
+            }
+        } catch (error) {
+            console.error('Error updating subscription:', error)
+        } finally {
+            setSaving(false)
+        }
+    }
+
     const handleDeactivate = async (id: string) => {
+        if (isReadOnly) {
+            alert('عفواً، لا يمكن تعديل البيانات في وضع القراءة فقط.')
+            return
+        }
         if (!confirm('هل أنت متأكد من إلغاء تفعيل هذا المستخدم؟')) return
 
         try {
@@ -267,19 +348,21 @@ export default function UsersPage() {
                                 <tr>
                                     <th>الاسم</th>
                                     <th>اسم المستخدم</th>
-                                    <th>البريد الإلكتروني</th>
                                     <th>الدور</th>
-                                    <th>الحالة</th>
-                                    <th>آخر دخول</th>
+                                    <th>حالة الحساب</th>
+                                    <th>الاشتراك</th>
+                                    <th>الأيام المتبقية</th>
                                     <th>الإجراءات</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 {filteredUsers.map(user => (
                                     <tr key={user.id}>
-                                        <td className="font-medium">{user.nameAr}</td>
+                                        <td className="font-medium">
+                                            <div>{user.nameAr}</div>
+                                            <div className="text-xs text-[var(--text-secondary)]">{user.email || '-'}</div>
+                                        </td>
                                         <td className="text-[var(--text-secondary)]">{user.username}</td>
-                                        <td className="text-[var(--text-secondary)]">{user.email || '-'}</td>
                                         <td>
                                             <span className="inline-flex items-center gap-1 px-2 py-1 bg-[var(--primary-50)] text-[var(--primary-700)] rounded-full text-xs font-medium">
                                                 <Shield size={12} />
@@ -295,11 +378,29 @@ export default function UsersPage() {
                                                 {STATUS_CONFIG[user.status]?.label || user.status}
                                             </span>
                                         </td>
-                                        <td className="text-[var(--text-muted)] text-sm">
-                                            {user.lastLogin
-                                                ? new Date(user.lastLogin).toLocaleDateString('ar-SA')
-                                                : 'لم يسجل دخول'
-                                            }
+                                        <td>
+                                            <span className={`
+                                                inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium
+                                                ${SUB_STATUS_CONFIG[user.subscriptionStatus]?.color || 'bg-gray-100 text-gray-700'}
+                                            `}>
+                                                {SUB_STATUS_CONFIG[user.subscriptionStatus]?.label || user.subscriptionStatus}
+                                            </span>
+                                        </td>
+                                        <td className="font-bold">
+                                            {(() => {
+                                                if (user.role === 'SUPER_ADMIN') return '∞'
+
+                                                const endDate = user.subscriptionStatus === 'SUBSCRIBED' && user.subscriptionEndsAt
+                                                    ? new Date(user.subscriptionEndsAt)
+                                                    : (user.trialEndsAt ? new Date(user.trialEndsAt) : null)
+
+                                                if (!endDate) return '-'
+
+                                                const days = Math.ceil((endDate.getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24))
+                                                return <span className={days < 0 ? 'text-red-500' : (days < 3 ? 'text-orange-500' : 'text-green-600')}>
+                                                    {days > 0 ? days : 0}
+                                                </span>
+                                            })()}
                                         </td>
                                         <td>
                                             <div className="flex gap-1">
@@ -310,13 +411,14 @@ export default function UsersPage() {
                                                 >
                                                     <Edit2 size={16} className="text-gray-500" />
                                                 </button>
-                                                {user.status === 'ACTIVE' && (
+                                                {/* Only Show Subscription Action for Owners, and only accessible by SUPER_ADMIN */}
+                                                {user.role === 'HALL_OWNER' && currentUser.role === 'SUPER_ADMIN' && (
                                                     <button
-                                                        onClick={() => handleDeactivate(user.id)}
-                                                        className="p-2 hover:bg-red-50 rounded-md"
-                                                        title="إلغاء التفعيل"
+                                                        onClick={() => openSubModal(user)}
+                                                        className="p-2 hover:bg-blue-50 rounded-md"
+                                                        title="إدارة الاشتراك"
                                                     >
-                                                        <Trash2 size={16} className="text-red-500" />
+                                                        <Shield size={16} className="text-blue-500" />
                                                     </button>
                                                 )}
                                             </div>
@@ -457,6 +559,71 @@ export default function UsersPage() {
                                 <button
                                     type="button"
                                     onClick={() => setShowModal(false)}
+                                    className="btn-secondary flex-1"
+                                >
+                                    إلغاء
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            )}
+
+            {/* Subscription Management Modal */}
+            {showSubModal && subUser && (
+                <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+                    <div className="bg-white rounded-lg shadow-xl w-full max-w-md mx-4">
+                        <div className="flex items-center justify-between p-4 border-b border-[var(--border-color)]">
+                            <h3 className="text-lg font-bold">
+                                إدارة اشتراك: {subUser.nameAr}
+                            </h3>
+                            <button
+                                onClick={() => setShowSubModal(false)}
+                                className="p-2 hover:bg-gray-100 rounded-md"
+                            >
+                                <X size={20} />
+                            </button>
+                        </div>
+
+                        <form onSubmit={handleSubSubmit} className="p-4 space-y-4">
+                            <div>
+                                <label className="form-label">الإجراء</label>
+                                <select
+                                    value={subFormData.action}
+                                    onChange={(e) => setSubFormData({ ...subFormData, action: e.target.value })}
+                                    className="form-input w-full"
+                                >
+                                    <option value="EXTEND_TRIAL">تمديد الفترة التجريبية</option>
+                                    <option value="SET_YEARLY">تفعيل اشتراك سنوي</option>
+                                    <option value="CANCEL">إلغاء الاشتراك</option>
+                                </select>
+                            </div>
+
+                            {subFormData.action === 'EXTEND_TRIAL' && (
+                                <div>
+                                    <label className="form-label">عدد الأيام</label>
+                                    <input
+                                        type="number"
+                                        min="1"
+                                        max="30"
+                                        value={subFormData.days}
+                                        onChange={(e) => setSubFormData({ ...subFormData, days: parseInt(e.target.value) })}
+                                        className="form-input w-full"
+                                    />
+                                </div>
+                            )}
+
+                            <div className="flex gap-3 pt-4">
+                                <button
+                                    type="submit"
+                                    disabled={saving}
+                                    className="btn-primary flex-1"
+                                >
+                                    {saving ? 'جاري الحفظ...' : 'تحديث الاشتراك'}
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={() => setShowSubModal(false)}
                                     className="btn-secondary flex-1"
                                 >
                                     إلغاء
