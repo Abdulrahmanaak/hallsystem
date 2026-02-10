@@ -649,19 +649,17 @@ export default function ExpensesPage() {
 
                             <div>
                                 <label className="form-label">صورة الفاتورة</label>
-                                <div className="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-md hover:border-[var(--primary-500)] transition-colors cursor-pointer"
-                                    onClick={() => document.getElementById('file-upload')?.click()}>
+                                <label htmlFor="file-upload" className="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-md hover:border-[var(--primary-500)] transition-colors cursor-pointer block">
                                     <div className="space-y-1 text-center">
                                         <ImageIcon className="mx-auto h-12 w-12 text-gray-400" />
                                         <div className="flex text-sm text-gray-600">
-                                            <label htmlFor="file-upload" className="relative cursor-pointer rounded-md font-medium text-[var(--primary-600)] hover:text-[var(--primary-500)] focus-within:outline-none">
-                                                <span>{formData.file ? 'تغيير الملف' : 'رفع ملف'}</span>
-                                                <input id="file-upload" name="file-upload" type="file" className="sr-only" accept="image/*,.pdf" onChange={handleFileChange} />
-                                            </label>
+                                            <span className="relative cursor-pointer rounded-md font-medium text-[var(--primary-600)] hover:text-[var(--primary-500)]">
+                                                {formData.file ? 'تغيير الملف' : 'رفع ملف'}
+                                            </span>
                                             <p className="pl-1">أو اسحب وأفلت</p>
                                         </div>
                                         <p className="text-xs text-gray-500">
-                                            PNG, JPG, GIF, PDF يصل إلى 10 ميجابايت
+                                            PNG, JPG, HEIC, PDF يصل إلى 10 ميجابايت
                                         </p>
                                         {formData.file ? (
                                             <p className="text-sm font-medium text-green-600 mt-2">
@@ -673,7 +671,8 @@ export default function ExpensesPage() {
                                             </p>
                                         ) : null}
                                     </div>
-                                </div>
+                                </label>
+                                <input id="file-upload" name="file-upload" type="file" className="sr-only" accept="image/*,.pdf,.heic,.heif" onChange={handleFileChange} />
                             </div>
 
                             <div className="flex justify-end gap-3 pt-4">

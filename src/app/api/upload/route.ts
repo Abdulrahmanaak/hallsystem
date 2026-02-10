@@ -23,7 +23,15 @@ export async function POST(req: Request) {
         }
 
         // Validate file type (images and PDFs)
-        if (!file.type.startsWith('image/') && file.type !== 'application/pdf') {
+        // Safari on iOS may send empty MIME type for HEIC/HEIF photos — fall back to extension check
+        const allowedMimeTypes = ['application/pdf', 'image/heic', 'image/heif']
+        const ext = file.name.split('.').pop()?.toLowerCase() || ''
+        const allowedExtensions = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'heic', 'heif', 'pdf', 'svg', 'bmp']
+
+        const isMimeValid = file.type.startsWith('image/') || allowedMimeTypes.includes(file.type)
+        const isExtensionValid = allowedExtensions.includes(ext)
+
+        if (!isMimeValid && !(file.type === '' && isExtensionValid)) {
             return NextResponse.json({ error: 'Only image and PDF files are allowed' }, { status: 400 })
         }
 
