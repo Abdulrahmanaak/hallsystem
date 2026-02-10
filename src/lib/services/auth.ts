@@ -1,6 +1,6 @@
 import type { User, Role } from '@/types';
 
-const MOCK_USERS: any[] = [
+const MOCK_USERS: (User & { password: string })[] = [
     {
         id: '1',
         username: 'admin',
@@ -10,9 +10,15 @@ const MOCK_USERS: any[] = [
         phone: '1234567890',
         role: 'HALL_OWNER',
         status: 'ACTIVE',
+        ownerId: null,
+        commercialRegNo: null,
+        vatRegNo: null,
         createdAt: new Date(),
         updatedAt: new Date(),
         lastLogin: null,
+        trialEndsAt: null,
+        subscriptionEndsAt: null,
+        subscriptionStatus: 'TRIAL',
     },
     {
         id: '2',
@@ -23,9 +29,15 @@ const MOCK_USERS: any[] = [
         phone: '1234567890',
         role: 'ROOM_SUPERVISOR',
         status: 'ACTIVE',
+        ownerId: null,
+        commercialRegNo: null,
+        vatRegNo: null,
         createdAt: new Date(),
         updatedAt: new Date(),
         lastLogin: null,
+        trialEndsAt: null,
+        subscriptionEndsAt: null,
+        subscriptionStatus: 'TRIAL',
     },
     {
         id: '3',
@@ -36,9 +48,15 @@ const MOCK_USERS: any[] = [
         phone: '1234567890',
         role: 'ACCOUNTANT',
         status: 'ACTIVE',
+        ownerId: null,
+        commercialRegNo: null,
+        vatRegNo: null,
         createdAt: new Date(),
         updatedAt: new Date(),
         lastLogin: null,
+        trialEndsAt: null,
+        subscriptionEndsAt: null,
+        subscriptionStatus: 'TRIAL',
     },
     {
         id: '4',
@@ -49,9 +67,15 @@ const MOCK_USERS: any[] = [
         phone: '1234567890',
         role: 'EMPLOYEE',
         status: 'ACTIVE',
+        ownerId: null,
+        commercialRegNo: null,
+        vatRegNo: null,
         createdAt: new Date(),
         updatedAt: new Date(),
         lastLogin: null,
+        trialEndsAt: null,
+        subscriptionEndsAt: null,
+        subscriptionStatus: 'TRIAL',
     },
 ];
 

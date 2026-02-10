@@ -22,7 +22,7 @@ export async function PUT(request: Request) {
             return NextResponse.json({ error: 'المستخدم غير موجود' }, { status: 404 })
         }
 
-        const updateData: any = {}
+        const updateData: Record<string, string> = {}
 
         // 1. Update Name
         if (nameAr && nameAr !== user.nameAr) {

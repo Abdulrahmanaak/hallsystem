@@ -9,7 +9,6 @@ import { Calendar, Plus, Search, Filter } from 'lucide-react';
 
 export default function BookingsPage() {
     const router = useRouter();
-    const [user, setUser] = useState<User | null>(null);
     const [bookings, setBookings] = useState<Booking[]>(MOCK_BOOKINGS);
     const [searchTerm, setSearchTerm] = useState('');
 
@@ -17,10 +16,17 @@ export default function BookingsPage() {
         const storedUser = localStorage.getItem('currentUser');
         if (!storedUser) {
             router.push('/login');
-        } else {
-            setUser(JSON.parse(storedUser));
         }
     }, [router]);
+
+    // Initialize user state from localStorage (computed lazily)
+    const [user, setUser] = useState<User | null>(() => {
+        if (typeof window !== 'undefined') {
+            const stored = localStorage.getItem('currentUser');
+            return stored ? JSON.parse(stored) : null;
+        }
+        return null;
+    });
 
     if (!user) return null;
 

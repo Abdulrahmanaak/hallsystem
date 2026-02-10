@@ -20,7 +20,7 @@ export async function PUT(
         // action: 'EXTEND_TRIAL' | 'SET_YEARLY' | 'CANCEL'
 
         const now = new Date()
-        let updateData: any = {}
+        let updateData: Record<string, Date | string | null> = {}
 
         if (action === 'EXTEND_TRIAL') {
             const extensionDays = days || 7

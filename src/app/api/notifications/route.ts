@@ -15,7 +15,7 @@ export async function GET() {
         // we can fetch recent bookings or other relevant events.
         // For now, returning an empty array to satisfy the frontend.
 
-        const notifications: any[] = []
+        const notifications: unknown[] = []
 
         return NextResponse.json(notifications)
     } catch (error) {

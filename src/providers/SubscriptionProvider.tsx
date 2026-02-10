@@ -4,7 +4,7 @@
 import React, { createContext, useContext, type ReactNode } from 'react'
 import type { SubscriptionState } from '@/lib/subscription'
 
-interface SubscriptionContextType extends SubscriptionState { }
+type SubscriptionContextType = SubscriptionState
 
 const SubscriptionContext = createContext<SubscriptionContextType | undefined>(undefined)
 

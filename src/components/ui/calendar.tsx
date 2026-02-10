@@ -130,14 +130,14 @@ export function Calendar({ mode = 'gregorian', selected, onSelect, className }: 
 
             const isToday = new Date().toDateString() === dateToClick.toDateString();
 
-            let dayNum = dateToClick.getDate();
+            let dayNum: string | number = dateToClick.getDate();
             if (mode === 'hijri') {
                 // Force Arabic numerals
                 const d = getHijriParts(dateToClick).day || '0';
                 // Map to Arabic numerals if needed, but 'ar-SA' usually handles it. 
                 // If default parser returns Western Arabic (0-9), we can force Eastern Arabic if desired.
                 // For now relying on Locale output which usually respects number system.
-                dayNum = d as any;
+                dayNum = d;
             }
 
             days.push(
@@ -151,7 +151,7 @@ export function Calendar({ mode = 'gregorian', selected, onSelect, className }: 
                         )}
                         onClick={() => onSelect && onSelect(dateToClick)}
                     >
-                        {dayNum.toLocaleString('ar-SA')}
+                        {typeof dayNum === 'number' ? dayNum.toLocaleString('ar-SA') : dayNum}
                     </Button>
                 </div>
             );
@@ -209,7 +209,7 @@ export function Calendar({ mode = 'gregorian', selected, onSelect, className }: 
 
             {/* Footer */}
             <div className="flex items-center justify-between pt-4 border-t mt-4">
-                <Button variant="ghost" className="text-xs h-8 px-2 text-muted-foreground" onClick={() => (onSelect && onSelect(null as any))}>مسح</Button>
+                <Button variant="ghost" className="text-xs h-8 px-2 text-muted-foreground" onClick={() => (onSelect && onSelect(undefined as unknown as Date))}>مسح</Button>
                 <Button variant="ghost" className="text-xs h-8 px-2 text-primary" onClick={handleToday}>اليوم</Button>
             </div>
         </div>

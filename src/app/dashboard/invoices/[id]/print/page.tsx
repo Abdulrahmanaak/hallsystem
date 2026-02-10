@@ -304,6 +304,7 @@ export default function InvoicePrintPage() {
                         </div>
                         <div style={{ textAlign: 'left' }}>
                             {companySettings.companyLogo ? (
+                                // eslint-disable-next-line @next/next/no-img-element
                                 <img src={companySettings.companyLogo} alt="Logo" style={{ maxWidth: '80px', maxHeight: '60px', objectFit: 'contain' }} />
                             ) : (
                                 <div style={{ fontSize: '10px' }}>Invoice No: {invoice.invoiceNumber.split('-').pop()}</div>
@@ -468,6 +469,7 @@ export default function InvoicePrintPage() {
                         <div style={{ width: '100px', textAlign: 'center' }}>
                             {qrDataUrl ? (
                                 <div>
+                                    {/* eslint-disable-next-line @next/next/no-img-element */}
                                     <img src={qrDataUrl} alt="ZATCA QR" style={{ width: '90px', height: '90px' }} />
                                     <p style={{ fontSize: '8px', color: '#666', marginTop: '4px' }}>ZATCA QR</p>
                                 </div>

@@ -189,8 +189,8 @@ export default function ContractPage() {
                         const paymentsRes = await fetch('/api/payments')
                         if (paymentsRes.ok) {
                             const allPayments = await paymentsRes.json()
-                            const bookingPayments = allPayments.filter((p: any) => p.bookingId === bookingId)
-                            const paidSum = bookingPayments.reduce((sum: number, p: any) => sum + Number(p.amount), 0)
+                            const bookingPayments = allPayments.filter((p: { bookingId: string }) => p.bookingId === bookingId)
+                            const paidSum = bookingPayments.reduce((sum: number, p: { amount: number | string }) => sum + Number(p.amount), 0)
                             setTotalPaid(paidSum)
                         }
                     } catch (e) {
@@ -335,6 +335,7 @@ export default function ContractPage() {
                         {/* Logo - Right side in RTL (displayed first) */}
                         <div className="w-24 flex justify-start">
                             {companySettings.companyLogo ? (
+                                // eslint-disable-next-line @next/next/no-img-element
                                 <img
                                     src={companySettings.companyLogo}
                                     alt="شعار الشركة"

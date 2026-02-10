@@ -252,7 +252,8 @@ export default function NewBookingPage() {
                 if (res.ok) {
                     const apiHalls = await res.json()
                     // Map API response to Hall type, adding default values for missing fields
-                    const mappedHalls: Hall[] = apiHalls.map((h: any) => ({
+                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                    const mappedHalls: Hall[] = apiHalls.map((h: Record<string, any>) => ({
                         id: h.id,
                         name: h.name,
                         capacity: h.capacity,
@@ -448,9 +449,10 @@ export default function NewBookingPage() {
                 servicesBreakdown,
             })
             router.push("/dashboard/bookings")
-        } catch (error: any) {
-            console.error("Failed to create booking", error?.message || error)
-            alert("فشل في إنشاء الحجز: " + (error?.message || "خطأ غير معروف"))
+        } catch (error: unknown) {
+            const errMsg = error instanceof Error ? error.message : 'خطأ غير معروف'
+            console.error("Failed to create booking", errMsg)
+            alert("فشل في إنشاء الحجز: " + errMsg)
         } finally {
             setLoading(false)
         }

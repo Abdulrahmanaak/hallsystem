@@ -27,26 +27,37 @@ const TourContext = createContext<TourContextType | null>(null)
 const STORAGE_KEY = 'hallsystem_tour_state'
 
 export function TourProvider({ children }: { children: ReactNode }) {
-    const [completedTours, setCompletedTours] = useState<TourState>({})
-    const [isFirstVisit, setIsFirstVisit] = useState(false)
-    const [activeTour, setActiveTour] = useState<Tour | null>(null)
-
-    // Load state from localStorage on mount and check for auto-start tour
-    useEffect(() => {
+    // Lazy initialize state from localStorage
+    const [completedTours, setCompletedTours] = useState<TourState>(() => {
+        if (typeof window === 'undefined') return {}
         const stored = localStorage.getItem(STORAGE_KEY)
         if (stored) {
             try {
                 const parsed = JSON.parse(stored)
-                setCompletedTours(parsed.completedTours || {})
-                setIsFirstVisit(false)
+                return parsed.completedTours || {}
             } catch {
-                setIsFirstVisit(true)
+                return {}
             }
-        } else {
-            setIsFirstVisit(true)
         }
+        return {}
+    })
+    const [isFirstVisit, setIsFirstVisit] = useState(() => {
+        if (typeof window === 'undefined') return false
+        const stored = localStorage.getItem(STORAGE_KEY)
+        if (stored) {
+            try {
+                JSON.parse(stored)
+                return false
+            } catch {
+                return true
+            }
+        }
+        return true
+    })
+    const [activeTour, setActiveTour] = useState<Tour | null>(null)
 
-        // Check for startTour query param
+    // Check for auto-start tour on mount
+    useEffect(() => {
         const params = new URLSearchParams(window.location.search)
         const tourToStart = params.get('startTour')
         if (tourToStart) {
@@ -69,6 +80,16 @@ export function TourProvider({ children }: { children: ReactNode }) {
             lastVisit: new Date().toISOString()
         }))
     }, [])
+
+    // Mark tour as complete
+    const markTourComplete = useCallback((tourId: string) => {
+        setCompletedTours(prev => {
+            const updated = { ...prev, [tourId]: true }
+            saveState(updated)
+            return updated
+        })
+        setIsFirstVisit(false)
+    }, [saveState])
 
     // Start a tour
     const startTour = useCallback((tourId: string, steps: StepOptions[]) => {
@@ -136,7 +157,7 @@ export function TourProvider({ children }: { children: ReactNode }) {
 
         setActiveTour(tour)
         tour.start()
-    }, [activeTour])
+    }, [activeTour, markTourComplete])
 
     // End current tour
     const endTour = useCallback(() => {
@@ -145,16 +166,6 @@ export function TourProvider({ children }: { children: ReactNode }) {
             setActiveTour(null)
         }
     }, [activeTour])
-
-    // Mark tour as complete
-    const markTourComplete = useCallback((tourId: string) => {
-        setCompletedTours(prev => {
-            const updated = { ...prev, [tourId]: true }
-            saveState(updated)
-            return updated
-        })
-        setIsFirstVisit(false)
-    }, [saveState])
 
     // Reset all tours
     const resetTours = useCallback(() => {

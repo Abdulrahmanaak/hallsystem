@@ -76,7 +76,7 @@ export default function HelpMenu({ currentPath }: HelpMenuProps) {
 
         // If not on target page, navigate there
         if (currentPath !== meta.path) {
-            window.location.href = `${meta.path}?startTour=${tourId}`
+            setTimeout(() => { window.location.href = `${meta.path}?startTour=${tourId}` }, 0)
             return
         }
 

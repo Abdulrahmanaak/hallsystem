@@ -49,7 +49,7 @@ async function getQoyodConfig(): Promise<QoyodConfig | null> {
 }
 
 // 2. Helper: API Request
-async function qoyodRequest(endpoint: string, method: string = 'GET', body: any = null, config: QoyodConfig) {
+async function qoyodRequest(endpoint: string, method: string = 'GET', body: unknown = null, config: QoyodConfig) {
     // Ensure no double slashes in URL
     const baseUrl = config.baseUrl.replace(/\/+$/, '') // Remove trailing slashes
     const cleanEndpoint = endpoint.startsWith('/') ? endpoint : `/${endpoint}`
@@ -96,10 +96,11 @@ async function qoyodRequest(endpoint: string, method: string = 'GET', body: any 
             console.log(`Qoyod API [${method} ${url}]: Text response - "${responseText}"`)
             return { success: true, message: responseText }
         }
-    } catch (error: any) {
+    } catch (error: unknown) {
         // Only log as error if it's not an expected 404
-        if (!error.message?.includes('404')) {
-            console.error('Qoyod Request Failed:', error.message)
+        const errMsg = error instanceof Error ? error.message : String(error)
+        if (!errMsg.includes('404')) {
+            console.error('Qoyod Request Failed:', errMsg)
         }
         throw error
     }
@@ -116,7 +117,8 @@ async function getSalesAccountId(config: QoyodConfig): Promise<number> {
         const res = await qoyodRequest('/accounts?q[type_eq]=Revenue', 'GET', null, config)
         if (res.accounts && res.accounts.length > 0) {
             // Prefer "Revenue of Products..." or generic Sales
-            const salesAcc = res.accounts.find((a: any) => a.name_en?.toLowerCase().includes('sales') || a.name_ar?.includes('مبيعات'))
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            const salesAcc = res.accounts.find((a: Record<string, any>) => a.name_en?.toLowerCase().includes('sales') || a.name_ar?.includes('مبيعات'))
             return salesAcc ? salesAcc.id : res.accounts[0].id
         }
     } catch (e) {
@@ -136,7 +138,8 @@ async function getBankAccountId(config: QoyodConfig): Promise<number> {
         const res = await qoyodRequest('/accounts?q[type_eq]=Asset', 'GET', null, config)
         if (res.accounts && res.accounts.length > 0) {
             // Prefer Cash or Bank accounts
-            const bankAcc = res.accounts.find((a: any) =>
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            const bankAcc = res.accounts.find((a: Record<string, any>) =>
                 a.name_en?.toLowerCase().includes('cash') ||
                 a.name_en?.toLowerCase().includes('bank') ||
                 a.name_ar?.includes('صندوق') ||
@@ -156,7 +159,8 @@ async function getUnitTypeId(config: QoyodConfig): Promise<number> {
         const res = await qoyodRequest('/product_unit_types', 'GET', null, config)
         if (res.product_unit_types && res.product_unit_types.length > 0) {
             // Look for "Service" or "Unit" or "Piece"
-            const unit = res.product_unit_types.find((u: any) =>
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            const unit = res.product_unit_types.find((u: Record<string, any>) =>
                 u.unit_name?.toLowerCase().includes('service') ||
                 u.unit_name?.toLowerCase().includes('unit') ||
                 u.unit_name?.toLowerCase().includes('piece')
@@ -192,8 +196,9 @@ async function getOrCreateServiceProduct(config: QoyodConfig) {
     let searchRes
     try {
         searchRes = await qoyodRequest(`/products?q[sku_eq]=${productSku}`, 'GET', null, config)
-    } catch (e: any) {
-        if (e.message.includes('404') || e.message.includes('nothing')) {
+    } catch (e: unknown) {
+        const eMsg = e instanceof Error ? e.message : String(e)
+        if (eMsg.includes('404') || eMsg.includes('nothing')) {
             searchRes = { products: [] }
         } else {
             throw e
@@ -275,9 +280,10 @@ async function syncCustomer(customerId: string, config: QoyodConfig): Promise<nu
     let searchRes
     try {
         searchRes = await qoyodRequest(`/customers?q[name_eq]=${encodeURIComponent(contactName)}`, 'GET', null, config)
-    } catch (e: any) {
+    } catch (e: unknown) {
         // If 404 or empty result, proceed to create
-        if (e.message.includes('404')) {
+        const eMsg = e instanceof Error ? e.message : String(e)
+        if (eMsg.includes('404')) {
             searchRes = { customers: [] }
         } else {
             throw e
@@ -346,10 +352,10 @@ export async function GET(request: Request) {
                     revenueAccounts: revenueRes.accounts || [],
                     assetAccounts: assetRes.accounts || []
                 })
-            } catch (e: any) {
+            } catch (e: unknown) {
                 return NextResponse.json({
                     success: false,
-                    error: e.message || 'Failed to fetch accounts'
+                    error: e instanceof Error ? e.message : 'Failed to fetch accounts'
                 }, { status: 500 })
             }
         }
@@ -379,7 +385,7 @@ export async function GET(request: Request) {
                 })
             ])
 
-            const getStats = (groups: any[]) => {
+            const getStats = (groups: { syncedToQoyod: boolean; _count: number }[]) => {
                 const synced = groups.find(g => g.syncedToQoyod === true)?._count || 0
                 const notSynced = groups.find(g => g.syncedToQoyod === false)?._count || 0
                 return { synced, total: synced + notSynced }
@@ -415,29 +421,33 @@ export async function GET(request: Request) {
             })
 
             // Fetch all invoices from Qoyod
-            let qoyodInvoices: any[] = []
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            let qoyodInvoices: Record<string, any>[] = []
             try {
                 // Try fetching all invoices - Qoyod v2 API
                 const res = await qoyodRequest('/invoices', 'GET', null, config)
                 console.log('Qoyod invoices response:', JSON.stringify(res).substring(0, 500))
                 qoyodInvoices = res.invoices || []
                 console.log(`Found ${qoyodInvoices.length} invoices in Qoyod`)
-            } catch (e: any) {
-                console.error('Failed to fetch invoices from Qoyod:', e.message)
+            } catch (e: unknown) {
+                const eMsg = e instanceof Error ? e.message : String(e)
+                console.error('Failed to fetch invoices from Qoyod:', eMsg)
                 // If error contains "nothing", it means no invoices exist
-                if (e.message?.includes('nothing') || e.message?.includes('404')) {
+                if (eMsg.includes('nothing') || eMsg.includes('404')) {
                     console.log('No invoices found in Qoyod')
                     qoyodInvoices = []
                 } else {
                     return NextResponse.json({
-                        error: 'فشل في جلب الفواتير من قيود: ' + e.message
+                        error: 'فشل في جلب الفواتير من قيود: ' + eMsg
                     }, { status: 500 })
                 }
             }
 
             // Create a map of Qoyod invoices by reference number
-            const qoyodByReference = new Map<string, any>()
-            const qoyodById = new Map<string, any>()
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            const qoyodByReference = new Map<string, Record<string, any>>()
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            const qoyodById = new Map<string, Record<string, any>>()
             for (const inv of qoyodInvoices) {
                 if (inv.reference) {
                     qoyodByReference.set(inv.reference, inv)
@@ -561,7 +571,8 @@ export async function POST(request: Request) {
             if (!invoice) return NextResponse.json({ error: 'Invoice not found' }, { status: 404 })
 
             // Step 0: Check if invoice already exists in Qoyod by reference number
-            let existingQoyodInvoice: any = null
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            let existingQoyodInvoice: Record<string, any> | null = null
             try {
                 const searchRes = await qoyodRequest(
                     `/invoices?q[reference_eq]=${encodeURIComponent(invoice.invoiceNumber)}`,
@@ -569,12 +580,13 @@ export async function POST(request: Request) {
                 )
                 if (searchRes.invoices?.length > 0) {
                     existingQoyodInvoice = searchRes.invoices[0]
-                    console.log(`Invoice ${invoice.invoiceNumber} already exists in Qoyod with ID ${existingQoyodInvoice.id}`)
+                    console.log(`Invoice ${invoice.invoiceNumber} already exists in Qoyod with ID ${existingQoyodInvoice!.id}`)
                 }
-            } catch (e: any) {
+            } catch (e: unknown) {
                 // Ignore search errors (404 means not found, which is fine)
-                if (!e.message?.includes('404') && !e.message?.includes('nothing')) {
-                    console.warn('Error searching for existing invoice:', e.message)
+                const eMsg = e instanceof Error ? e.message : String(e)
+                if (!eMsg.includes('404') && !eMsg.includes('nothing')) {
+                    console.warn('Error searching for existing invoice:', eMsg)
                 }
             }
 
@@ -704,9 +716,10 @@ export async function POST(request: Request) {
                         completedAt: new Date()
                     }
                 })
-            } catch (error: any) {
+            } catch (error: unknown) {
                 // Handle "Reference is already taken by id XXXX" error (422)
-                const match = error.message?.match(/Reference is already taken by id (\d+)/)
+                const errorMsg = error instanceof Error ? error.message : String(error)
+                const match = errorMsg.match(/Reference is already taken by id (\d+)/)
                 if (match) {
                     const existingId = match[1]
                     console.log(`Invoice reference already exists in Qoyod with ID ${existingId}, updating local record`)
@@ -742,7 +755,7 @@ export async function POST(request: Request) {
                 }
 
                 // Re-throw other errors with friendly messages
-                if (error.message?.includes('403')) {
+                if (errorMsg.includes('403')) {
                     throw new Error('غير مصرح. تحقق من صلاحيات مفتاح API.')
                 }
                 throw error
@@ -988,13 +1001,14 @@ export async function POST(request: Request) {
                     // Invoice doesn't exist in Qoyod - clear the incorrect stored ID
                     actualQoyodId = null
                 }
-            } catch (e: any) {
+            } catch (e: unknown) {
                 // Handle 404 / "nothing found" as empty results - invoice doesn't exist in Qoyod
-                if (e.message?.includes('404') || e.message?.includes('nothing')) {
-                    console.log(`Invoice ${invoice.invoiceNumber} not found in Qoyod (404/nothing): ${e.message}`)
+                const eMsg = e instanceof Error ? e.message : String(e)
+                if (eMsg.includes('404') || eMsg.includes('nothing')) {
+                    console.log(`Invoice ${invoice.invoiceNumber} not found in Qoyod (404/nothing): ${eMsg}`)
                     actualQoyodId = null
                 } else {
-                    console.warn('Failed to search for invoice in Qoyod, will try with stored ID:', e.message)
+                    console.warn('Failed to search for invoice in Qoyod, will try with stored ID:', eMsg)
                 }
             }
 
@@ -1008,12 +1022,13 @@ export async function POST(request: Request) {
                     await qoyodRequest(`/invoices/${actualQoyodId}`, 'DELETE', null, config)
                     qoyodDeleted = true
                     console.log(`Successfully deleted invoice ${actualQoyodId} from Qoyod`)
-                } catch (error: any) {
+                } catch (error: unknown) {
                     // Check if it's a 404 (not found) error
-                    if (error.message?.includes('404') || error.message?.includes('Invalid invoice ID')) {
+                    const errMsg = error instanceof Error ? error.message : String(error)
+                    if (errMsg.includes('404') || errMsg.includes('Invalid invoice ID')) {
                         console.log(`Invoice ${actualQoyodId} not found on Qoyod`)
                         notFoundOnQoyod = true
-                    } else if (error.message?.includes('403') || error.message?.includes('approved') || error.message?.includes('ZATCA')) {
+                    } else if (errMsg.includes('403') || errMsg.includes('approved') || errMsg.includes('ZATCA')) {
                         // Invoice is approved and cannot be deleted
                         errorMessage = 'لا يمكن حذف فاتورة معتمدة. استخدم خيار "إلغاء الفاتورة" لإنشاء إشعار دائن.'
                         throw new Error(errorMessage)
@@ -1094,7 +1109,8 @@ export async function POST(request: Request) {
             // Note: Qoyod /expenses endpoint struct might vary. Assuming similar to /invoices but simpler.
             // If we have a vendor with qoyodVendorId, use it.
 
-            const payload: any = {
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            const payload: Record<string, Record<string, any>> = {
                 expense: {
                     reference: expense.description.substring(0, 50),
                     issue_date: expense.expenseDate.toISOString().split('T')[0],
@@ -1214,7 +1230,7 @@ export async function POST(request: Request) {
 
         return NextResponse.json({ error: 'Invalid type' }, { status: 400 })
 
-    } catch (error: any) {
+    } catch (error: unknown) {
         console.error('Qoyod Sync Error:', error)
 
         // Try to log failure if we have a record context (id/type)
@@ -1222,7 +1238,7 @@ export async function POST(request: Request) {
         // For now just console log
 
         return NextResponse.json(
-            { error: error.message || 'Failed to sync with Qoyod' },
+            { error: error instanceof Error ? error.message : 'Failed to sync with Qoyod' },
             { status: 500 }
         )
     }

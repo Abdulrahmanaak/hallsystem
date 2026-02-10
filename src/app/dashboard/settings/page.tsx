@@ -248,6 +248,7 @@ export default function SettingsPage() {
                         <div className="flex-shrink-0">
                             {settings.companyLogo ? (
                                 <div className="relative">
+                                    {/* eslint-disable-next-line @next/next/no-img-element */}
                                     <img
                                         src={settings.companyLogo}
                                         alt="شعار الشركة"

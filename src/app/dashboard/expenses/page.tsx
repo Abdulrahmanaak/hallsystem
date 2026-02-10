@@ -707,6 +707,7 @@ export default function ExpensesPage() {
                         {viewImage.endsWith('.pdf') ? (
                             <iframe src={viewImage} className="w-full h-[85vh] rounded-lg bg-white" title="Invoice PDF"></iframe>
                         ) : (
+                            // eslint-disable-next-line @next/next/no-img-element
                             <img src={viewImage} alt="Invoice" className="max-w-full max-h-[85vh] object-contain rounded-lg" />
                         )}
                         <button

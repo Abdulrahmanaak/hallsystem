@@ -38,7 +38,7 @@ async function getQoyodConfig(): Promise<QoyodConfig | null> {
 }
 
 // Qoyod API request helper
-async function qoyodRequest(endpoint: string, method: string = 'GET', body: any = null, config: QoyodConfig) {
+async function qoyodRequest(endpoint: string, method: string = 'GET', body: unknown = null, config: QoyodConfig) {
     const baseUrl = config.baseUrl.replace(/\/+$/, '')
     const cleanEndpoint = endpoint.startsWith('/') ? endpoint : `/${endpoint}`
     const url = `${baseUrl}${cleanEndpoint}`
@@ -75,7 +75,8 @@ async function getSalesAccountId(config: QoyodConfig): Promise<number> {
         const res = await qoyodRequest('/accounts?q[type_eq]=Revenue', 'GET', null, config)
         if (res.accounts && res.accounts.length > 0) {
             // Prefer "Revenue of Products..." or generic Sales
-            const salesAcc = res.accounts.find((a: any) => a.name_en?.toLowerCase().includes('sales') || a.name_ar?.includes('مبيعات'))
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            const salesAcc = res.accounts.find((a: Record<string, any>) => a.name_en?.toLowerCase().includes('sales') || a.name_ar?.includes('مبيعات'))
             return salesAcc ? salesAcc.id : res.accounts[0].id
         }
     } catch (e) {
@@ -90,7 +91,8 @@ async function getUnitTypeId(config: QoyodConfig): Promise<number> {
         const res = await qoyodRequest('/product_unit_types', 'GET', null, config)
         if (res.product_unit_types && res.product_unit_types.length > 0) {
             // Look for "Service" or "Unit" or "Piece"
-            const unit = res.product_unit_types.find((u: any) =>
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            const unit = res.product_unit_types.find((u: Record<string, any>) =>
                 u.unit_name?.toLowerCase().includes('service') ||
                 u.unit_name?.toLowerCase().includes('unit') ||
                 u.unit_name?.toLowerCase().includes('piece')
@@ -126,8 +128,9 @@ async function getOrCreateServiceProduct(config: QoyodConfig) {
     let searchRes
     try {
         searchRes = await qoyodRequest(`/products?q[sku_eq]=${productSku}`, 'GET', null, config)
-    } catch (e: any) {
-        if (e.message.includes('404') || e.message.includes('nothing')) {
+    } catch (e: unknown) {
+        const eMsg = e instanceof Error ? e.message : String(e)
+        if (eMsg.includes('404') || eMsg.includes('nothing')) {
             searchRes = { products: [] }
         } else {
             throw e
@@ -281,11 +284,11 @@ export async function POST(request: Request) {
             message: 'تم إنشاء إشعار دائن بنجاح'
         })
 
-    } catch (error: any) {
+    } catch (error: unknown) {
         console.error('Credit Note Error:', error)
 
         return NextResponse.json(
-            { error: error.message || 'Failed to create credit note' },
+            { error: error instanceof Error ? error.message : 'Failed to create credit note' },
             { status: 500 }
         )
     }

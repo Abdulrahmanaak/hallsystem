@@ -64,7 +64,7 @@ export async function PUT(
             try {
                 const config = await getQoyodConfig(ownerId)
                 if (config) {
-                    const payload: any = {
+                    const payload: Record<string, Record<string, unknown>> = {
                         expense: {
                             reference: updatedExpense.description.substring(0, 50),
                             issue_date: updatedExpense.expenseDate.toISOString().split('T')[0],
@@ -149,10 +149,10 @@ export async function DELETE(
                     // Qoyod disabled/missing config. Allow local delete but warn.
                     console.warn(`Expense ${id} is synced but Qoyod config is missing. Deleting locally only.`)
                 }
-            } catch (error: any) {
+            } catch (error: unknown) {
                 console.error('Error deleting from Qoyod:', error)
 
-                if (error.message && error.message.includes('404')) {
+                if (error instanceof Error && error.message.includes('404')) {
                     qoyodDeleted = true
                 } else {
                     return NextResponse.json(
