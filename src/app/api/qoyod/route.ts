@@ -84,7 +84,6 @@ async function qoyodRequest(endpoint: string, method: string = 'GET', body: unkn
 
         // Handle empty responses (some DELETE endpoints return empty body)
         if (!responseText || responseText.trim() === '') {
-            console.log(`Qoyod API [${method} ${url}]: Success (empty response)`)
             return { success: true, message: 'Success' }
         }
 
@@ -93,7 +92,6 @@ async function qoyodRequest(endpoint: string, method: string = 'GET', body: unkn
             return JSON.parse(responseText)
         } catch {
             // Not valid JSON - return as text wrapper
-            console.log(`Qoyod API [${method} ${url}]: Text response - "${responseText}"`)
             return { success: true, message: responseText }
         }
     } catch (error: unknown) {
@@ -216,7 +214,6 @@ async function getOrCreateServiceProduct(config: QoyodConfig) {
         }
 
         // Try to fix the product settings
-        console.log(`Product ${product.id} has track_quantity=${trackQty}, attempting fix...`)
         try {
             await qoyodRequest(`/products/${product.id}`, 'PUT', {
                 product: {
@@ -224,7 +221,6 @@ async function getOrCreateServiceProduct(config: QoyodConfig) {
                     type: 'Service'
                 }
             }, config)
-            console.log('Product settings updated successfully')
             return product.id
         } catch (e) {
             console.warn('Could not update product, will create a new one:', e)
@@ -236,7 +232,6 @@ async function getOrCreateServiceProduct(config: QoyodConfig) {
     const unitTypeId = await getUnitTypeId(config)
 
     // Create new service product
-    console.log('Creating new service product in Qoyod...')
     const createRes = await qoyodRequest('/products', 'POST', {
         product: {
             name_ar: productName,
@@ -259,7 +254,6 @@ async function getOrCreateServiceProduct(config: QoyodConfig) {
         }
     }, config)
 
-    console.log('Service product created:', createRes.product?.id)
     return createRes.product.id
 }
 
@@ -426,15 +420,12 @@ export async function GET(request: Request) {
             try {
                 // Try fetching all invoices - Qoyod v2 API
                 const res = await qoyodRequest('/invoices', 'GET', null, config)
-                console.log('Qoyod invoices response:', JSON.stringify(res).substring(0, 500))
                 qoyodInvoices = res.invoices || []
-                console.log(`Found ${qoyodInvoices.length} invoices in Qoyod`)
             } catch (e: unknown) {
                 const eMsg = e instanceof Error ? e.message : String(e)
                 console.error('Failed to fetch invoices from Qoyod:', eMsg)
                 // If error contains "nothing", it means no invoices exist
                 if (eMsg.includes('nothing') || eMsg.includes('404')) {
-                    console.log('No invoices found in Qoyod')
                     qoyodInvoices = []
                 } else {
                     return NextResponse.json({
@@ -479,7 +470,6 @@ export async function GET(request: Request) {
                                 data: { qoyodInvoiceId: correctId }
                             })
                             results.fixed++
-                            console.log(`Fixed ${invoice.invoiceNumber}: ${invoice.qoyodInvoiceId} -> ${correctId}`)
                         } else {
                             results.verified++
                         }
@@ -497,7 +487,6 @@ export async function GET(request: Request) {
                         })
                         results.notFound++
                         notFoundInvoices.push(invoice.invoiceNumber)
-                        console.log(`Invoice ${invoice.invoiceNumber} not found in Qoyod, unmarked sync`)
                     }
                 } catch (e) {
                     console.error(`Error verifying invoice ${invoice.invoiceNumber}:`, e)
@@ -580,7 +569,6 @@ export async function POST(request: Request) {
                 )
                 if (searchRes.invoices?.length > 0) {
                     existingQoyodInvoice = searchRes.invoices[0]
-                    console.log(`Invoice ${invoice.invoiceNumber} already exists in Qoyod with ID ${existingQoyodInvoice!.id}`)
                 }
             } catch (e: unknown) {
                 // Ignore search errors (404 means not found, which is fine)
@@ -722,7 +710,6 @@ export async function POST(request: Request) {
                 const match = errorMsg.match(/Reference is already taken by id (\d+)/)
                 if (match) {
                     const existingId = match[1]
-                    console.log(`Invoice reference already exists in Qoyod with ID ${existingId}, updating local record`)
 
                     await prisma.invoice.update({
                         where: { id },
@@ -986,18 +973,15 @@ export async function POST(request: Request) {
                     // Found the invoice - use the actual Qoyod ID
                     actualQoyodId = searchRes.invoices[0].id.toString()
                     foundInQoyod = true
-                    console.log(`Found invoice in Qoyod: reference=${invoice.invoiceNumber}, qoyodId=${actualQoyodId}`)
 
                     // Update local record with correct ID if different
                     if (actualQoyodId !== invoice.qoyodInvoiceId) {
-                        console.log(`Correcting qoyodInvoiceId: ${invoice.qoyodInvoiceId} -> ${actualQoyodId}`)
                         await prisma.invoice.update({
                             where: { id },
                             data: { qoyodInvoiceId: actualQoyodId }
                         })
                     }
                 } else {
-                    console.log(`Invoice ${invoice.invoiceNumber} not found in Qoyod by reference (empty results)`)
                     // Invoice doesn't exist in Qoyod - clear the incorrect stored ID
                     actualQoyodId = null
                 }
@@ -1005,7 +989,6 @@ export async function POST(request: Request) {
                 // Handle 404 / "nothing found" as empty results - invoice doesn't exist in Qoyod
                 const eMsg = e instanceof Error ? e.message : String(e)
                 if (eMsg.includes('404') || eMsg.includes('nothing')) {
-                    console.log(`Invoice ${invoice.invoiceNumber} not found in Qoyod (404/nothing): ${eMsg}`)
                     actualQoyodId = null
                 } else {
                     console.warn('Failed to search for invoice in Qoyod, will try with stored ID:', eMsg)
@@ -1021,12 +1004,10 @@ export async function POST(request: Request) {
                 try {
                     await qoyodRequest(`/invoices/${actualQoyodId}`, 'DELETE', null, config)
                     qoyodDeleted = true
-                    console.log(`Successfully deleted invoice ${actualQoyodId} from Qoyod`)
                 } catch (error: unknown) {
                     // Check if it's a 404 (not found) error
                     const errMsg = error instanceof Error ? error.message : String(error)
                     if (errMsg.includes('404') || errMsg.includes('Invalid invoice ID')) {
-                        console.log(`Invoice ${actualQoyodId} not found on Qoyod`)
                         notFoundOnQoyod = true
                     } else if (errMsg.includes('403') || errMsg.includes('approved') || errMsg.includes('ZATCA')) {
                         // Invoice is approved and cannot be deleted

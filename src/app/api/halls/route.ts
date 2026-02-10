@@ -34,7 +34,6 @@ export async function GET() {
             orderBy: { createdAt: 'desc' }
         })
 
-        console.log(`🏛️ [API/halls] GET: Returning ${halls.length} halls`)
 
         // Format halls for frontend compatibility
         const formattedHalls = halls.map(hall => {

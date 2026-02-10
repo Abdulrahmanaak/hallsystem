@@ -147,7 +147,6 @@ export async function POST(request: Request) {
             }
         })
 
-        console.log(`✅ Team member created: ${user.username} (ownerId: ${user.ownerId})`)
 
         return NextResponse.json(user, { status: 201 })
     } catch (error) {

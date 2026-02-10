@@ -12,7 +12,6 @@ export default async function DashboardLayout({
     const session = await auth()
 
     if (!session || !session.user) {
-        console.log("⚠️ No session or user found in DashboardLayout, redirecting to login");
         redirect('/login')
     }
 

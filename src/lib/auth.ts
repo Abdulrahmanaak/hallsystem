@@ -54,14 +54,12 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
                 password: { label: "كلمة المرور", type: "password" }
             },
             async authorize(credentials) {
-                console.log("🔐 Login attempt for:", credentials?.username);
 
                 if (!process.env.AUTH_SECRET) {
                     console.error("⚠️ AUTH_SECRET is missing in environment variables!");
                 }
 
                 if (!credentials?.username || !credentials?.password) {
-                    console.log("❌ Missing credentials");
                     throw new Error("يرجى إدخال اسم المستخدم وكلمة المرور")
                 }
 
@@ -74,11 +72,9 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
                     })
 
                     if (!user) {
-                        console.log("❌ User not found or inactive:", credentials.username);
                         throw new Error("اسم المستخدم أو كلمة المرور غير صحيحة")
                     }
 
-                    console.log("✅ User found:", user.username, user.role);
 
                     const isValidPassword = await bcrypt.compare(
                         credentials.password as string,
@@ -86,11 +82,9 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
                     )
 
                     if (!isValidPassword) {
-                        console.log("❌ Invalid password for:", user.username);
                         throw new Error("اسم المستخدم أو كلمة المرور غير صحيحة")
                     }
 
-                    console.log("✅ Password valid. Updating last login...");
 
                     // Update last login
                     await prisma.user.update({
@@ -112,7 +106,6 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
                         resolvedOwnerId = user.ownerId // Team member uses their owner's ID
                     }
 
-                    console.log("✅ Login successful, resolved ownerId:", resolvedOwnerId);
 
                     return {
                         id: user.id,

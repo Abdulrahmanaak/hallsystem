@@ -89,7 +89,6 @@ export async function POST(request: Request) {
             }
         })
 
-        console.log(`✅ New hall owner registered: ${username} (${user.id})`)
 
         return NextResponse.json({
             success: true,

@@ -72,7 +72,6 @@ export async function GET() {
             createdAt: b.createdAt
         }))
 
-        console.log(`📝 [API/bookings] GET: Returning ${formattedBookings.length} bookings`)
         return NextResponse.json(formattedBookings)
     } catch (error) {
         console.error('Error fetching bookings:', error)

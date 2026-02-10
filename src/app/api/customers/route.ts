@@ -63,7 +63,6 @@ export async function GET() {
             createdAt: customer.createdAt.toISOString()
         }))
 
-        console.log(`👥 [API/customers] GET: Returning ${formattedCustomers.length} customers`)
         return NextResponse.json(formattedCustomers)
     } catch (error) {
         console.error('Error fetching customers:', error)
