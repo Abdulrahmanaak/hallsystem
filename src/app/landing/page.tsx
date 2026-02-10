@@ -255,7 +255,7 @@ export default function LandingPage() {
 
                         <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
                             <Link
-                                href="/dashboard"
+                                href="/signup"
                                 className="group bg-white text-[#2f55d4] px-8 py-4 rounded-full font-bold text-lg shadow-xl hover:shadow-2xl transition-all duration-300 flex items-center justify-center gap-2"
                             >
                                 <span>ابدأ الآن</span>
@@ -541,7 +541,7 @@ export default function LandingPage() {
                     </p>
                     <div className="flex flex-col sm:flex-row gap-4 justify-center">
                         <Link
-                            href="/dashboard"
+                            href="/signup"
                             className="group bg-[#2f55d4] text-white px-10 py-4 rounded-full font-bold text-lg shadow-xl hover:shadow-2xl hover:bg-[#2343ab] transition-all duration-300 flex items-center justify-center gap-2"
                         >
                             <span>ابدأ مجاناً</span>
