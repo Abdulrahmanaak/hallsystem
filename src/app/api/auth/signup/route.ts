@@ -9,7 +9,7 @@ export async function POST(request: Request) {
         const { nameAr, username, password, email, phone, commercialRegNo, vatRegNo } = body
 
         // Validate required fields
-        if (!nameAr || !username || !password || !email) {
+        if (!nameAr || !username || !password || !email || !phone) {
             return NextResponse.json(
                 { error: 'جميع الحقول المطلوبة يجب تعبئتها' },
                 { status: 400 }
