@@ -53,7 +53,12 @@ export default function HelpMenu({ currentPath }: HelpMenuProps) {
 
     const currentTourId = getCurrentTourId()
     const currentTourMeta = TOUR_METADATA[currentTourId as keyof typeof TOUR_METADATA]
-    const hasUncompletedTours = Object.keys(TOUR_METADATA).some(id => !isTourComplete(id))
+    const [hasUncompletedTours, setHasUncompletedTours] = useState(false)
+
+    // Compute on client only to avoid hydration mismatch (localStorage is client-only)
+    useEffect(() => {
+        setHasUncompletedTours(Object.keys(TOUR_METADATA).some(id => !isTourComplete(id)))
+    }, [isTourComplete])
 
     // Check for auto-start param
     useEffect(() => {

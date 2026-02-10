@@ -12,7 +12,8 @@ import {
     DollarSign,
     UserCog,
     Settings,
-    X
+    X,
+    Crown
 } from 'lucide-react'
 import type { UserRole } from '@/types/enums'
 import HelpMenu from '@/components/tutorial/HelpMenu'
@@ -86,6 +87,12 @@ export default function Sidebar({ user, subscription, onCloseMobile }: SidebarPr
             icon: <User size={20} />,
             href: '/dashboard/profile',
             roles: ['SUPER_ADMIN', 'HALL_OWNER', 'ROOM_SUPERVISOR', 'ACCOUNTANT', 'EMPLOYEE']
+        },
+        {
+            label: 'الاشتراك',
+            icon: <Crown size={20} />,
+            href: '/dashboard/subscription',
+            roles: ['SUPER_ADMIN', 'HALL_OWNER']
         },
         {
             label: 'الإعدادات',

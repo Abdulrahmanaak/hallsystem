@@ -45,8 +45,7 @@ export default function DashboardLayoutClient({ children, user, subscription }: 
                                             : 'انتهت الفترة التجريبية. حسابك الآن في وضع القراءة فقط.'}
                                     </span>
                                     <Link
-                                        href="https://wa.me/+966552258852?text=السلام%20عليكم%D8%8C%20أرغب%20في%20ترقية%20اشتراكي%20في%20نظام%20إدارة%20القاعات"
-                                        target="_blank"
+                                        href="/dashboard/subscription"
                                         className="underline hover:text-white/80 font-bold mx-2"
                                     >
                                         ترقية الحساب الآن

@@ -1,6 +1,6 @@
 
 import Link from 'next/link'
-import { AlertTriangle } from 'lucide-react'
+import { AlertTriangle, Crown } from 'lucide-react'
 
 export default function SubscriptionExpiredPage() {
     return (
@@ -22,11 +22,11 @@ export default function SubscriptionExpiredPage() {
 
                 <div className="space-y-4">
                     <Link
-                        href="https://wa.me/+966552258852?text=السلام%20عليكم%D8%8C%20أرغب%20في%20ترقية%20اشتراكي%20في%20نظام%20إدارة%20القاعات"
-                        target="_blank"
-                        className="block w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-6 rounded-lg transition duration-200 flex items-center justify-center gap-2"
+                        href="/dashboard/subscription"
+                        className="block w-full bg-[var(--primary-600)] hover:bg-[var(--primary-700)] text-white font-semibold py-3 px-6 rounded-lg transition duration-200 flex items-center justify-center gap-2"
                     >
-                        <span>تواصل معنا للتجديد عبر واتساب</span>
+                        <Crown className="w-5 h-5" />
+                        <span>عرض باقات الاشتراك</span>
                     </Link>
 
                     <Link

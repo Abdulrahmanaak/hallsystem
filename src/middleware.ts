@@ -52,6 +52,12 @@ export default auth((req) => {
         return NextResponse.redirect(new URL("/dashboard", req.url))
     }
 
+    // Subscription routes - HALL_OWNER and SUPER_ADMIN only
+    if (pathname.startsWith("/dashboard/subscription") &&
+        role !== "HALL_OWNER" && role !== "SUPER_ADMIN") {
+        return NextResponse.redirect(new URL("/dashboard", req.url))
+    }
+
     return NextResponse.next()
 })
 
