@@ -141,6 +141,7 @@ export default function Sidebar({ user, subscription, onCloseMobile }: SidebarPr
                                 <Link
                                     href={item.href}
                                     className={`sidebar-item ${isActive ? 'sidebar-item-active' : ''}`}
+                                    onClick={onCloseMobile}
                                 >
                                     {item.icon}
                                     <span>{item.label}</span>
