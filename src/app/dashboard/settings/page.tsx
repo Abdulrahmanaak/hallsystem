@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useRef, useCallback } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import {
     Settings as SettingsIcon,
@@ -14,7 +14,9 @@ import {
     EyeOff,
     Upload,
     Trash2,
-    ImageIcon
+    ImageIcon,
+    MapPin,
+    Copy
 } from 'lucide-react'
 
 interface SettingsData {
@@ -32,6 +34,11 @@ interface SettingsData {
     qoyodDefaultBankAccountId: string | null
     qoyodDefaultSalesAccountId: string | null
     qoyodAutoSync: boolean
+    // Public Booking Link
+    slug?: string | null
+    ogTitle?: string | null
+    ogDescription?: string | null
+    ogImage?: string | null
 }
 
 interface QoyodAccount {
@@ -54,6 +61,8 @@ export default function SettingsPage() {
     const [showApiKey, setShowApiKey] = useState(false)
     const [qoyodAccounts, setQoyodAccounts] = useState<{ revenue: QoyodAccount[], asset: QoyodAccount[] }>({ revenue: [], asset: [] })
     const [loadingAccounts, setLoadingAccounts] = useState(false)
+    const originalSettingsRef = useRef<string | null>(null)
+    const [isDirty, setIsDirty] = useState(false)
 
     const DEFAULT_SETTINGS: SettingsData = {
         companyNameAr: 'نظام إدارة القاعات',
@@ -69,7 +78,11 @@ export default function SettingsPage() {
         qoyodApiKey: null,
         qoyodDefaultBankAccountId: null,
         qoyodDefaultSalesAccountId: null,
-        qoyodAutoSync: true
+        qoyodAutoSync: true,
+        slug: null,
+        ogTitle: null,
+        ogDescription: null,
+        ogImage: null
     }
 
     const fetchSettings = async () => {
@@ -78,6 +91,8 @@ export default function SettingsPage() {
             if (response.ok) {
                 const data = await response.json()
                 setSettings(data)
+                originalSettingsRef.current = JSON.stringify(data)
+                setIsDirty(false)
                 // Cache successful response
                 localStorage.setItem('settings_cache', JSON.stringify(data))
             } else {
@@ -104,6 +119,29 @@ export default function SettingsPage() {
         fetchSettings()
     }, [])
 
+    // Track dirty state by comparing current settings to the original snapshot
+    useEffect(() => {
+        if (settings && originalSettingsRef.current) {
+            const current = JSON.stringify(settings)
+            setIsDirty(current !== originalSettingsRef.current)
+        }
+    }, [settings])
+
+    // Warn user before leaving the page with unsaved changes
+    useEffect(() => {
+        const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+            if (isDirty) {
+                e.preventDefault()
+            }
+        }
+        window.addEventListener('beforeunload', handleBeforeUnload)
+        return () => window.removeEventListener('beforeunload', handleBeforeUnload)
+    }, [isDirty])
+
+    const scrollToSave = useCallback(() => {
+        document.getElementById('save-settings-btn')?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+    }, [])
+
     const handleSave = async () => {
         if (!settings) return
         if (isReadOnly) {
@@ -122,8 +160,10 @@ export default function SettingsPage() {
 
             if (response.ok) {
                 setMessage({ type: 'success', text: 'تم حفظ الإعدادات بنجاح' })
-                // Update cache on success
+                // Update cache and reset dirty state on success
                 localStorage.setItem('settings_cache', JSON.stringify(settings))
+                originalSettingsRef.current = JSON.stringify(settings)
+                setIsDirty(false)
             } else {
                 throw new Error('API Error')
             }
@@ -215,6 +255,7 @@ export default function SettingsPage() {
                 </div>
 
                 <button
+                    id="save-settings-btn"
                     onClick={handleSave}
                     disabled={saving || isReadOnly}
                     className={`btn-primary flex items-center gap-2 ${isReadOnly ? 'opacity-50 cursor-not-allowed' : ''}`}
@@ -379,6 +420,120 @@ export default function SettingsPage() {
                 </CardContent>
             </Card>
 
+            {/* Public Booking Link & SEO */}
+            <Card id="tour-public-link" className="bg-white border border-[var(--border-color)]">
+                <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                        <MapPin size={20} />
+                        رابط الحجز العام والمشاركة
+                    </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="md:col-span-2">
+                            <label className="form-label">الرابط المخصص (Slug)</label>
+                            <div className="flex items-center gap-2" dir="ltr">
+                                <span className="text-sm text-slate-500 bg-slate-100 p-2 rounded-md border" dir="ltr">hallsystem.codeless.sa/book/</span>
+                                <input
+                                    type="text"
+                                    value={settings.slug || ''}
+                                    onChange={(e) => setSettings({ ...settings, slug: e.target.value.replace(/[^a-zA-Z0-9-]/g, '').toLowerCase() })}
+                                    className="form-input w-full font-mono text-left"
+                                    placeholder="my-business-name"
+                                    dir="ltr"
+                                />
+                                {settings.slug && (
+                                    <button
+                                        onClick={() => {
+                                            const url = `https://hallsystem.codeless.sa/book/${settings.slug}`
+                                            navigator.clipboard.writeText(url)
+                                                .then(() => alert('تم نسخ الرابط بنجاح'))
+                                                .catch(() => alert('فشل نسخ الرابط'))
+                                        }}
+                                        className="p-2 border rounded-md hover:bg-slate-50 text-slate-600 flex gap-2 items-center"
+                                        title="نسخ الرابط"
+                                    >
+                                        <Copy size={16} /> <span className="text-xs">نسخ</span>
+                                    </button>
+                                )}
+                            </div>
+                            <p className="text-[10px] text-slate-500 mt-1">يستخدم لإنشاء رابط حجز عام يضم جميع قاعاتك. يسمح فقط بالأحرف الإنجليزية والأرقام والشرطات (-).</p>
+                        </div>
+                        <div className="md:col-span-2">
+                            <label className="form-label">عنوان المشاركة (SEO Title)</label>
+                            <input
+                                type="text"
+                                value={settings.ogTitle || ''}
+                                onChange={(e) => setSettings({ ...settings, ogTitle: e.target.value })}
+                                className="form-input w-full"
+                                placeholder="مثال: احجز قاعاتنا لمناسبتك القادمة"
+                            />
+                        </div>
+                        <div className="md:col-span-2">
+                            <label className="form-label">وصف المشاركة (SEO Description)</label>
+                            <textarea
+                                value={settings.ogDescription || ''}
+                                onChange={(e) => setSettings({ ...settings, ogDescription: e.target.value })}
+                                className="form-input w-full h-20"
+                                placeholder="وصف مختصر يظهر عند مشاركة الرابط في وسائل التواصل الاجتماعي"
+                            />
+                        </div>
+                        <div className="md:col-span-2">
+                            <label className="form-label mb-2 block">صورة المشاركة (SEO Image)</label>
+                            <div className="flex items-start gap-6 p-4 bg-gray-50 rounded-lg border border-dashed border-gray-300">
+                                <div className="flex-shrink-0">
+                                    {settings.ogImage ? (
+                                        <div className="relative">
+                                            {/* eslint-disable-next-line @next/next/no-img-element */}
+                                            <img
+                                                src={settings.ogImage}
+                                                alt="صورة المشاركة"
+                                                className="w-24 h-24 object-cover rounded-lg border border-gray-200 bg-white p-1"
+                                            />
+                                            <button
+                                                onClick={() => setSettings({ ...settings, ogImage: null })}
+                                                className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600 shadow-md"
+                                                title="حذف الصورة"
+                                            >
+                                                <Trash2 size={14} />
+                                            </button>
+                                        </div>
+                                    ) : (
+                                        <div className="w-24 h-24 flex items-center justify-center rounded-lg border-2 border-dashed border-gray-300 bg-white">
+                                            <ImageIcon size={32} className="text-gray-400" />
+                                        </div>
+                                    )}
+                                </div>
+                                <div className="flex-1">
+                                    <p className="text-sm text-gray-500 mb-2">تظهر هذه الصورة عند مشاركة الرابط في وسائل التواصل الاجتماعي</p>
+                                    <label className="inline-flex items-center gap-2 px-4 py-2 bg-white border border-gray-300 rounded-lg cursor-pointer hover:bg-gray-50 transition-colors">
+                                        <Upload size={18} className="text-gray-600" />
+                                        <span className="text-sm font-medium text-gray-700">رفع صورة</span>
+                                        <input
+                                            type="file"
+                                            accept="image/*"
+                                            className="hidden"
+                                            onChange={(e) => {
+                                                const file = e.target.files?.[0]
+                                                if (file) {
+                                                    const reader = new FileReader()
+                                                    reader.onload = (event) => {
+                                                        setSettings({ ...settings, ogImage: event.target?.result as string })
+                                                    }
+                                                    reader.readAsDataURL(file)
+                                                }
+                                            }}
+                                        />
+                                    </label>
+                                    <p className="text-xs text-gray-400 mt-2">PNG, JPG أو SVG (النطاق الأنسب 1200x630)</p>
+                                    <p className="text-[10px] text-orange-500 mt-1">إذا تركت فارغة سيتم استخدام شعار الشركة.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </CardContent>
+            </Card>
+
             {/* Qoyod Integration */}
             <Card id="tour-qoyod-settings" className="bg-white border border-[var(--border-color)]">
                 <CardHeader>
@@ -522,6 +677,19 @@ export default function SettingsPage() {
                     )}
                 </CardContent>
             </Card>
+
+            {/* Floating unsaved changes banner */}
+            {isDirty && (
+                <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 bg-amber-500 text-white px-6 py-3 rounded-xl shadow-lg flex items-center gap-4 animate-bounce-once">
+                    <span className="font-medium text-sm">⚠️ لديك تغييرات غير محفوظة</span>
+                    <button
+                        onClick={scrollToSave}
+                        className="bg-white text-amber-600 px-4 py-1.5 rounded-lg text-sm font-bold hover:bg-amber-50 transition-colors"
+                    >
+                        حفظ الآن
+                    </button>
+                </div>
+            )}
         </div>
     )
 }

@@ -18,7 +18,11 @@ import {
     Settings,
     Coffee,
     Scissors,
-    Utensils
+    Utensils,
+    Receipt,
+    Share2,
+    Printer,
+    Link as LinkIcon
 } from 'lucide-react'
 import { Label } from '@/components/ui/label'
 import { Input } from '@/components/ui/input'
@@ -488,16 +492,18 @@ export default function HallsPage() {
                                     </div>
                                 </div>
 
-                                <div className="flex gap-1">
+                                <div className="flex flex-wrap gap-1 justify-end">
                                     <button
                                         onClick={() => openEditModal(hall)}
                                         className="p-2 hover:bg-gray-100 rounded-md transition-colors"
+                                        title="تعديل"
                                     >
                                         <Edit2 size={16} className="text-gray-500" />
                                     </button>
                                     <button
                                         onClick={() => handleDelete(hall.id)}
                                         className="p-2 hover:bg-red-50 rounded-md transition-colors"
+                                        title="حذف"
                                     >
                                         <Trash2 size={16} className="text-red-500" />
                                     </button>

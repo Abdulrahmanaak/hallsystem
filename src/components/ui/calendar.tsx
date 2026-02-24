@@ -12,6 +12,7 @@ interface CalendarProps {
     selected?: Date;
     onSelect?: (date: Date) => void;
     className?: string;
+    disabled?: (date: Date) => boolean;
 }
 
 // Helpers for Hijri (Umm Al-Qura) - ARABIC LOCALE
@@ -29,7 +30,7 @@ const getHijriParts = (date: Date) => {
     return { day, month, year };
 }
 
-export function Calendar({ mode = 'gregorian', selected, onSelect, className }: CalendarProps) {
+export function Calendar({ mode = 'gregorian', selected, onSelect, className, disabled }: CalendarProps) {
     // Determine view date (month/year to display)
     const [viewDate, setViewDate] = React.useState(selected || new Date());
 
@@ -150,6 +151,7 @@ export function Calendar({ mode = 'gregorian', selected, onSelect, className }: 
                             isToday && !isSelected && "bg-accent text-accent-foreground"
                         )}
                         onClick={() => onSelect && onSelect(dateToClick)}
+                        disabled={disabled ? disabled(dateToClick) : false}
                     >
                         {typeof dayNum === 'number' ? dayNum.toLocaleString('ar-SA') : dayNum}
                     </Button>

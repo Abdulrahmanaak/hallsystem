@@ -42,7 +42,11 @@ export async function GET() {
             qoyodApiKey: settings.qoyodApiKey ? '********' : null, // Don't expose full key
             qoyodDefaultBankAccountId: settings.qoyodDefaultBankAccountId,
             qoyodDefaultSalesAccountId: settings.qoyodDefaultSalesAccountId,
-            qoyodAutoSync: settings.qoyodAutoSync ?? true
+            qoyodAutoSync: settings.qoyodAutoSync ?? true,
+            slug: settings.slug,
+            ogTitle: settings.ogTitle,
+            ogDescription: settings.ogDescription,
+            ogImage: settings.ogImage
         })
     } catch (error) {
         console.error('Error fetching settings:', error)
@@ -93,6 +97,21 @@ export async function PUT(request: Request) {
         if (body.qoyodDefaultBankAccountId !== undefined) updateData.qoyodDefaultBankAccountId = body.qoyodDefaultBankAccountId
         if (body.qoyodDefaultSalesAccountId !== undefined) updateData.qoyodDefaultSalesAccountId = body.qoyodDefaultSalesAccountId
         if (body.qoyodAutoSync !== undefined) updateData.qoyodAutoSync = body.qoyodAutoSync
+
+        if (body.slug !== undefined) {
+            if (body.slug) {
+                const existingSlug = await prisma.settings.findFirst({
+                    where: { slug: body.slug, ownerId: { not: ownerId } }
+                })
+                if (existingSlug) {
+                    return NextResponse.json({ error: 'هذا الرابط مستخدم بالفعل، الرجاء اختيار رابط آخر' }, { status: 400 })
+                }
+            }
+            updateData.slug = body.slug || null
+        }
+        if (body.ogTitle !== undefined) updateData.ogTitle = body.ogTitle || null
+        if (body.ogDescription !== undefined) updateData.ogDescription = body.ogDescription || null
+        if (body.ogImage !== undefined) updateData.ogImage = body.ogImage || null
 
         await prisma.settings.upsert({
             where: { ownerId },
