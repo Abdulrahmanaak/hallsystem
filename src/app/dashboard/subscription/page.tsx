@@ -15,10 +15,11 @@ import {
     Shield,
     Sparkles,
     Clock,
-    AlertTriangle
+    AlertTriangle,
+    Phone
 } from 'lucide-react'
 
-const WHATSAPP_NUMBER = '+966552258852'
+const WHATSAPP_NUMBER = '966115001451'
 
 const plans = [
     {
@@ -229,18 +230,27 @@ export default function SubscriptionPage() {
                                         باقتك الحالية
                                     </div>
                                 ) : (
-                                    <a
-                                        href={getWhatsAppUrl(plan.nameAr, billing)}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        className={`w-full flex items-center justify-center gap-2 py-3.5 px-6 rounded-xl font-bold text-base transition-all duration-200 ${plan.popular
-                                            ? 'bg-[#25D366] hover:bg-[#1fb855] text-white shadow-md hover:shadow-lg'
-                                            : 'bg-[var(--primary-600)] hover:bg-[var(--primary-700)] text-white shadow-md hover:shadow-lg'
-                                            }`}
-                                    >
-                                        <MessageCircle size={20} />
-                                        {currentPlanId ? 'ترقية عبر واتساب' : 'اشترك الآن عبر واتساب'}
-                                    </a>
+                                    <div className="flex flex-col gap-3">
+                                        <a
+                                            href={getWhatsAppUrl(plan.nameAr, billing)}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className={`w-full flex items-center justify-center gap-2 py-3.5 px-6 rounded-xl font-bold text-base transition-all duration-200 ${plan.popular
+                                                ? 'bg-[#25D366] hover:bg-[#1fb855] text-white shadow-md hover:shadow-lg'
+                                                : 'bg-[var(--primary-600)] hover:bg-[var(--primary-700)] text-white shadow-md hover:shadow-lg'
+                                                }`}
+                                        >
+                                            <MessageCircle size={20} />
+                                            {currentPlanId ? 'ترقية عبر واتساب' : 'اشترك الآن عبر واتساب'}
+                                        </a>
+                                        <a
+                                            href="tel:0115001451"
+                                            className="w-full flex items-center justify-center gap-2 py-3.5 px-6 rounded-xl font-bold text-base transition-all duration-200 bg-white border-2 border-[var(--primary-600)] text-[var(--primary-600)] hover:bg-[var(--primary-50)]"
+                                        >
+                                            <Phone size={20} />
+                                            اتصال
+                                        </a>
+                                    </div>
                                 )}
                             </div>
                         </div>

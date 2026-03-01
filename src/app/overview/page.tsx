@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { ChevronLeft } from 'lucide-react'
+import { ChevronLeft, Phone } from 'lucide-react'
 
 export const metadata = {
     title: 'نظرة عامة - نظام القاعات',
@@ -22,7 +22,7 @@ function WhatsAppIcon({ size = 24, fill = "currentColor", className = "" }: { si
 }
 
 export default function OverviewPage() {
-    const whatsappNumber = "+966552258852"
+    const whatsappNumber = "966115001451"
     const whatsappMessage = "السلام عليكم، اطلعت على الفيديو التعريفي وباقي عندي بعض الاستفسارات حول نظام القاعات."
     const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(whatsappMessage)}`
 
@@ -46,7 +46,7 @@ export default function OverviewPage() {
                 </div>
 
                 {/* CTA Buttons */}
-                <div className="text-center flex flex-col sm:flex-row items-center justify-center gap-3 w-full max-w-xl mx-auto">
+                <div className="text-center flex flex-col sm:flex-row items-center justify-center gap-3 w-full max-w-2xl mx-auto">
                     {/* Primary Signup Button */}
                     <Link
                         href="/signup"
@@ -54,6 +54,15 @@ export default function OverviewPage() {
                     >
                         <span className="w-full text-center">سجل حسابك مجاناً</span>
                     </Link>
+
+                    {/* Call Button */}
+                    <a
+                        href="tel:0115001451"
+                        className="group flex flex-1 items-center justify-center gap-2 bg-[#161c2d] text-white px-6 py-3 rounded-lg font-bold text-base shadow-md hover:bg-[#2c344b] transition-all duration-300 w-full"
+                    >
+                        <span>اتصال</span>
+                        <Phone size={20} />
+                    </a>
 
                     {/* WhatsApp Button */}
                     <a

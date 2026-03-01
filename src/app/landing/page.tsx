@@ -210,7 +210,7 @@ export default function LandingPage() {
         return () => window.removeEventListener('scroll', handleScroll)
     }, [])
 
-    const whatsappNumber = "+966552258852"
+    const whatsappNumber = "966115001451"
     const whatsappMessage = "السلام عليكم، ودي أسمع منكم أكثر عن نظام إدارة القاعات والحجوزات"
     const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(whatsappMessage)}`
 
@@ -263,12 +263,20 @@ export default function LandingPage() {
                             </Link>
 
                             <a
+                                href="tel:0115001451"
+                                className="group bg-transparent border-2 border-white/30 hover:bg-white/10 text-white px-8 py-4 rounded-full font-bold text-lg transition-all duration-300 flex items-center justify-center gap-2"
+                            >
+                                <span>اتصال</span>
+                                <Phone size={20} />
+                            </a>
+
+                            <a
                                 href={whatsappUrl}
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 className="group bg-transparent border-2 border-white/30 hover:border-[#25D366] text-white px-8 py-4 rounded-full font-bold text-lg hover:bg-[#25D366] transition-all duration-300 flex items-center justify-center gap-2"
                             >
-                                <span>احجز موعد</span>
+                                <span>واتساب</span>
                                 <WhatsAppIcon size={20} />
                             </a>
                         </div>
@@ -547,9 +555,16 @@ export default function LandingPage() {
                             <span>ابدأ مجاناً</span>
                             <ChevronLeft className="group-hover:-translate-x-1 transition-transform" size={20} />
                         </Link>
+                        <a
+                            href="tel:0115001451"
+                            className="group flex flex-1 sm:flex-none items-center justify-center gap-2 bg-[#161c2d] text-white px-10 py-4 rounded-full font-bold text-lg border-2 border-[#161c2d] hover:bg-[#2c344b] transition-all duration-300"
+                        >
+                            <span>اتصال</span>
+                            <Phone size={20} />
+                        </a>
                         <Link
                             href="/login"
-                            className="bg-white text-[#161c2d] px-10 py-4 rounded-full font-bold text-lg border-2 border-gray-200 hover:border-[#2f55d4] hover:text-[#2f55d4] transition-all duration-300"
+                            className="bg-white text-[#161c2d] px-10 py-4 rounded-full font-bold text-lg border-2 border-gray-200 hover:border-[#2f55d4] hover:text-[#2f55d4] transition-all duration-300 flex items-center justify-center"
                         >
                             تسجيل الدخول
                         </Link>
