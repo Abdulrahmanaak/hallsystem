@@ -206,6 +206,7 @@ export default function BookingsPage() {
     const [showCreateInvoiceForm, setShowCreateInvoiceForm] = useState(false)
     const [invoiceForm, setInvoiceForm] = useState({ amount: '', paymentMethod: 'CASH', notes: '' })
     const [savingInvoice, setSavingInvoice] = useState(false)
+    const [createdInvoice, setCreatedInvoice] = useState<Invoice | null>(null)
 
 
     const fetchData = async () => {
@@ -361,6 +362,7 @@ export default function BookingsPage() {
         setSelectedBookingForInvoice(booking)
         setShowInvoiceModal(true)
         setShowCreateInvoiceForm(false)
+        setCreatedInvoice(null)
         setInvoiceForm({ amount: '', paymentMethod: 'CASH', notes: '' })
         await fetchBookingInvoices(booking.id)
     }
@@ -400,8 +402,12 @@ export default function BookingsPage() {
             })
 
             if (response.ok) {
+                const newInvoice = await response.json()
                 setShowCreateInvoiceForm(false)
                 setInvoiceForm({ amount: '', paymentMethod: 'CASH', notes: '' })
+                setShowInvoiceModal(false) // Close the main modal behind it
+                setCreatedInvoice(newInvoice)
+                // We keep selectedBookingForInvoice so the success modal can use it or we can reopen list
                 await fetchBookingInvoices(selectedBookingForInvoice.id)
             } else {
                 const error = await response.json()
@@ -1233,6 +1239,7 @@ export default function BookingsPage() {
                                     setShowInvoiceModal(false)
                                     setSelectedBookingForInvoice(null)
                                     setShowCreateInvoiceForm(false)
+                                    setCreatedInvoice(null)
                                 }}
                                 className="p-2 hover:bg-gray-100 rounded-md"
                             >
@@ -1305,21 +1312,14 @@ export default function BookingsPage() {
                                                     <Printer size={14} />
                                                     طباعة
                                                 </button>
-                                                <button
-                                                    className="flex items-center gap-1 text-xs text-gray-600 hover:text-green-600 px-2 py-1 rounded hover:bg-green-50"
-                                                    title="سيتم إضافة المشاركة لاحقاً"
-                                                >
-                                                    <Share2 size={14} />
-                                                    مشاركة
-                                                </button>
                                             </div>
                                         </div>
                                     ))}
                                 </div>
                             )}
 
-                            {/* Create Invoice Section */}
-                            {getInvoiceSummary().remaining > 0 && !showCreateInvoiceForm && (
+                            {/* Create Invoice Button */}
+                            {getInvoiceSummary().remaining > 0 && (
                                 <button
                                     onClick={() => {
                                         setShowCreateInvoiceForm(true)
@@ -1335,67 +1335,124 @@ export default function BookingsPage() {
                                     إصدار فاتورة جديدة
                                 </button>
                             )}
+                        </div>
+                    </div>
+                </div>
+            )}
 
-                            {/* Create Invoice Form */}
-                            {showCreateInvoiceForm && (
-                                <div className="border border-[var(--primary-200)] bg-[var(--primary-50)/30] rounded-lg p-4 space-y-3">
-                                    <p className="font-medium text-[var(--primary-700)]">إصدار فاتورة جديدة</p>
+            {/* Create Invoice Modal */}
+            {showCreateInvoiceForm && selectedBookingForInvoice && (
+                <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[60]">
+                    <div className="bg-white rounded-lg shadow-xl w-full max-w-md mx-4 overflow-hidden">
+                        <div className="flex items-center justify-between p-4 border-b border-[var(--border-color)]">
+                            <h3 className="text-lg font-bold">إصدار فاتورة جديدة</h3>
+                            <button
+                                onClick={() => setShowCreateInvoiceForm(false)}
+                                className="p-2 hover:bg-gray-100 rounded-md"
+                            >
+                                <X size={20} />
+                            </button>
+                        </div>
 
-                                    <div>
-                                        <label className="form-label">المبلغ *</label>
-                                        <input
-                                            type="number"
-                                            required
-                                            min="1"
-                                            step="0.01"
-                                            max={getInvoiceSummary().remaining}
-                                            value={invoiceForm.amount}
-                                            onChange={(e) => setInvoiceForm({ ...invoiceForm, amount: e.target.value })}
-                                            className="form-input w-full"
-                                            placeholder="0.00"
-                                        />
-                                    </div>
+                        <div className="p-4 space-y-4 text-right">
+                            <div className="bg-[var(--primary-50)/30] rounded-lg p-3 border border-[var(--primary-100)] text-sm mb-4">
+                                <p className="text-[var(--text-secondary)]">الحجز: <span className="font-bold">{selectedBookingForInvoice.bookingNumber}</span></p>
+                                <p className="text-[var(--text-secondary)]">المبلغ المتبقي: <span className="font-bold text-red-600">{getInvoiceSummary().remaining.toLocaleString()} ر.س</span></p>
+                            </div>
 
-                                    <div>
-                                        <label className="form-label">طريقة الدفع *</label>
-                                        <select
-                                            value={invoiceForm.paymentMethod}
-                                            onChange={(e) => setInvoiceForm({ ...invoiceForm, paymentMethod: e.target.value })}
-                                            className="form-input w-full"
-                                        >
-                                            <option value="CASH">نقداً</option>
-                                            <option value="CARD">بطاقة</option>
-                                            <option value="BANK_TRANSFER">تحويل بنكي</option>
-                                        </select>
-                                    </div>
+                            <div>
+                                <label className="form-label block mb-1">المبلغ *</label>
+                                <input
+                                    type="number"
+                                    required
+                                    min="1"
+                                    step="0.01"
+                                    max={getInvoiceSummary().remaining}
+                                    value={invoiceForm.amount}
+                                    onChange={(e) => setInvoiceForm({ ...invoiceForm, amount: e.target.value })}
+                                    className="form-input w-full"
+                                    placeholder="0.00"
+                                />
+                            </div>
 
-                                    <div>
-                                        <label className="form-label">ملاحظات</label>
-                                        <textarea
-                                            value={invoiceForm.notes}
-                                            onChange={(e) => setInvoiceForm({ ...invoiceForm, notes: e.target.value })}
-                                            className="form-input w-full h-16"
-                                            placeholder="ملاحظات إضافية..."
-                                        />
-                                    </div>
+                            <div>
+                                <label className="form-label block mb-1">طريقة الدفع *</label>
+                                <select
+                                    value={invoiceForm.paymentMethod}
+                                    onChange={(e) => setInvoiceForm({ ...invoiceForm, paymentMethod: e.target.value })}
+                                    className="form-input w-full"
+                                >
+                                    <option value="CASH">نقداً</option>
+                                    <option value="CARD">بطاقة</option>
+                                    <option value="BANK_TRANSFER">تحويل بنكي</option>
+                                </select>
+                            </div>
 
-                                    <div className="flex gap-3 pt-2">
-                                        <button
-                                            onClick={handleCreateBookingInvoice}
-                                            disabled={savingInvoice || !invoiceForm.amount}
-                                            className="btn-primary flex-1"
-                                        >
-                                            {savingInvoice ? 'جاري الإصدار...' : 'إصدار الفاتورة'}
-                                        </button>
-                                        <button
-                                            onClick={() => setShowCreateInvoiceForm(false)}
-                                            className="btn-secondary flex-1"
-                                        >
-                                            إلغاء
-                                        </button>
-                                    </div>
-                                </div>
-                            )}
+                            <div>
+                                <label className="form-label block mb-1">ملاحظات</label>
+                                <textarea
+                                    value={invoiceForm.notes}
+                                    onChange={(e) => setInvoiceForm({ ...invoiceForm, notes: e.target.value })}
+                                    className="form-input w-full h-24 resize-none"
+                                    placeholder="ملاحظات إضافية..."
+                                />
+                            </div>
+
+                            <div className="flex gap-3 pt-4">
+                                <button
+                                    onClick={handleCreateBookingInvoice}
+                                    disabled={savingInvoice || !invoiceForm.amount}
+                                    className="btn-primary flex-1"
+                                >
+                                    {savingInvoice ? 'جاري الإصدار...' : 'تأكيد وإصدار'}
+                                </button>
+                                <button
+                                    onClick={() => setShowCreateInvoiceForm(false)}
+                                    className="btn-secondary flex-1"
+                                >
+                                    إلغاء
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Success Invoice Modal */}
+            {createdInvoice && (
+                <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[70]">
+                    <div className="bg-white rounded-lg shadow-xl w-full max-w-sm mx-4 overflow-hidden">
+                        <div className="p-6 text-center space-y-5 flex flex-col items-center">
+                            <div className="bg-green-100 p-4 rounded-full inline-flex">
+                                <CheckCircle className="text-green-600" size={48} />
+                            </div>
+
+                            <div>
+                                <h3 className="text-xl font-bold text-gray-900">تم إصدار الفاتورة بنجاح</h3>
+                                <p className="text-gray-500 mt-2">رقم الفاتورة: {createdInvoice.invoiceNumber}</p>
+                            </div>
+
+                            <div className="w-full space-y-3 mt-4">
+                                <button
+                                    onClick={() => printInvoice(createdInvoice)}
+                                    className="w-full btn-primary flex items-center justify-center gap-2 py-3"
+                                >
+                                    <Printer size={20} />
+                                    طباعة الفاتورة
+                                </button>
+
+                                <button
+                                    onClick={() => {
+                                        setCreatedInvoice(null)
+                                        // Option to re-open the main invoice modal or just stay on bookings
+                                        // setShowInvoiceModal(true)
+                                        setSelectedBookingForInvoice(null)
+                                    }}
+                                    className="w-full bg-gray-50 text-gray-700 hover:bg-gray-100 border border-gray-200 py-3 rounded-lg font-medium transition-colors text-center"
+                                >
+                                    إغلاق
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>
