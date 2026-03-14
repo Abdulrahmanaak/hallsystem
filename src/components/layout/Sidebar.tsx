@@ -13,7 +13,8 @@ import {
     UserCog,
     Settings,
     X,
-    Crown
+    Crown,
+    Bell
 } from 'lucide-react'
 import type { UserRole } from '@/types/enums'
 import HelpMenu from '@/components/tutorial/HelpMenu'
@@ -74,6 +75,12 @@ export default function Sidebar({ user, subscription, onCloseMobile }: SidebarPr
             label: 'المصروفات',
             icon: <FileText size={20} />,
             href: '/dashboard/expenses',
+            roles: ['SUPER_ADMIN', 'HALL_OWNER', 'ROOM_SUPERVISOR', 'ACCOUNTANT', 'EMPLOYEE']
+        },
+        {
+            label: 'الإشعارات',
+            icon: <Bell size={20} />,
+            href: '/dashboard/notifications',
             roles: ['SUPER_ADMIN', 'HALL_OWNER', 'ROOM_SUPERVISOR', 'ACCOUNTANT', 'EMPLOYEE']
         },
         {

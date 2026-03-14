@@ -41,6 +41,7 @@ export async function GET(
 
 import { enforceSubscription } from '@/lib/subscription'
 import { auth } from '@/lib/auth'
+import { createNotificationForTeam } from '@/lib/services/notification'
 
 // PUT - Update booking
 export async function PUT(
@@ -146,14 +147,29 @@ export async function DELETE(
 
         const { id } = await params
 
-        await prisma.booking.update({
+        const booking = await prisma.booking.update({
             where: { id },
             data: {
                 isDeleted: true,
                 deletedAt: new Date(),
                 status: 'CANCELLED'
+            },
+            include: {
+                customer: { select: { nameAr: true } },
+                hall: { select: { nameAr: true } },
             }
         })
+
+        // Notification
+        createNotificationForTeam({
+            type: 'BOOKING_CANCELLED',
+            title: 'إلغاء حجز',
+            message: `تم إلغاء الحجز رقم ${booking.bookingNumber} - ${booking.customer.nameAr}`,
+            ownerId: session.user.ownerId,
+            metadata: { bookingId: booking.id, bookingNumber: booking.bookingNumber },
+            link: `/dashboard/bookings?id=${booking.id}`,
+            extraUserIds: [session.user.id],
+        }).catch(err => console.error('[NOTIF_ERROR] BOOKING_CANCELLED:', err))
 
         return NextResponse.json({ success: true })
     } catch (error) {
@@ -203,14 +219,34 @@ export async function PATCH(
                 status: body.status,
                 statusHistory: {
                     create: {
-                        fromStatus: body.fromStatus || 'PENDING',
+                        fromStatus: body.fromStatus || 'TENTATIVE',
                         toStatus: body.status,
                         createdById: adminUser?.id || null,
                         notes: body.notes || null
                     }
                 }
+            },
+            include: {
+                customer: { select: { nameAr: true } },
+                hall: { select: { nameAr: true } },
             }
         })
+
+        // Notification based on status
+        if (body.status === 'CONFIRMED' || body.status === 'CANCELLED') {
+            const type = body.status === 'CONFIRMED' ? 'BOOKING_CONFIRMED' as const : 'BOOKING_CANCELLED' as const
+            const titleMap = { CONFIRMED: 'تأكيد حجز', CANCELLED: 'إلغاء حجز' }
+            const msgMap = { CONFIRMED: 'تم تأكيد', CANCELLED: 'تم إلغاء' }
+            createNotificationForTeam({
+                type,
+                title: titleMap[body.status as 'CONFIRMED' | 'CANCELLED'],
+                message: `${msgMap[body.status as 'CONFIRMED' | 'CANCELLED']} الحجز رقم ${booking.bookingNumber} - ${booking.customer.nameAr}`,
+                ownerId: session.user.ownerId,
+                metadata: { bookingId: booking.id, bookingNumber: booking.bookingNumber },
+                link: `/dashboard/bookings?id=${booking.id}`,
+                extraUserIds: [session.user.id],
+            }).catch(err => console.error(`[NOTIF_ERROR] ${type}:`, err))
+        }
 
         return NextResponse.json(booking)
     } catch (error) {

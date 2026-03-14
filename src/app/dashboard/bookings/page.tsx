@@ -136,14 +136,13 @@ interface Invoice {
 const EVENT_TYPES: Record<string, string> = {
     'WEDDING': 'زفاف',
     'ENGAGEMENT': 'خطوبة',
-
     'CONFERENCE': 'مؤتمر',
     'GRADUATION': 'تخرج',
     'OTHER': 'أخرى'
 }
 
 const STATUS_CONFIG: Record<string, { label: string; color: string; icon: React.ReactNode }> = {
-    'PENDING': { label: 'قيد الانتظار', color: 'bg-yellow-100 text-yellow-800', icon: <AlertCircle size={14} /> },
+    'TENTATIVE': { label: 'قيد الانتظار', color: 'bg-yellow-100 text-yellow-800', icon: <AlertCircle size={14} /> },
     'CONFIRMED': { label: 'مؤكد', color: 'bg-green-100 text-green-800', icon: <CheckCircle size={14} /> },
     'CANCELLED': { label: 'ملغي', color: 'bg-red-100 text-red-800', icon: <XCircle size={14} /> },
     'COMPLETED': { label: 'مكتمل', color: 'bg-blue-100 text-blue-800', icon: <CheckCircle size={14} /> }
@@ -439,7 +438,7 @@ export default function BookingsPage() {
     // Stats
     const stats = {
         total: bookings.length,
-        pending: bookings.filter(b => b.status === 'PENDING').length,
+        pending: bookings.filter(b => b.status === 'TENTATIVE').length,
         confirmed: bookings.filter(b => b.status === 'CONFIRMED').length,
         totalRevenue: bookings
             .filter(b => b.status !== 'CANCELLED')
@@ -573,7 +572,7 @@ export default function BookingsPage() {
                             className="form-input w-full md:w-48"
                         >
                             <option value="all">جميع الحالات</option>
-                            <option value="PENDING">قيد الانتظار</option>
+                            <option value="TENTATIVE">قيد الانتظار</option>
                             <option value="CONFIRMED">مؤكد</option>
                             <option value="COMPLETED">مكتمل</option>
                             <option value="CANCELLED">ملغي</option>

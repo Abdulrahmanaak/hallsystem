@@ -41,7 +41,7 @@ export async function checkSubscriptionStatus(userId: string): Promise<Subscript
     }
 
     // If user is a sub-user, check their owner's status
-    if (user.ownerId) {
+    if (user.ownerId && user.ownerId !== userId) {
         return checkSubscriptionStatus(user.ownerId)
     }
 

@@ -1,23 +1,26 @@
-
 import { NextResponse } from 'next/server'
-import { prisma } from '@/lib/prisma'
 import { auth } from '@/lib/auth'
+import { getUserNotifications } from '@/lib/services/notification'
 
-export async function GET() {
+export async function GET(request: Request) {
     try {
         const session = await auth()
-        if (!session || !session.user) {
+        if (!session?.user) {
             return new NextResponse('Unauthorized', { status: 401 })
         }
 
-        // Logic to fetch notifications
-        // Since we don't have a specific Notification model yet, 
-        // we can fetch recent bookings or other relevant events.
-        // For now, returning an empty array to satisfy the frontend.
+        const { searchParams } = new URL(request.url)
+        const cursor = searchParams.get('cursor') || undefined
+        const limit = parseInt(searchParams.get('limit') || '20')
+        const unreadOnly = searchParams.get('unreadOnly') === 'true'
 
-        const notifications: unknown[] = []
+        const result = await getUserNotifications(session.user.id, {
+            cursor,
+            limit,
+            unreadOnly,
+        })
 
-        return NextResponse.json(notifications)
+        return NextResponse.json(result)
     } catch (error) {
         console.error('[NOTIFICATIONS_GET]', error)
         return new NextResponse('Internal Error', { status: 500 })

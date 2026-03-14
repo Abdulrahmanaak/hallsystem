@@ -19,6 +19,7 @@ const MOCK_USERS: (User & { password: string })[] = [
         trialEndsAt: null,
         subscriptionEndsAt: null,
         subscriptionStatus: 'TRIAL',
+        notificationPrefs: '{"inApp":true,"push":true,"email":true}',
     },
     {
         id: '2',
@@ -38,6 +39,7 @@ const MOCK_USERS: (User & { password: string })[] = [
         trialEndsAt: null,
         subscriptionEndsAt: null,
         subscriptionStatus: 'TRIAL',
+        notificationPrefs: '{"inApp":true,"push":true,"email":true}',
     },
     {
         id: '3',
@@ -57,6 +59,7 @@ const MOCK_USERS: (User & { password: string })[] = [
         trialEndsAt: null,
         subscriptionEndsAt: null,
         subscriptionStatus: 'TRIAL',
+        notificationPrefs: '{"inApp":true,"push":true,"email":true}',
     },
     {
         id: '4',
@@ -76,6 +79,7 @@ const MOCK_USERS: (User & { password: string })[] = [
         trialEndsAt: null,
         subscriptionEndsAt: null,
         subscriptionStatus: 'TRIAL',
+        notificationPrefs: '{"inApp":true,"push":true,"email":true}',
     },
 ];
 

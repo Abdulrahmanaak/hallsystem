@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { auth } from '@/lib/auth'
 import { enforceSubscription } from '@/lib/subscription'
+import { createNotificationForTeam } from '@/lib/services/notification'
 
 // Generate invoice number: INV-2025-0001
 async function generateInvoiceNumber(): Promise<string> {
@@ -262,6 +263,16 @@ export async function POST(request: Request) {
             // Don't fail invoice creation if sync check fails
             console.error('Error checking Qoyod auto-sync:', syncError)
         }
+
+        // Notification
+        createNotificationForTeam({
+            type: 'INVOICE_CREATED',
+            title: 'فاتورة جديدة',
+            message: `فاتورة جديدة رقم ${result.invoice.invoiceNumber} - ${invoiceWithRelations?.customer?.nameAr || ''}`,
+            ownerId: session.user.ownerId,
+            metadata: { invoiceId: result.invoice.id, bookingId: booking.id },
+            link: `/dashboard/bookings?id=${booking.id}`,
+        }).catch(err => console.error('[NOTIF_ERROR] INVOICE_CREATED:', err))
 
         return NextResponse.json(invoiceWithRelations, { status: 201 })
     } catch (error) {

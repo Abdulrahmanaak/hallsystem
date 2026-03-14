@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { auth } from '@/lib/auth'
+import { createNotificationForTeam } from '@/lib/services/notification'
 
 // Generate payment number: PAY-2025-0001
 async function generatePaymentNumber(): Promise<string> {
@@ -196,6 +197,16 @@ export async function POST(request: Request) {
             // Don't fail payment creation if sync check fails
             console.error('Error checking Qoyod auto-sync for payment:', syncError)
         }
+
+        // Notification
+        createNotificationForTeam({
+            type: 'PAYMENT_RECEIVED',
+            title: 'دفعة جديدة',
+            message: `تم تسجيل دفعة بمبلغ ${Number(payment.amount).toLocaleString('ar-SA')} ريال - ${payment.booking.customer.nameAr}`,
+            ownerId: session.user.ownerId,
+            metadata: { paymentId: payment.id, bookingId: payment.bookingId },
+            link: `/dashboard/bookings?id=${payment.bookingId}`,
+        }).catch(err => console.error('[NOTIF_ERROR] PAYMENT_RECEIVED:', err))
 
         return NextResponse.json(payment, { status: 201 })
     } catch (error) {

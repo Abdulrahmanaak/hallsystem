@@ -72,7 +72,7 @@ export async function POST(request: Request) {
         })
         const bookingNumber = `BK-${year}-${(count + 1).toString().padStart(4, '0')}`
 
-        // 5. Create the Booking as PENDING
+        // 5. Create the Booking as TENTATIVE
         const booking = await prisma.booking.create({
             data: {
                 bookingNumber,
@@ -83,7 +83,7 @@ export async function POST(request: Request) {
                 eventDate: new Date(date),
                 startTime: new Date(`${date}T16:00:00`), // Default start
                 endTime: new Date(`${date}T23:59:00`),   // Default end
-                status: 'PENDING',
+                status: 'TENTATIVE',
                 totalAmount,
                 discountAmount: 0,
                 vatAmount,
@@ -102,7 +102,7 @@ export async function POST(request: Request) {
             data: {
                 bookingId: booking.id,
                 fromStatus: null,
-                toStatus: 'PENDING',
+                toStatus: 'TENTATIVE',
                 notes: 'طلب حجز جديد من الرابط العام',
                 createdById: hall.ownerId
             }

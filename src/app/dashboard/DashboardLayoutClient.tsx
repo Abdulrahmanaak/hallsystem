@@ -23,6 +23,8 @@ interface DashboardLayoutClientProps {
 
 import { UserProvider } from '@/providers/UserProvider'
 
+import PushPermissionBanner from '@/components/layout/PushPermissionBanner'
+
 export default function DashboardLayoutClient({ children, user, subscription }: DashboardLayoutClientProps) {
     const [isSidebarOpen, setIsSidebarOpen] = useState(false)
 
@@ -77,6 +79,9 @@ export default function DashboardLayoutClient({ children, user, subscription }: 
                                 subscription={subscription}
                                 onMenuClick={() => setIsSidebarOpen(true)}
                             />
+
+                            {/* Push Permission Banner */}
+                            <PushPermissionBanner />
 
                             {/* Page Content */}
                             <main className="p-4 lg:p-6">

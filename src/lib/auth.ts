@@ -22,6 +22,7 @@ declare module "next-auth" {
         role: UserRole
         email?: string | null
         ownerId: string | null
+        notificationPrefs?: string | null
     }
 
     interface Session {
@@ -32,6 +33,7 @@ declare module "next-auth" {
             role: UserRole
             email?: string | null
             ownerId: string // Resolved owner ID for all users
+            notificationPrefs: string | null
         }
     }
 
@@ -41,6 +43,7 @@ declare module "next-auth" {
         nameAr: string
         role: UserRole
         ownerId: string
+        notificationPrefs: string | null
     }
 }
 
@@ -69,7 +72,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
                             username: credentials.username as string,
                             status: "ACTIVE"
                         }
-                    })
+                    }) as any
 
                     if (!user) {
                         throw new Error("اسم المستخدم أو كلمة المرور غير صحيحة")
@@ -113,7 +116,8 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
                         nameAr: user.nameAr,
                         role: user.role as UserRole,
                         email: user.email,
-                        ownerId: resolvedOwnerId
+                        ownerId: resolvedOwnerId,
+                        notificationPrefs: user.notificationPrefs
                     }
                 } catch (error) {
                     console.error("🔥 Auth error:", error);

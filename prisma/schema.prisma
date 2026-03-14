@@ -61,6 +61,11 @@ model User {
   ownedPayments  Payment[]  @relation("PaymentOwner")
   ownedSettings  Settings?  @relation("SettingsOwner")
 
+  // Notifications
+  notifications     Notification[]     @relation("UserNotifications")
+  pushSubscriptions PushSubscription[] @relation("UserPushSubscriptions")
+  notificationPrefs String?            @default("{\"inApp\":true,\"push\":true,\"email\":true}") // JSON string
+
   @@index([ownerId])
   @@map("users")
 }
@@ -206,7 +211,7 @@ model Booking {
   servicesBreakdown String? // JSON: {"coffee": 500, "water": 200, "sacrifice": 1500}       
 
   // Status
-  status String @default("PENDING") // BookingStatus
+  status String @default("TENTATIVE") // BookingStatus
 
   // Soft delete
   isDeleted Boolean   @default(false)
@@ -504,4 +509,58 @@ model PasswordResetToken {
 
   @@unique([email, token])
   @@map("password_reset_tokens")
+}
+
+// ============================================
+// Notifications
+// ============================================
+
+model Notification {
+  id String @id @default(cuid())
+
+  // Content
+  type    String // NotificationType
+  title   String // Arabic title
+  message String // Arabic message body
+  metadata String? // JSON: { bookingId, invoiceId, daysBeforeEvent, etc. }
+  link    String? // Dashboard link, e.g. "/dashboard/bookings?id=xxx"
+
+  // Target
+  userId  String
+  user    User   @relation("UserNotifications", fields: [userId], references: [id])
+  ownerId String // Tenant isolation
+
+  // Status
+  isRead Boolean  @default(false)
+  readAt DateTime?
+
+  // Delivery tracking
+  emailSent Boolean @default(false)
+  pushSent  Boolean @default(false)
+
+  createdAt DateTime @default(now())
+
+  @@index([userId, isRead])
+  @@index([ownerId])
+  @@index([createdAt])
+  @@map("notifications")
+}
+
+model PushSubscription {
+  id String @id @default(cuid())
+
+  userId String
+  user   User   @relation("UserPushSubscriptions", fields: [userId], references: [id])
+
+  // Web Push API subscription data
+  endpoint String @unique
+  p256dh   String // Public key
+  auth     String // Auth secret
+
+  // Metadata
+  userAgent String? // Browser/device info
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+  @@map("push_subscriptions")
 }

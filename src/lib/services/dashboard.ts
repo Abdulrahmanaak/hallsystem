@@ -96,7 +96,7 @@ export async function getDashboardStats(userId: string): Promise<DashboardStats>
         prisma.booking.count({
             where: {
                 ownerId,
-                status: 'PENDING'
+                status: 'TENTATIVE'
             }
         }),
         // Revenue
@@ -220,7 +220,7 @@ export async function getDashboardStats(userId: string): Promise<DashboardStats>
     const statusColors: Record<string, string> = {
         CONFIRMED: '#22c55e', // Green
         COMPLETED: '#3b82f6', // Blue
-        PENDING: '#eab308', // Yellow
+        TENTATIVE: '#eab308', // Yellow
         CANCELLED: '#ef4444', // Red
         CHECKED_IN: '#8b5cf6' // Purple
     }
@@ -228,7 +228,7 @@ export async function getDashboardStats(userId: string): Promise<DashboardStats>
     const statusTranslations: Record<string, string> = {
         CONFIRMED: 'مؤكد',
         COMPLETED: 'مكتمل',
-        PENDING: 'معلق',
+        TENTATIVE: 'معلق',
         CANCELLED: 'ملغي',
         CHECKED_IN: 'تم الدخول'
     }

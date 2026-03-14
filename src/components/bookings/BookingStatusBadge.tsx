@@ -9,13 +9,21 @@ const statusStyles: Record<BookingStatus, string> = {
     CANCELLED: "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300",
 }
 
+const statusTranslations: Record<BookingStatus, string> = {
+    TENTATIVE: "قيد الانتظار",
+    CONFIRMED: "مؤكد",
+    CHECKED_IN: "تم الدخول",
+    COMPLETED: "مكتمل",
+    CANCELLED: "ملغى",
+}
+
 export function BookingStatusBadge({ status }: { status: BookingStatus }) {
     return (
         <span className={cn(
             "inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium",
             statusStyles[status]
         )}>
-            {status.replace('_', ' ')}
+            {statusTranslations[status] || status.replace('_', ' ')}
         </span>
     )
 }

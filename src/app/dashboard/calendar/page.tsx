@@ -44,7 +44,7 @@ const EVENT_TYPES: Record<string, string> = {
 }
 
 const STATUS_COLORS: Record<string, { bg: string; text: string; label: string }> = {
-    'PENDING': { bg: 'bg-yellow-100', text: 'text-yellow-800', label: 'قيد الانتظار' },
+    'TENTATIVE': { bg: 'bg-yellow-100', text: 'text-yellow-800', label: 'قيد الانتظار' },
     'CONFIRMED': { bg: 'bg-green-100', text: 'text-green-800', label: 'مؤكد' },
     'CANCELLED': { bg: 'bg-red-100', text: 'text-red-800', label: 'ملغي' },
     'COMPLETED': { bg: 'bg-blue-100', text: 'text-blue-800', label: 'مكتمل' }

@@ -433,7 +433,7 @@ export default function NewBookingPage() {
                 endTime,
                 hallId: selectedHallId,
                 eventType: 'WEDDING', // Default event type
-                status: "PENDING",
+                status: "TENTATIVE",
                 totalAmount: basePrice, // Original price before discount
                 discountAmount: discountAmount,
                 vatAmount: vatAmount, // VAT 15%

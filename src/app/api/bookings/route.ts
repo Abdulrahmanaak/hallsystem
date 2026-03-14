@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { auth } from '@/lib/auth'
 import { enforceSubscription } from '@/lib/subscription'
+import { createNotificationForTeam } from '@/lib/services/notification'
 
 // Helper to get owner filter based on user role
 async function getOwnerFilter() {
@@ -313,6 +314,16 @@ export async function POST(request: Request) {
 
             return booking
         })
+
+        // Send notification (fire-and-forget, don't block response)
+        createNotificationForTeam({
+            type: 'NEW_BOOKING',
+            title: 'حجز جديد',
+            message: `حجز جديد رقم ${result.bookingNumber} - ${result.customer.nameAr} في قاعة ${result.hall.nameAr}`,
+            ownerId: session.user.ownerId,
+            metadata: { bookingId: result.id, bookingNumber: result.bookingNumber },
+            link: `/dashboard/bookings?id=${result.id}`,
+        }).catch(err => console.error('[NOTIF_ERROR] NEW_BOOKING:', err))
 
         return NextResponse.json(result, { status: 201 })
     } catch (error) {

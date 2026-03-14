@@ -1,10 +1,11 @@
 'use client'
 
 import { signOut } from 'next-auth/react'
-import { LogOut, Bell, Menu } from 'lucide-react'
+import { LogOut, Menu } from 'lucide-react'
 import type { UserRole } from '@/types/enums'
 import type { SubscriptionState } from '@/lib/subscription'
 import TrialCountdown from '@/components/dashboard/TrialCountdown'
+import NotificationBell from '@/components/layout/NotificationBell'
 
 interface HeaderProps {
     user: {
@@ -63,9 +64,7 @@ export default function Header({ user, subscription, onMenuClick }: HeaderProps)
                 </div>
 
                 {/* Notifications */}
-                <button className="p-2 hover:bg-gray-100 rounded-full transition-colors relative">
-                    <Bell size={20} className="text-gray-600" />
-                </button>
+                <NotificationBell />
 
                 {/* Logout Button */}
                 <button
