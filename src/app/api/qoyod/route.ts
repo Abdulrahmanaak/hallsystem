@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { auth } from '@/lib/auth'
+import { enforceSubscription } from '@/lib/subscription'
 
 // Configuration - only base URL from environment (same for all users)
 // New Qoyod API: https://api.qoyod.com (migrated from www.qoyod.com/api)
@@ -70,13 +71,19 @@ async function qoyodRequest(endpoint: string, method: string = 'GET', body: unkn
 
         if (!response.ok) {
             const errorText = await response.text()
-            // Use warn instead of error for 404s (often expected during searches)
+            let parsedError = null
+            try { parsedError = JSON.parse(errorText) } catch (e) { /* ignore */ }
+
             if (response.status === 404) {
                 console.warn(`Qoyod API [${method} ${url}]: 404 - ${errorText}`)
             } else {
-                console.error(`Qoyod API Error [${method} ${url}]:`, response.status, errorText)
+                console.error(`Qoyod API Error [${method} ${url}]:`, response.status)
+                console.error('Error Details:', JSON.stringify(parsedError || errorText, null, 2))
+                console.error('Payload sent:', JSON.stringify(body, null, 2))
             }
-            throw new Error(`Qoyod API Error: ${response.status} - ${errorText}`)
+            // Include parsed error in the message if possible
+            const detailedMsg = parsedError ? JSON.stringify(parsedError) : errorText
+            throw new Error(`Qoyod API Error: ${response.status} - ${detailedMsg}`)
         }
 
         // Get response text first (can only read body once)
@@ -103,52 +110,74 @@ async function qoyodRequest(endpoint: string, method: string = 'GET', body: unkn
         throw error
     }
 }
-// 2.5 Helper: Get Sales Account ID
-async function getSalesAccountId(config: QoyodConfig): Promise<number> {
-    // Use configured account if available
-    if (config.defaultSalesAccountId) {
-        return parseInt(config.defaultSalesAccountId)
-    }
 
+// 2.4 Helper: Resilient Account Fetcher
+async function fetchAccounts(config: QoyodConfig, query?: string): Promise<any[]> {
     try {
-        // Search for Revenue accounts
-        const res = await qoyodRequest('/accounts?q[type_eq]=Revenue', 'GET', null, config)
-        if (res.accounts && res.accounts.length > 0) {
-            // Prefer "Revenue of Products..." or generic Sales
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            const salesAcc = res.accounts.find((a: Record<string, any>) => a.name_en?.toLowerCase().includes('sales') || a.name_ar?.includes('مبيعات'))
-            return salesAcc ? salesAcc.id : res.accounts[0].id
-        }
+        const endpoint = query ? `/accounts?${query}` : '/accounts'
+        const res = await qoyodRequest(endpoint, 'GET', null, config)
+        return res.accounts || []
     } catch (e) {
-        console.warn('Failed to fetch sales accounts, using fallback')
+        // If 404 "nothing found", return empty array instead of throwing
+        if (e instanceof Error && e.message.includes('404')) {
+            return []
+        }
+        throw e
     }
-    return 17 // Fallback to common default
+}
+// 2.5 Helper: Get Sales Account ID
+async function getSalesAccountId(config: QoyodConfig, prefetchAccounts?: any[]): Promise<number> {
+    if (config.defaultSalesAccountId) return parseInt(config.defaultSalesAccountId)
+
+    const accounts = prefetchAccounts || await fetchAccounts(config)
+    
+    // Filter locally
+    const salesAcc = accounts.find((a: any) => 
+        (a.type?.includes('Revenue') || a.type_id === 5) && 
+        (a.name_en?.toLowerCase().includes('sales') || a.name_ar?.includes('مبيعات'))
+    )
+    
+    if (salesAcc) return salesAcc.id
+    return 17 // Fallback
 }
 
 // 2.6 Helper: Get Bank/Cash Account ID for payments
-async function getBankAccountId(config: QoyodConfig): Promise<number> {
-    // Use configured account if available
-    if (config.defaultBankAccountId) {
-        return parseInt(config.defaultBankAccountId)
-    }
+async function getBankAccountId(config: QoyodConfig, prefetchAccounts?: any[]): Promise<number> {
+    if (config.defaultBankAccountId) return parseInt(config.defaultBankAccountId)
 
-    try {
-        const res = await qoyodRequest('/accounts?q[type_eq]=Asset', 'GET', null, config)
-        if (res.accounts && res.accounts.length > 0) {
-            // Prefer Cash or Bank accounts
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            const bankAcc = res.accounts.find((a: Record<string, any>) =>
-                a.name_en?.toLowerCase().includes('cash') ||
-                a.name_en?.toLowerCase().includes('bank') ||
-                a.name_ar?.includes('صندوق') ||
-                a.name_ar?.includes('بنك')
-            )
-            return bankAcc ? bankAcc.id : res.accounts[0].id
-        }
-    } catch (e) {
-        console.warn('Failed to fetch bank accounts, using fallback')
-    }
-    return 1 // Fallback to default
+    const accounts = prefetchAccounts || await fetchAccounts(config)
+    
+    // Prioritize Liquid Assets (Banks, Cash), strictly exclude Fixed Assets
+    const liquidAcc = accounts.find((a: any) =>
+        (a.type?.includes('Asset') || a.type_id === 1) && 
+        !(a.name_ar?.includes('أراضي') || a.name_ar?.includes('مباني') || a.name_en?.toLowerCase().includes('land')) &&
+        (a.name_en?.toLowerCase().includes('cash') || a.name_en?.toLowerCase().includes('bank') || a.name_ar?.includes('صندوق') || a.name_ar?.includes('بنك') || a.name_ar?.includes('نقدية'))
+    )
+    
+    if (liquidAcc) return liquidAcc.id
+
+    // Fallback to "Cash in Hand" ID 7 if found
+    const cashInHand = accounts.find(a => a.id === 7 || a.name_ar?.includes('نقدية'))
+    if (cashInHand) return cashInHand.id
+
+    return 7 // General default
+}
+
+// 2.7 Helper: Get Expense Account ID
+async function getExpenseAccountId(config: QoyodConfig, prefetchAccounts?: any[]): Promise<number> {
+    const accounts = prefetchAccounts || await fetchAccounts(config)
+    
+    const expAcc = accounts.find((a: any) => 
+        (a.type?.includes('Expense') || a.type_id === 4) && 
+        (a.name_ar?.includes('عامة') || a.name_ar?.includes('أخرى') || a.name_ar?.includes('نثرية') || a.name_en?.toLowerCase().includes('general') || a.name_en?.toLowerCase().includes('other'))
+    )
+
+    if (expAcc) return expAcc.id
+    
+    const anyExp = accounts.find((a: any) => a.type?.includes('Expense') || a.type_id === 4)
+    if (anyExp) return anyExp.id
+
+    return 74 
 }
 
 // 2.7 Helper: Get Unit Type ID
@@ -525,10 +554,10 @@ export async function GET(request: Request) {
     }
 }
 
-import { enforceSubscription } from '@/lib/subscription'
 
 // POST - Sync Action
 export async function POST(request: Request) {
+    const clonedReq = request.clone()
     try {
         const session = await auth()
         if (!session?.user) {
@@ -544,6 +573,9 @@ export async function POST(request: Request) {
 
         const config = await getQoyodConfig()
         if (!config) throw new Error('Qoyod not configured')
+
+        // Pre-fetch accounts once to avoid multiple network calls and slow logging
+        const allAccounts = await fetchAccounts(config)
 
         // ====================================================
         // SYNC INVOICE
@@ -623,7 +655,12 @@ export async function POST(request: Request) {
 
             // 4. Calculate Revenue - USE TOTAL AMOUNT (VAT already included in Hall System)
             // Our system includes VAT in the final amount, so we send VAT-inclusive prices
-            const totalAmount = Number(invoice.totalAmount) // Use totalAmount, not subtotal
+            const totalAmount = Number(invoice.totalAmount)
+            const settings = await prisma.settings.findUnique({
+                where: { ownerId: session.user.ownerId }
+            })
+            const vatPercentage = Number(settings?.vatPercentage) || 15
+            
             const serviceRevenueRaw = Number(invoice.booking.serviceRevenue) || 0
 
             // Edge case: If services cost more than total (heavy discount), cap it
@@ -636,7 +673,7 @@ export async function POST(request: Request) {
             }
 
             // 5. Build Line Items (using product_id, required by Qoyod)
-            // NOTE: We set tax_percent: 0 because VAT is already included in our amounts
+            // NOTE: We set tax_percent to the actual rate and tax_inclusive in the payload
             const lineItems = []
 
             // Hall Rental Line Item (if there's hall revenue)
@@ -646,7 +683,7 @@ export async function POST(request: Request) {
                     description: `تأجير قاعة: ${invoice.booking.hall.nameAr} (${invoice.booking.bookingNumber})`,
                     quantity: 1,
                     unit_price: hallRevenue,
-                    tax_percent: 0 // VAT already included
+                    tax_percent: vatPercentage
                 })
             }
 
@@ -657,7 +694,7 @@ export async function POST(request: Request) {
                     description: `خدمات إضافية: صبابين، ذبائح، كراتين ماء (${invoice.booking.bookingNumber})`,
                     quantity: 1,
                     unit_price: actualServiceRevenue,
-                    tax_percent: 0 // VAT already included
+                    tax_percent: vatPercentage
                 })
             }
 
@@ -668,7 +705,7 @@ export async function POST(request: Request) {
                     description: `حجز قاعة: ${invoice.booking.hall.nameAr} (${invoice.booking.bookingNumber})`,
                     quantity: 1,
                     unit_price: totalAmount,
-                    tax_percent: 0 // VAT already included
+                    tax_percent: vatPercentage
                 })
             }
 
@@ -682,6 +719,7 @@ export async function POST(request: Request) {
                     reference: invoice.invoiceNumber,
                     status: 'Draft',
                     inventory_id: inventoryId,
+                    tax_inclusive: true,
                     line_items: lineItems
                 }
             }
@@ -787,7 +825,7 @@ export async function POST(request: Request) {
                     reference: payment.paymentNumber,
                     amount: Number(payment.amount),
                     date: payment.paymentDate.toISOString().split('T')[0],
-                    account_id: await getBankAccountId(config)
+                    account_id: await getBankAccountId(config, allAccounts)
                 }
             }
 
@@ -1070,7 +1108,7 @@ export async function POST(request: Request) {
 
 
         // ====================================================
-        // SYNC EXPENSE
+        // SYNC EXPENSE (Migration to V2 Bills)
         // ====================================================
         if (type === 'expense') {
             const expense = await prisma.expense.findUnique({
@@ -1080,83 +1118,126 @@ export async function POST(request: Request) {
 
             if (!expense) return NextResponse.json({ error: 'Expense not found' }, { status: 404 })
 
-            // Get IDs
-            const accountId = config.defaultBankAccountId // Paying from this account
-            const categoryId = 1 // Default category ID or map from expense.category? Qoyod usually requires integer ID. 
-            // For now, allow Qoyod to assign default or use a known one if possible.
-            // Or better, don't send category_id and let Qoyod use default 'Uncategorized' or similar.
+            // 1. Get Accounts & Inventory
+            const paidThroughAccountId = await getBankAccountId(config, allAccounts)
+            // For regular Bills, we use product_id instead of account_id
+            const productId = 30 // Mapping: "تكاليف نثريات" (Petty Cash Costs) - See list-products diagnostic
+            const inventoryId = 1 // Confirmed: "المركز الرئيسي"
 
-            // Prepare payload
-            // Note: Qoyod /expenses endpoint struct might vary. Assuming similar to /invoices but simpler.
-            // If we have a vendor with qoyodVendorId, use it.
+            const settings = await prisma.settings.findUnique({
+                where: { ownerId: session.user.ownerId }
+            })
+            const vatPercentage = Number(settings?.vatPercentage) || 15
 
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            const payload: Record<string, Record<string, any>> = {
-                expense: {
-                    reference: expense.description.substring(0, 50),
+            // 2. Build Bill Payload (Purchases -> Bills)
+            const billPayload = {
+                bill: {
+                    contact_id: expense.vendor?.qoyodVendorId ? Number(expense.vendor.qoyodVendorId) : undefined,
+                    status: 'Draft',
                     issue_date: expense.expenseDate.toISOString().split('T')[0],
-                    amount: Number(expense.amount),
-                    description: expense.description,
-                    paid_through_account_id: accountId, // Required: Account ID where money came from
-                    tax_inclusive: true, // Assuming amounts entered are tax inclusive
+                    due_date: expense.expenseDate.toISOString().split('T')[0],
+                    inventory_id: inventoryId,
+                    line_items: [
+                        {
+                            product_id: productId,
+                            description: expense.description,
+                            quantity: 1,
+                            unit_price: Number(expense.amount),
+                            tax_id: (vatPercentage >= 14 && vatPercentage <= 16) ? 1 : undefined,
+                            tax_percent: vatPercentage,
+                            is_inclusive: true
+                        }
+                    ]
                 }
             }
 
-            if (expense.vendor?.qoyodVendorId) {
-                payload.expense.contact_id = expense.vendor.qoyodVendorId
-            }
+            console.log('Qoyod Bill Payload:', JSON.stringify(billPayload, null, 2))
 
-            // If already synced, update? Qoyod expenses usually editable.
-            // But usually we just create.
+            let qoyodBillId: string
+            let qoyodRes: any
+
             if (expense.qoyodExpenseId) {
-                // Update
-                await qoyodRequest(`/expenses/${expense.qoyodExpenseId}`, 'PUT', payload, config)
-                await prisma.accountingSync.create({
-                    data: {
-                        syncType: 'UPDATE',
-                        recordType: 'Expense',
-                        recordId: id,
-                        status: 'SUCCESS',
-                        qoyodId: expense.qoyodExpenseId,
-                        requestData: JSON.stringify(payload),
-                        responseData: JSON.stringify({ updated: true }),
-                        completedAt: new Date()
-                    }
-                })
-                return NextResponse.json({ success: true, message: 'تم تحديث المصروف في قيود' })
+                // Update existing Bill
+                qoyodRes = await qoyodRequest(`/bills/${expense.qoyodExpenseId}`, 'PUT', billPayload, config)
+                qoyodBillId = expense.qoyodExpenseId
             } else {
-                // Create
-                const qoyodRes = await qoyodRequest('/expenses', 'POST', payload, config)
-                const qoyodExpenseId = qoyodRes.expense?.id
+                // Create new Bill
+                qoyodRes = await qoyodRequest('/bills', 'POST', billPayload, config)
+                qoyodBillId = qoyodRes.bill.id.toString()
+            }
 
-                if (qoyodExpenseId) {
-                    await prisma.expense.update({
-                        where: { id },
-                        data: {
-                            syncedToQoyod: true,
-                            qoyodExpenseId: qoyodExpenseId.toString(),
-                            lastSyncAt: new Date()
-                        }
-                    })
+            // 3. Record Bill Payment (Skipped for Draft Bills)
+            // Draft bills cannot have payments linked until they are approved in Qoyod.
+            // If you want to record the payment, you must first approve the bill in the Qoyod dashboard.
+            const paymentPayload = null; 
 
-                    await prisma.accountingSync.create({
-                        data: {
-                            syncType: 'CREATE',
-                            recordType: 'Expense',
-                            recordId: id,
-                            status: 'SUCCESS',
-                            qoyodId: qoyodExpenseId.toString(),
-                            requestData: JSON.stringify(payload),
-                            responseData: JSON.stringify(qoyodRes),
-                            completedAt: new Date()
-                        }
-                    })
+            // 4. Update local database
+            await prisma.expense.update({
+                where: { id },
+                data: {
+                    syncedToQoyod: true,
+                    qoyodExpenseId: qoyodBillId,
+                    lastSyncAt: new Date()
+                }
+            })
 
-                    return NextResponse.json({ success: true, message: 'تم إضافة المصروف إلى قيود' })
-                } else {
-                    throw new Error('Failed to get ID from Qoyod response')
+            // 5. Log Success
+            await prisma.accountingSync.create({
+                data: {
+                    syncType: expense.qoyodExpenseId ? 'UPDATE' : 'CREATE',
+                    recordType: 'Expense',
+                    recordId: id,
+                    status: 'SUCCESS',
+                    qoyodId: qoyodBillId,
+                    requestData: JSON.stringify({ bill: billPayload }),
+                    responseData: JSON.stringify(qoyodRes),
+                    completedAt: new Date()
+                }
+            })
+
+            return NextResponse.json({ 
+                success: true, 
+                message: expense.qoyodExpenseId ? 'تم تحديث مسودة الفاتورة في قيود' : 'تم إضافة مسودة الفاتورة إلى المشتريات',
+                qoyodId: qoyodBillId 
+            })
+        }
+
+        // ====================================================
+        // UNLINK EXPENSE (Remove from Qoyod only)
+        // ====================================================
+        if (type === 'unlink-expense') {
+            const expense = await prisma.expense.findUnique({
+                where: { id }
+            })
+
+            if (!expense) return NextResponse.json({ error: 'Expense not found' }, { status: 404 })
+
+            // 1. Delete from Qoyod if synced
+            let qoyodDeleted = false
+            if (expense.syncedToQoyod && expense.qoyodExpenseId) {
+                try {
+                    await qoyodRequest(`/bills/${expense.qoyodExpenseId}`, 'DELETE', null, config)
+                    qoyodDeleted = true
+                } catch (error) {
+                    console.error('Error unlinking from Qoyod:', error)
+                    // Try simple bills fallback
+                    try {
+                        await qoyodRequest(`/simple_bills/${expense.qoyodExpenseId}`, 'DELETE', null, config)
+                        qoyodDeleted = true
+                    } catch (e2) {}
                 }
             }
+
+            // 2. Unlink locally (Keep record active)
+            await prisma.expense.update({
+                where: { id },
+                data: {
+                    syncedToQoyod: false,
+                    qoyodExpenseId: null
+                }
+            })
+
+            return NextResponse.json({ success: true, message: 'تم فك الارتباط مع قيود بنجاح' })
         }
 
         // ====================================================
@@ -1173,11 +1254,21 @@ export async function POST(request: Request) {
             let qoyodDeleted = false
             if (expense.syncedToQoyod && expense.qoyodExpenseId) {
                 try {
-                    await qoyodRequest(`/expenses/${expense.qoyodExpenseId}`, 'DELETE', null, config)
+                    // Try to delete from Bills (V2)
+                    await qoyodRequest(`/bills/${expense.qoyodExpenseId}`, 'DELETE', null, config)
                     qoyodDeleted = true
                 } catch (error) {
-                    console.error('Error deleting expense from Qoyod:', error)
-                    // We continue to soft-delete locally even if Qoyod fails (or if already deleted)
+                    console.error('Error deleting bill/expense from Qoyod:', error)
+                    // Fallback to Simple Bills or Legacy
+                    try {
+                        await qoyodRequest(`/simple_bills/${expense.qoyodExpenseId}`, 'DELETE', null, config)
+                        qoyodDeleted = true
+                    } catch (e2) {
+                        try {
+                            await qoyodRequest(`/expenses/${expense.qoyodExpenseId}`, 'DELETE', null, config)
+                            qoyodDeleted = true
+                        } catch (e3) {}
+                    }
                 }
             }
 
@@ -1211,12 +1302,28 @@ export async function POST(request: Request) {
 
         return NextResponse.json({ error: 'Invalid type' }, { status: 400 })
 
-    } catch (error: unknown) {
-        console.error('Qoyod Sync Error:', error)
+    } catch (error: any) {
+        console.error('Qoyod Sync Error:', error.message || error)
 
-        // Try to log failure if we have a record context (id/type)
-        // Since we are in generic catch, might be hard, but usually helpful to log
-        // For now just console log
+        // Attempt to log error to the database for debugging
+        try {
+            const body = await clonedReq.json()
+            const recordType = body.type ? (body.type.charAt(0).toUpperCase() + body.type.slice(1)) : 'Unknown'
+            
+            await prisma.accountingSync.create({
+                data: {
+                    syncType: 'ERROR',
+                    recordType: recordType,
+                    recordId: body.id || 0,
+                    status: 'FAILED',
+                    errorMessage: error instanceof Error ? error.message : String(error),
+                    requestData: JSON.stringify(body),
+                    completedAt: new Date()
+                }
+            })
+        } catch (logError) {
+            console.error('Failed to log sync error to database:', logError)
+        }
 
         return NextResponse.json(
             { error: error instanceof Error ? error.message : 'Failed to sync with Qoyod' },

@@ -16,7 +16,8 @@ import {
     RefreshCw,
     CheckCircle2,
     Pencil,
-    Ban
+    Ban,
+    Link2Off
 } from 'lucide-react'
 
 interface Expense {
@@ -192,6 +193,32 @@ export default function ExpensesPage() {
         } catch (error) {
             console.error('Error deleting expense:', error)
             alert('حدث خطأ أثناء الحذف')
+        } finally {
+            setDeletingId(null)
+        }
+    }
+
+    const handleUnlink = async (id: string) => {
+        if (!confirm('هل أنت متأكد من حذف هذا المصروف من نظام قيود؟ سيبقى المصروف موجوداً في هذا النظام.')) return
+
+        setDeletingId(id) // Reuse deletingId for loading state
+        try {
+            const res = await fetch('/api/qoyod', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ type: 'unlink-expense', id })
+            })
+
+            if (res.ok) {
+                alert('تم فك الارتباط مع قيود بنجاح')
+                fetchData()
+            } else {
+                const data = await res.json()
+                alert(data.error || 'فشل فك الارتباط')
+            }
+        } catch (error) {
+            console.error('Error unlinking expense:', error)
+            alert('حدث خطأ أثناء فك الارتباط')
         } finally {
             setDeletingId(null)
         }
@@ -498,11 +525,21 @@ export default function ExpensesPage() {
                                                     >
                                                         <Pencil size={16} />
                                                     </button>
+                                                    {expense.syncedToQoyod && (
+                                                        <button
+                                                            onClick={() => handleUnlink(expense.id)}
+                                                            disabled={deletingId === expense.id || isReadOnly}
+                                                            className="p-1 text-orange-500 hover:bg-orange-50 rounded-md transition-colors"
+                                                            title="حذف من قيود فقط"
+                                                        >
+                                                            {deletingId === expense.id ? <Loader2 size={16} className="animate-spin" /> : <Link2Off size={16} />}
+                                                        </button>
+                                                    )}
                                                     <button
                                                         onClick={() => handleDelete(expense.id)}
                                                         disabled={deletingId === expense.id || isReadOnly}
                                                         className="p-1 text-red-500 hover:bg-red-50 rounded-md transition-colors"
-                                                        title="حذف"
+                                                        title="حذف المصروف نهائياً"
                                                     >
                                                         {deletingId === expense.id ? <Loader2 size={16} className="animate-spin" /> : <Trash2 size={16} />}
                                                     </button>
