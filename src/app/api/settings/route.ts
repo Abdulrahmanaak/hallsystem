@@ -92,7 +92,13 @@ export async function PUT(request: Request) {
         if (body.vatPercentage !== undefined) updateData.vatPercentage = body.vatPercentage
         if (body.qoyodEnabled !== undefined) updateData.qoyodEnabled = body.qoyodEnabled
         if (body.qoyodApiKey !== undefined && body.qoyodApiKey !== '********') {
-            updateData.qoyodApiKey = body.qoyodApiKey
+            // Encrypt API key before storing
+            if (body.qoyodApiKey && process.env.ENCRYPTION_KEY) {
+                const { encrypt } = await import('@/lib/encryption')
+                updateData.qoyodApiKey = encrypt(body.qoyodApiKey)
+            } else {
+                updateData.qoyodApiKey = body.qoyodApiKey
+            }
         }
         if (body.qoyodDefaultBankAccountId !== undefined) updateData.qoyodDefaultBankAccountId = body.qoyodDefaultBankAccountId
         if (body.qoyodDefaultSalesAccountId !== undefined) updateData.qoyodDefaultSalesAccountId = body.qoyodDefaultSalesAccountId

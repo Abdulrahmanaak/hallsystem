@@ -2,31 +2,8 @@ import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { auth } from '@/lib/auth'
 import { createNotificationForTeam } from '@/lib/services/notification'
-
-// Generate payment number: PAY-2025-0001
-async function generatePaymentNumber(): Promise<string> {
-    const year = new Date().getFullYear()
-    const prefix = `PAY-${year}-`
-
-    const lastPayment = await prisma.payment.findFirst({
-        where: {
-            paymentNumber: {
-                startsWith: prefix
-            }
-        },
-        orderBy: {
-            paymentNumber: 'desc'
-        }
-    })
-
-    let nextNumber = 1
-    if (lastPayment) {
-        const lastNumber = parseInt(lastPayment.paymentNumber.split('-')[2])
-        nextNumber = lastNumber + 1
-    }
-
-    return `${prefix}${nextNumber.toString().padStart(4, '0')}`
-}
+import { generatePaymentNumber } from '@/lib/number-generator'
+import { createPaymentSchema, validateBody } from '@/lib/validations'
 
 // Update invoice status based on payments
 async function updateInvoiceStatus(invoiceId: string) {
@@ -136,7 +113,12 @@ export async function POST(request: Request) {
         const subscriptionError = await enforceSubscription(session.user.id)
         if (subscriptionError) return subscriptionError
 
-        const body = await request.json()
+        const rawBody = await request.json()
+        const validated = validateBody(createPaymentSchema, rawBody)
+        if (!validated.success) {
+            return NextResponse.json({ error: validated.error }, { status: 400 })
+        }
+        const body = validated.data
 
         const paymentNumber = await generatePaymentNumber()
 
@@ -146,7 +128,7 @@ export async function POST(request: Request) {
                 bookingId: body.bookingId,
                 invoiceId: body.invoiceId || null,
                 ownerId: session.user.ownerId, // Tenant isolation
-                amount: parseFloat(body.amount),
+                amount: Number(body.amount),
                 paymentMethod: body.paymentMethod || 'CASH',
                 paymentDate: body.paymentDate ? new Date(body.paymentDate) : new Date(),
                 notes: body.notes || null,
@@ -191,7 +173,25 @@ export async function POST(request: Request) {
                         'Cookie': request.headers.get('cookie') || ''
                     },
                     body: JSON.stringify({ type: 'payment', id: payment.id })
-                }).catch(err => console.error('Auto-sync payment to Qoyod failed:', err))
+                }).catch(async (err) => {
+                    console.error('Auto-sync payment to Qoyod failed:', err)
+                    // Log failed sync attempt so it can be retried
+                    try {
+                        await prisma.accountingSync.create({
+                            data: {
+                                syncType: 'CREATE',
+                                recordType: 'Payment',
+                                recordId: payment.id,
+                                status: 'FAILED',
+                                errorMessage: err instanceof Error ? err.message : String(err),
+                                requestData: JSON.stringify({ type: 'payment', id: payment.id, trigger: 'auto-sync' }),
+                                completedAt: new Date()
+                            }
+                        })
+                    } catch (logErr) {
+                        console.error('Failed to log sync error:', logErr)
+                    }
+                })
             }
         } catch (syncError) {
             // Don't fail payment creation if sync check fails

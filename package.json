@@ -1,6 +1,6 @@
 {
   "name": "hallsystem",
-  "version": "0.6.0",
+  "version": "0.7.0",
   "private": true,
   "type": "module",
   "scripts": {
@@ -12,7 +12,9 @@
     "db:generate": "prisma generate",
     "db:push": "prisma db push",
     "db:migrate": "prisma migrate dev",
-    "db:studio": "prisma studio"
+    "db:studio": "prisma studio",
+    "test": "vitest run",
+    "test:watch": "vitest"
   },
   "dependencies": {
     "@prisma/adapter-pg": "^7.3.0",
@@ -29,6 +31,7 @@
     "next-auth": "^5.0.0-beta.30",
     "nodemailer": "^7.0.12",
     "pg": "^8.18.0",
+    "pino": "^10.3.1",
     "qrcode": "^1.5.4",
     "react": "19.2.0",
     "react-dom": "19.2.0",
@@ -36,7 +39,8 @@
     "shepherd.js": "^14.5.1",
     "tailwind-merge": "^3.4.0",
     "tailwindcss-rtl": "^0.9.0",
-    "web-push": "^3.6.7"
+    "web-push": "^3.6.7",
+    "zod": "^4.3.6"
   },
   "devDependencies": {
     "@prisma/client": "^7.3.0",
@@ -56,7 +60,8 @@
     "tailwindcss": "^3.4.17",
     "ts-node": "^10.9.2",
     "tsx": "^4.21.0",
-    "typescript": "^5"
+    "typescript": "^5",
+    "vitest": "^4.1.1"
   },
   "prisma": {
     "seed": "ts-node --compiler-options {\"module\":\"CommonJS\",\"verbatimModuleSyntax\":false} prisma/seed.ts"

@@ -3,6 +3,9 @@ import { prisma } from '@/lib/prisma'
 import { auth } from '@/lib/auth'
 import { enforceSubscription } from '@/lib/subscription'
 import { createNotificationForTeam } from '@/lib/services/notification'
+import { generateBookingNumber, generateInvoiceNumber, generatePaymentNumber } from '@/lib/number-generator'
+import { calculateVATFromInclusive, getVATRate } from '@/lib/vat'
+import { createBookingSchema, validateBody } from '@/lib/validations'
 
 // Helper to get owner filter based on user role
 async function getOwnerFilter() {
@@ -80,65 +83,6 @@ export async function GET() {
     }
 }
 
-// Generate booking number: BK-2025-0001
-async function generateBookingNumber(): Promise<string> {
-    const year = new Date().getFullYear()
-    const prefix = `BK-${year}-`
-
-    const lastBooking = await prisma.booking.findFirst({
-        where: {
-            bookingNumber: { startsWith: prefix }
-        },
-        orderBy: { bookingNumber: 'desc' }
-    })
-
-    let nextNumber = 1
-    if (lastBooking) {
-        const lastNumber = parseInt(lastBooking.bookingNumber.split('-')[2])
-        nextNumber = lastNumber + 1
-    }
-
-    return `${prefix}${nextNumber.toString().padStart(4, '0')}`
-}
-
-// Generate invoice number: INV-2025-0001
-async function generateInvoiceNumber(): Promise<string> {
-    const year = new Date().getFullYear()
-    const prefix = `INV-${year}-`
-
-    const lastInvoice = await prisma.invoice.findFirst({
-        where: { invoiceNumber: { startsWith: prefix } },
-        orderBy: { invoiceNumber: 'desc' }
-    })
-
-    let nextNumber = 1
-    if (lastInvoice) {
-        const lastNumber = parseInt(lastInvoice.invoiceNumber.split('-')[2])
-        nextNumber = lastNumber + 1
-    }
-
-    return `${prefix}${nextNumber.toString().padStart(4, '0')}`
-}
-
-// Generate payment number: PAY-2025-0001
-async function generatePaymentNumber(): Promise<string> {
-    const year = new Date().getFullYear()
-    const prefix = `PAY-${year}-`
-
-    const lastPayment = await prisma.payment.findFirst({
-        where: { paymentNumber: { startsWith: prefix } },
-        orderBy: { paymentNumber: 'desc' }
-    })
-
-    let nextNumber = 1
-    if (lastPayment) {
-        const lastNumber = parseInt(lastPayment.paymentNumber.split('-')[2])
-        nextNumber = lastNumber + 1
-    }
-
-    return `${prefix}${nextNumber.toString().padStart(4, '0')}`
-}
-
 // POST - Create new booking
 export async function POST(request: Request) {
     try {
@@ -152,7 +96,12 @@ export async function POST(request: Request) {
         if (subscriptionError) return subscriptionError
 
         const ownerId = session.user.ownerId
-        const body = await request.json()
+        const rawBody = await request.json()
+        const validated = validateBody(createBookingSchema, rawBody)
+        if (!validated.success) {
+            return NextResponse.json({ error: validated.error }, { status: 400 })
+        }
+        const body = validated.data
 
         // Find or Create Customer
         let customerId = body.customerId
@@ -206,14 +155,12 @@ export async function POST(request: Request) {
             )
         }
 
-        const bookingNumber = await generateBookingNumber()
-
         // Calculate amounts
-        const totalAmount = parseFloat(body.totalAmount) || 0
-        const discountAmount = parseFloat(body.discountAmount) || 0
-        const downPayment = parseFloat(body.downPayment) || 0
-        const vatAmount = parseFloat(body.vatAmount) || 0
-        const finalAmount = totalAmount - discountAmount // VAT is likely inclusive based on frontend logic
+        const totalAmount = Number(body.totalAmount) || 0
+        const discountAmount = Number(body.discountAmount) || 0
+        const downPayment = Number(body.downPayment) || 0
+        const vatAmount = Number(body.vatAmount) || 0
+        const finalAmount = totalAmount - discountAmount
 
         // Date logic
         const eventDate = new Date(body.date)
@@ -225,8 +172,17 @@ export async function POST(request: Request) {
         const endTime = new Date(eventDate)
         endTime.setHours(endHours, endMinutes, 0, 0)
 
+        // Fetch settings for VAT calculation on down payment
+        const settings = await prisma.settings.findUnique({
+            where: { ownerId: ownerId }
+        })
+        const vatRate = getVATRate(settings?.vatPercentage)
+
         // Use transaction to ensure booking, invoice, and payment (if applicable) are created together
+        // Number generation inside transaction to prevent race conditions
         const result = await prisma.$transaction(async (tx) => {
+            const bookingNumber = await generateBookingNumber(tx)
+
             // 1. Create Booking
             const booking = await tx.booking.create({
                 data: {
@@ -238,19 +194,19 @@ export async function POST(request: Request) {
                     eventDate,
                     startTime,
                     endTime,
-                    guestCount: body.guestCount ? parseInt(body.guestCount) : null,
+                    guestCount: body.guestCount ? Number(body.guestCount) : null,
                     sectionType: body.sectionType,
                     mealType: body.mealType,
                     services: body.services ? JSON.stringify(body.services) : null,
-                    coffeeServers: body.coffeeServers ? parseInt(body.coffeeServers) : null,
-                    sacrifices: body.sacrifices ? parseInt(body.sacrifices) : null,
-                    waterCartons: body.waterCartons ? parseInt(body.waterCartons) : null,
+                    coffeeServers: body.coffeeServers ? Number(body.coffeeServers) : null,
+                    sacrifices: body.sacrifices ? Number(body.sacrifices) : null,
+                    waterCartons: body.waterCartons ? Number(body.waterCartons) : null,
                     totalAmount,
                     downPayment,
                     discountAmount,
                     vatAmount,
                     finalAmount,
-                    serviceRevenue: parseFloat(body.serviceRevenue) || 0,
+                    serviceRevenue: Number(body.serviceRevenue) || 0,
                     servicesBreakdown: body.servicesBreakdown || null,
                     status: downPayment > 0 ? "CONFIRMED" : "TENTATIVE",
                     notes: body.notes || null,
@@ -264,17 +220,12 @@ export async function POST(request: Request) {
 
             // 2. If Down Payment > 0, Create Invoice & Payment
             if (downPayment > 0) {
-                // Generate Numbers (Need to handle concurrency, but simple sequential for now within transaction is tricky without locking, 
-                // but since we are inside transaction we should be careful. 
-                // However, the helper functions use findFirst, which might read stale data if high concurrency. 
-                // For this scale, it's acceptable. Ideally use formatting on DB sequence.)
+                // Generate numbers inside transaction to prevent race conditions
+                const invoiceNumber = await generateInvoiceNumber(tx)
+                const paymentNumber = await generatePaymentNumber(tx)
 
-                // Re-calculating next numbers inside transaction would be better but requires passing tx to helpers or duplicating logic.
-                // Let's duplicate minimal logic for safety or accept slight risk. 
-                // Actually, let's just use the helpers - conflict risk is low for this user count.
-
-                // Invoice for the Down Payment
-                const invoiceNumber = await generateInvoiceNumber() // Note: This uses outside 'prisma', slightly risky in high concurrency but okay here.
+                // Calculate VAT for down payment (VAT-inclusive, same as all amounts)
+                const dpVat = calculateVATFromInclusive(downPayment, vatRate)
 
                 const invoice = await tx.invoice.create({
                     data: {
@@ -282,10 +233,10 @@ export async function POST(request: Request) {
                         bookingId: booking.id,
                         customerId: customerId,
                         ownerId: ownerId,
-                        subtotal: downPayment, // Simple mapping: this invoice is exactly for the down payment amount
+                        subtotal: dpVat.subtotal,
                         totalAmount: downPayment,
-                        paidAmount: downPayment, // Fully paid immediately
-                        vatAmount: 0, // VAT logic is complex, for deposit usually it includes VAT. Simplified here.
+                        paidAmount: downPayment,
+                        vatAmount: dpVat.vatAmount,
                         status: 'PAID',
                         issueDate: new Date(),
                         dueDate: new Date(),
@@ -294,9 +245,6 @@ export async function POST(request: Request) {
                     }
                 })
 
-                // Payment Record
-                const paymentNumber = await generatePaymentNumber()
-
                 await tx.payment.create({
                     data: {
                         paymentNumber,
@@ -304,30 +252,63 @@ export async function POST(request: Request) {
                         invoiceId: invoice.id,
                         ownerId: ownerId,
                         amount: downPayment,
-                        paymentMethod: 'CASH', // Default to Cash for initial booking or maybe 'BANK_TRANSFER' if we had that field. Defaulting STRICTLY to Cash as per usual.
+                        paymentMethod: body.paymentMethod || 'CASH',
                         paymentDate: new Date(),
                         notes: 'دفعة عربون عند الحجز',
                         createdById: session.user.id
                     }
                 })
+
+                return { booking, downPaymentInvoiceId: invoice.id }
             }
 
-            return booking
+            return { booking, downPaymentInvoiceId: null }
         })
+
+        // Auto-sync down payment invoice to Qoyod if enabled
+        if (result.downPaymentInvoiceId && settings?.qoyodEnabled && settings?.qoyodAutoSync) {
+            const baseUrl = process.env.NEXTAUTH_URL || process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
+            fetch(`${baseUrl}/api/qoyod`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Cookie': request.headers.get('cookie') || ''
+                },
+                body: JSON.stringify({ type: 'invoice', id: result.downPaymentInvoiceId })
+            }).catch(async (err) => {
+                console.error('Auto-sync down payment invoice failed:', err)
+                try {
+                    await prisma.accountingSync.create({
+                        data: {
+                            syncType: 'CREATE',
+                            recordType: 'Invoice',
+                            recordId: result.downPaymentInvoiceId!,
+                            status: 'FAILED',
+                            errorMessage: err instanceof Error ? err.message : String(err),
+                            requestData: JSON.stringify({ type: 'invoice', id: result.downPaymentInvoiceId, trigger: 'auto-sync-downpayment' }),
+                            completedAt: new Date()
+                        }
+                    })
+                } catch (logErr) {
+                    console.error('Failed to log sync error:', logErr)
+                }
+            })
+        }
 
         // Send notification (fire-and-forget, don't block response)
         createNotificationForTeam({
             type: 'NEW_BOOKING',
             title: 'حجز جديد',
-            message: `حجز جديد رقم ${result.bookingNumber} - ${result.customer.nameAr} في قاعة ${result.hall.nameAr}`,
+            message: `حجز جديد رقم ${result.booking.bookingNumber} - ${result.booking.customer.nameAr} في قاعة ${result.booking.hall.nameAr}`,
             ownerId: session.user.ownerId,
-            metadata: { bookingId: result.id, bookingNumber: result.bookingNumber },
-            link: `/dashboard/bookings?id=${result.id}`,
+            metadata: { bookingId: result.booking.id, bookingNumber: result.booking.bookingNumber },
+            link: `/dashboard/bookings?id=${result.booking.id}`,
         }).catch(err => console.error('[NOTIF_ERROR] NEW_BOOKING:', err))
 
-        return NextResponse.json(result, { status: 201 })
+        return NextResponse.json(result.booking, { status: 201 })
     } catch (error) {
         console.error('Error creating booking:', error)
-        return NextResponse.json({ error: 'Database operation failed', details: String(error) }, { status: 500 })
+        console.error('Error creating booking:', error)
+        return NextResponse.json({ error: 'فشل في إنشاء الحجز' }, { status: 500 })
     }
 }
