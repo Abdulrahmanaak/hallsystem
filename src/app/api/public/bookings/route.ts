@@ -1,7 +1,14 @@
 import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
+import { rateLimit, getClientId } from '@/lib/rate-limit'
+import { generateBookingNumber } from '@/lib/number-generator'
+import { calculateVATFromInclusive, getVATRate } from '@/lib/vat'
 
 export async function POST(request: Request) {
+    // Strict rate limit for public endpoint: 10 req/min
+    const limited = await rateLimit(`public:${getClientId(request)}`, { maxRequests: 10, windowMs: 60_000 })
+    if (limited) return limited
+
     try {
         const body = await request.json()
         const {
@@ -54,58 +61,54 @@ export async function POST(request: Request) {
         }
 
         // 4. Calculate approximate pricing based on default hall config
-        // NOTE: The hall owner will adjust this later, but we need a base total.
         const basePrice = Number(hall.basePrice)
         const sectionSurcharge = sectionType === 'both' ? Number(hall.extraSectionPrice || 1000) : 0
         const totalAmount = basePrice + sectionSurcharge
 
-        // Assume VAT is included in basePrice for standard operation here
-        const vatAmount = Math.round(totalAmount / 1.15 * 0.15)
+        // Use shared VAT utility (VAT-inclusive pricing)
+        const settings = await prisma.settings.findUnique({ where: { ownerId: hall.ownerId } })
+        const vatRate = getVATRate(settings?.vatPercentage)
+        const vat = calculateVATFromInclusive(totalAmount, vatRate)
 
-        // Generate a new booking number
-        const year = new Date().getFullYear()
-        const count = await prisma.booking.count({
-            where: {
-                ownerId: hall.ownerId,
-                createdAt: { gte: new Date(`${year}-01-01`) }
-            }
-        })
-        const bookingNumber = `BK-${year}-${(count + 1).toString().padStart(4, '0')}`
+        // 5. Create Booking inside transaction for safe number generation
+        const booking = await prisma.$transaction(async (tx) => {
+            const bookingNumber = await generateBookingNumber(tx)
 
-        // 5. Create the Booking as TENTATIVE
-        const booking = await prisma.booking.create({
-            data: {
-                bookingNumber,
-                customerId: customer.id,
-                hallId: hall.id,
-                ownerId: hall.ownerId,
-                eventType,
-                eventDate: new Date(date),
-                startTime: new Date(`${date}T16:00:00`), // Default start
-                endTime: new Date(`${date}T23:59:00`),   // Default end
-                status: 'TENTATIVE',
-                totalAmount,
-                discountAmount: 0,
-                vatAmount,
-                finalAmount: totalAmount,
-                downPayment: 0,
-                serviceRevenue: 0,
-                guestCount: guestCount || hall.defaultGuestCount || hall.capacity || 0,
-                sectionType: sectionType || hall.defaultSectionType || 'both',
-                notes: 'تم الطلب عبر رابط الحجز العام',
-                createdById: hall.ownerId // Attribution
-            }
-        })
+            const newBooking = await tx.booking.create({
+                data: {
+                    bookingNumber,
+                    customerId: customer.id,
+                    hallId: hall.id,
+                    ownerId: hall.ownerId,
+                    eventType,
+                    eventDate: new Date(date),
+                    startTime: new Date(`${date}T16:00:00`),
+                    endTime: new Date(`${date}T23:59:00`),
+                    status: 'TENTATIVE',
+                    totalAmount,
+                    discountAmount: 0,
+                    vatAmount: vat.vatAmount,
+                    finalAmount: totalAmount,
+                    downPayment: 0,
+                    serviceRevenue: 0,
+                    guestCount: guestCount || hall.defaultGuestCount || hall.capacity || 0,
+                    sectionType: sectionType || hall.defaultSectionType || 'both',
+                    notes: 'تم الطلب عبر رابط الحجز العام',
+                    createdById: hall.ownerId
+                }
+            })
 
-        // Track the initial status
-        await prisma.bookingStatusHistory.create({
-            data: {
-                bookingId: booking.id,
-                fromStatus: null,
-                toStatus: 'TENTATIVE',
-                notes: 'طلب حجز جديد من الرابط العام',
-                createdById: hall.ownerId
-            }
+            await tx.bookingStatusHistory.create({
+                data: {
+                    bookingId: newBooking.id,
+                    fromStatus: null,
+                    toStatus: 'TENTATIVE',
+                    notes: 'طلب حجز جديد من الرابط العام',
+                    createdById: hall.ownerId
+                }
+            })
+
+            return newBooking
         })
 
         return NextResponse.json({ success: true, bookingId: booking.id }, { status: 201 })

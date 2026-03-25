@@ -3,31 +3,9 @@ import { prisma } from '@/lib/prisma'
 import { auth } from '@/lib/auth'
 import { enforceSubscription } from '@/lib/subscription'
 import { createNotificationForTeam } from '@/lib/services/notification'
-
-// Generate invoice number: INV-2025-0001
-async function generateInvoiceNumber(): Promise<string> {
-    const year = new Date().getFullYear()
-    const prefix = `INV-${year}-`
-
-    const lastInvoice = await prisma.invoice.findFirst({
-        where: {
-            invoiceNumber: {
-                startsWith: prefix
-            }
-        },
-        orderBy: {
-            invoiceNumber: 'desc'
-        }
-    })
-
-    let nextNumber = 1
-    if (lastInvoice) {
-        const lastNumber = parseInt(lastInvoice.invoiceNumber.split('-')[2])
-        nextNumber = lastNumber + 1
-    }
-
-    return `${prefix}${nextNumber.toString().padStart(4, '0')}`
-}
+import { generateInvoiceNumber, generatePaymentNumber } from '@/lib/number-generator'
+import { calculateVATFromInclusive, getVATRate } from '@/lib/vat'
+import { createInvoiceSchema, validateBody } from '@/lib/validations'
 
 // GET all invoices
 export async function GET() {
@@ -119,7 +97,12 @@ export async function POST(request: Request) {
         const subscriptionError = await enforceSubscription(session.user.id)
         if (subscriptionError) return subscriptionError
 
-        const body = await request.json()
+        const rawBody = await request.json()
+        const validated = validateBody(createInvoiceSchema, rawBody)
+        if (!validated.success) {
+            return NextResponse.json({ error: validated.error }, { status: 400 })
+        }
+        const body = validated.data
 
         // Get booking details
         const booking = await prisma.booking.findUnique({
@@ -150,7 +133,7 @@ export async function POST(request: Request) {
         let isFullInvoice = false
 
         if (body.amount) {
-            invoiceAmount = parseFloat(body.amount)
+            invoiceAmount = Number(body.amount)
         } else {
             invoiceAmount = remainingUninvoiced
             isFullInvoice = true
@@ -163,21 +146,6 @@ export async function POST(request: Request) {
             )
         }
 
-        const invoiceNumber = await generateInvoiceNumber()
-
-        // Generate payment number
-        const year = new Date().getFullYear()
-        const paymentPrefix = `PAY-${year}-`
-        const lastPayment = await prisma.payment.findFirst({
-            where: { paymentNumber: { startsWith: paymentPrefix } },
-            orderBy: { paymentNumber: 'desc' }
-        })
-        let paymentNextNumber = 1
-        if (lastPayment) {
-            paymentNextNumber = parseInt(lastPayment.paymentNumber.split('-')[2]) + 1
-        }
-        const paymentNumber = `${paymentPrefix}${paymentNextNumber.toString().padStart(4, '0')}`
-
         // Payment date (use provided or today)
         const paymentDate = body.paymentDate ? new Date(body.paymentDate) : new Date()
 
@@ -185,16 +153,17 @@ export async function POST(request: Request) {
         const settings = await prisma.settings.findUnique({
             where: { ownerId: session.user.ownerId }
         })
-        const vatRate = (Number(settings?.vatPercentage) || 15) / 100
+        const vatRate = getVATRate(settings?.vatPercentage)
 
-        // Calculate VAT (Inclusive)
-        // Subtotal = Total / (1 + Rate)
-        // VAT = Total - Subtotal
-        const subtotal = invoiceAmount / (1 + vatRate)
-        const vatAmount = invoiceAmount - subtotal
+        // Calculate VAT (Inclusive) using shared utility
+        const vat = calculateVATFromInclusive(invoiceAmount, vatRate)
 
         // Use transaction to create both invoice and payment atomically
+        // Number generation inside transaction to prevent race conditions
         const result = await prisma.$transaction(async (tx) => {
+            const invoiceNumber = await generateInvoiceNumber(tx)
+            const paymentNumber = await generatePaymentNumber(tx)
+
             // Create Invoice - always PAID since we're creating payment simultaneously
             const invoice = await tx.invoice.create({
                 data: {
@@ -202,9 +171,9 @@ export async function POST(request: Request) {
                     bookingId: booking.id,
                     customerId: booking.customerId,
                     ownerId: session.user.ownerId,
-                    subtotal: subtotal,
+                    subtotal: vat.subtotal,
                     discountAmount: 0,
-                    vatAmount: vatAmount,
+                    vatAmount: vat.vatAmount,
                     totalAmount: invoiceAmount,
                     paidAmount: invoiceAmount, // Fully paid
                     issueDate: new Date(),
@@ -243,10 +212,6 @@ export async function POST(request: Request) {
 
         // Auto-sync to Qoyod if enabled
         try {
-            const settings = await prisma.settings.findUnique({
-                where: { ownerId: session.user.ownerId }
-            })
-
             if (settings?.qoyodEnabled && settings?.qoyodAutoSync) {
                 // Trigger sync in background (don't block response)
                 const baseUrl = process.env.NEXTAUTH_URL || process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
@@ -257,7 +222,25 @@ export async function POST(request: Request) {
                         'Cookie': request.headers.get('cookie') || ''
                     },
                     body: JSON.stringify({ type: 'invoice', id: result.invoice.id })
-                }).catch(err => console.error('Auto-sync to Qoyod failed:', err))
+                }).catch(async (err) => {
+                    console.error('Auto-sync to Qoyod failed:', err)
+                    // Log failed sync attempt so it can be retried
+                    try {
+                        await prisma.accountingSync.create({
+                            data: {
+                                syncType: 'CREATE',
+                                recordType: 'Invoice',
+                                recordId: result.invoice.id,
+                                status: 'FAILED',
+                                errorMessage: err instanceof Error ? err.message : String(err),
+                                requestData: JSON.stringify({ type: 'invoice', id: result.invoice.id, trigger: 'auto-sync' }),
+                                completedAt: new Date()
+                            }
+                        })
+                    } catch (logErr) {
+                        console.error('Failed to log sync error:', logErr)
+                    }
+                })
             }
         } catch (syncError) {
             // Don't fail invoice creation if sync check fails

@@ -2,8 +2,13 @@ import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { sendPasswordResetEmail } from '@/lib/mail'
 import crypto from 'crypto'
+import { rateLimit, getClientId } from '@/lib/rate-limit'
 
 export async function POST(request: Request) {
+    // Strict rate limit for auth: 5 req/min
+    const limited = await rateLimit(`forgot:${getClientId(request)}`, { maxRequests: 5, windowMs: 60_000 })
+    if (limited) return limited
+
     try {
         const { email } = await request.json()
 

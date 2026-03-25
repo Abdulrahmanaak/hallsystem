@@ -1,8 +1,13 @@
 import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import bcrypt from 'bcryptjs'
+import { rateLimit, getClientId } from '@/lib/rate-limit'
 
 export async function POST(request: Request) {
+    // Strict rate limit for auth: 5 req/min
+    const limited = await rateLimit(`signup:${getClientId(request)}`, { maxRequests: 5, windowMs: 60_000 })
+    if (limited) return limited
+
     try {
         const body = await request.json()
 
@@ -101,31 +106,7 @@ export async function POST(request: Request) {
         }, { status: 201 })
 
     } catch (error: unknown) {
-        console.error('❌ Signup error:', error)
-        const errMsg = error instanceof Error ? error.message : 'Unknown error'
-        const errCode = (error as { code?: string })?.code
-        console.error('Error details:', errMsg)
-        console.error('Error code:', errCode || 'No code')
-
-        // Return more specific error message for debugging
-        let errorMessage = 'حدث خطأ أثناء إنشاء الحساب'
-
-        // Handle Prisma-specific errors
-        if (errCode === 'P2002') {
-            const meta = (error as { meta?: { target?: string[] } })?.meta
-            const field = meta?.target?.[0] || 'field'
-            errorMessage = field === 'username'
-                ? 'اسم المستخدم موجود مسبقاً'
-                : field === 'email'
-                    ? 'البريد الإلكتروني مسجل مسبقاً'
-                    : 'البيانات موجودة مسبقاً'
-        } else if (errCode === 'P2003') {
-            errorMessage = 'خطأ في البيانات المرتبطة'
-        }
-
-        return NextResponse.json(
-            { error: errorMessage, details: errMsg },
-            { status: 500 }
-        )
+        const { handlePrismaError } = await import('@/lib/api-error')
+        return handlePrismaError(error, 'Signup')
     }
 }
