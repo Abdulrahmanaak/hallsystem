@@ -616,7 +616,8 @@ export async function POST(request: Request) {
             return NextResponse.json({ error: validated.error }, { status: 400 })
         }
         const body = validated.data
-        const { type, id } = body
+        const { type } = body
+        const id = 'id' in body ? body.id : ''
 
         const config = await getQoyodConfig()
         if (!config) throw new Error('Qoyod not configured')

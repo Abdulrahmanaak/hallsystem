@@ -93,11 +93,16 @@ export const updateExpenseSchema = z.object({
 // Qoyod Sync
 // ============================================
 
-export const qoyodSyncSchema = z.object({
-    type: z.enum(['invoice', 'payment', 'expense', 'deactivate-invoice', 'cancel-invoice', 'delete-invoice', 'unlink-expense', 'delete-expense', 'journal-entry', 'delete-journal-entry', 'unlink-journal-entry', 'create-category']),
-    id: z.string().min(1, 'المعرف مطلوب').default(''),
-    name: z.string().optional(),
-})
+export const qoyodSyncSchema = z.discriminatedUnion('type', [
+    z.object({
+        type: z.enum(['invoice', 'payment', 'expense', 'deactivate-invoice', 'cancel-invoice', 'delete-invoice', 'unlink-expense', 'delete-expense', 'journal-entry', 'delete-journal-entry', 'unlink-journal-entry']),
+        id: z.string().min(1, 'المعرف مطلوب'),
+    }),
+    z.object({
+        type: z.literal('create-category'),
+        name: z.string().min(1, 'اسم الصنف مطلوب'),
+    }),
+])
 
 // ============================================
 // Credit Note
