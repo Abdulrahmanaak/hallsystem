@@ -94,8 +94,9 @@ export const updateExpenseSchema = z.object({
 // ============================================
 
 export const qoyodSyncSchema = z.object({
-    type: z.enum(['invoice', 'payment', 'expense', 'deactivate-invoice', 'cancel-invoice', 'delete-invoice', 'unlink-expense', 'delete-expense']),
-    id: z.string().min(1, 'المعرف مطلوب'),
+    type: z.enum(['invoice', 'payment', 'expense', 'deactivate-invoice', 'cancel-invoice', 'delete-invoice', 'unlink-expense', 'delete-expense', 'journal-entry', 'delete-journal-entry', 'unlink-journal-entry', 'create-category']),
+    id: z.string().min(1, 'المعرف مطلوب').default(''),
+    name: z.string().optional(),
 })
 
 // ============================================
