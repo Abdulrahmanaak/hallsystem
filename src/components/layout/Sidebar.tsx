@@ -10,6 +10,7 @@ import {
     User,
     Building2,
     DollarSign,
+    BookOpen,
     UserCog,
     Settings,
     X,
@@ -76,6 +77,12 @@ export default function Sidebar({ user, subscription, onCloseMobile }: SidebarPr
             icon: <FileText size={20} />,
             href: '/dashboard/expenses',
             roles: ['SUPER_ADMIN', 'HALL_OWNER', 'ROOM_SUPERVISOR', 'ACCOUNTANT', 'EMPLOYEE']
+        },
+        {
+            label: 'القيود اليدوية',
+            icon: <BookOpen size={20} />,
+            href: '/dashboard/journal-entries',
+            roles: ['SUPER_ADMIN', 'HALL_OWNER', 'ROOM_SUPERVISOR', 'ACCOUNTANT']
         },
         {
             label: 'الإشعارات',

@@ -52,6 +52,15 @@ export default auth((req) => {
         return NextResponse.redirect(new URL("/dashboard", req.url))
     }
 
+    // Journal entries routes - HALL_OWNER, SUPER_ADMIN, ACCOUNTANT and ROOM_SUPERVISOR
+    if (pathname.startsWith("/dashboard/journal-entries") &&
+        role !== "HALL_OWNER" &&
+        role !== "SUPER_ADMIN" &&
+        role !== "ACCOUNTANT" &&
+        role !== "ROOM_SUPERVISOR") {
+        return NextResponse.redirect(new URL("/dashboard", req.url))
+    }
+
     // Subscription routes - HALL_OWNER and SUPER_ADMIN only
     if (pathname.startsWith("/dashboard/subscription") &&
         role !== "HALL_OWNER" && role !== "SUPER_ADMIN") {

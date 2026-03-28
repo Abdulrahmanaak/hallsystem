@@ -542,6 +542,38 @@ export async function GET(request: Request) {
             })
         }
 
+        // Action: Fetch product categories (الأصناف) for journal entries
+        if (action === 'product-categories') {
+            try {
+                const res = await qoyodRequest('/product_categories', 'GET', null, config)
+                return NextResponse.json({
+                    success: true,
+                    categories: res.product_categories || res.categories || []
+                })
+            } catch (e: unknown) {
+                return NextResponse.json({
+                    success: false,
+                    error: e instanceof Error ? e.message : 'Failed to fetch product categories'
+                }, { status: 500 })
+            }
+        }
+
+        // Action: Fetch journal entries from Qoyod
+        if (action === 'journal-entries') {
+            try {
+                const res = await qoyodRequest('/journal_entries', 'GET', null, config)
+                return NextResponse.json({
+                    success: true,
+                    journalEntries: res.journal_entries || []
+                })
+            } catch (e: unknown) {
+                return NextResponse.json({
+                    success: false,
+                    error: e instanceof Error ? e.message : 'Failed to fetch journal entries'
+                }, { status: 500 })
+            }
+        }
+
         // Default: Test connection
         try {
             const data = await qoyodRequest('/products?limit=1', 'GET', null, config)
@@ -1387,6 +1419,160 @@ export async function POST(request: Request) {
             })
 
             return NextResponse.json({ success: true, message: 'تم حذف المصروف بنجاح' })
+        }
+
+        // =============================================
+        // PRODUCT CATEGORIES — Create in Qoyod
+        // =============================================
+        if (type === 'create-category') {
+            const { name } = body
+            if (!name || !name.trim()) {
+                return NextResponse.json({ error: 'اسم الصنف مطلوب' }, { status: 400 })
+            }
+
+            const payload = {
+                product_category: {
+                    name: name.trim()
+                }
+            }
+
+            const result = await qoyodRequest('/product_categories', 'POST', payload, config)
+            const category = result.product_category || result
+
+            return NextResponse.json({
+                success: true,
+                category: {
+                    id: category.id,
+                    name: category.name || name.trim(),
+                    name_ar: category.name_ar || category.name || name.trim(),
+                    name_en: category.name_en || null
+                }
+            })
+        }
+
+        // =============================================
+        // JOURNAL ENTRIES — Sync to Qoyod
+        // =============================================
+        if (type === 'journal-entry') {
+            const entry = await prisma.journalEntry.findUnique({
+                where: { id }
+            })
+            if (!entry) return NextResponse.json({ error: 'Journal entry not found' }, { status: 404 })
+
+            // Use first day of the month for Qoyod date
+            const entryDate = `${entry.year}-${String(entry.month).padStart(2, '0')}-01`
+
+            // Get accounts for debit/credit
+            const expenseAccountId = await getExpenseAccountId(config, allAccounts)
+            const bankAccountId = await getBankAccountId(config, allAccounts)
+
+            const payload = {
+                journal_entry: {
+                    date: entryDate,
+                    reference: entry.entryNumber,
+                    status: 'Draft',
+                    description: `${entry.categoryName}${entry.description ? ' - ' + entry.description : ''}`,
+                    journal_entry_lines_attributes: [
+                        {
+                            account_id: expenseAccountId,
+                            debit: Number(entry.amount),
+                            credit: 0,
+                            description: entry.categoryName
+                        },
+                        {
+                            account_id: bankAccountId,
+                            debit: 0,
+                            credit: Number(entry.amount),
+                            description: entry.categoryName
+                        }
+                    ]
+                }
+            }
+
+            let result
+            if (entry.qoyodJournalEntryId) {
+                result = await qoyodRequest(`/journal_entries/${entry.qoyodJournalEntryId}`, 'PUT', payload, config)
+            } else {
+                result = await qoyodRequest('/journal_entries', 'POST', payload, config)
+            }
+
+            const qoyodId = result.journal_entry?.id?.toString() || entry.qoyodJournalEntryId
+            await prisma.journalEntry.update({
+                where: { id },
+                data: {
+                    syncedToQoyod: true,
+                    qoyodJournalEntryId: qoyodId,
+                    lastSyncAt: new Date()
+                }
+            })
+
+            await prisma.accountingSync.create({
+                data: {
+                    syncType: entry.qoyodJournalEntryId ? 'UPDATE' : 'CREATE',
+                    recordType: 'JournalEntry',
+                    recordId: id,
+                    qoyodId: qoyodId,
+                    status: 'SUCCESS',
+                    requestData: JSON.stringify(payload),
+                    responseData: JSON.stringify(result),
+                    completedAt: new Date()
+                }
+            })
+
+            return NextResponse.json({ success: true, qoyodJournalEntryId: qoyodId })
+        }
+
+        // JOURNAL ENTRY — Delete from Qoyod
+        if (type === 'delete-journal-entry') {
+            const entry = await prisma.journalEntry.findUnique({ where: { id } })
+            if (!entry) return NextResponse.json({ error: 'Journal entry not found' }, { status: 404 })
+
+            if (entry.syncedToQoyod && entry.qoyodJournalEntryId) {
+                try {
+                    await qoyodRequest(`/journal_entries/${entry.qoyodJournalEntryId}`, 'DELETE', null, config)
+                } catch (e) {
+                    console.error('Error deleting journal entry from Qoyod:', e)
+                }
+            }
+
+            await prisma.journalEntry.update({
+                where: { id },
+                data: {
+                    isDeleted: true,
+                    deletedAt: new Date(),
+                    syncedToQoyod: false,
+                    qoyodJournalEntryId: null
+                }
+            })
+
+            await prisma.accountingSync.create({
+                data: {
+                    syncType: 'DELETE',
+                    recordType: 'JournalEntry',
+                    recordId: id,
+                    status: 'SUCCESS',
+                    qoyodId: entry.qoyodJournalEntryId,
+                    requestData: JSON.stringify({ action: 'delete', qoyodId: entry.qoyodJournalEntryId }),
+                    responseData: JSON.stringify({ deleted: true }),
+                    completedAt: new Date()
+                }
+            })
+
+            return NextResponse.json({ success: true, message: 'تم حذف القيد بنجاح' })
+        }
+
+        // JOURNAL ENTRY — Unlink from Qoyod (keep local, remove sync)
+        if (type === 'unlink-journal-entry') {
+            await prisma.journalEntry.update({
+                where: { id },
+                data: {
+                    syncedToQoyod: false,
+                    qoyodJournalEntryId: null,
+                    lastSyncAt: null
+                }
+            })
+
+            return NextResponse.json({ success: true, message: 'تم فك ربط القيد من قيود' })
         }
 
         return NextResponse.json({ error: 'Invalid type' }, { status: 400 })

@@ -51,7 +51,8 @@ model User {
   createdCustomers Customer[] @relation("CustomerCreatedBy")
   createdInvoices  Invoice[]  @relation("InvoiceCreatedBy")
   createdPayments  Payment[]  @relation("PaymentCreatedBy")
-  createdExpenses  Expense[]  @relation("ExpenseCreatedBy")
+  createdExpenses        Expense[]       @relation("ExpenseCreatedBy")
+  createdJournalEntries  JournalEntry[]  @relation("JournalEntryCreatedBy")
 
   // Relations for owned data (tenant isolation)
   ownedHalls     Hall[]     @relation("HallOwner")
@@ -494,6 +495,44 @@ model Vendor {
 
   @@index([ownerId])
   @@map("vendors")
+}
+
+// ============================================
+// Journal Entries (القيود المحاسبية)
+// ============================================
+
+model JournalEntry {
+  id            String   @id @default(cuid())
+  entryNumber   String   // Auto: JE-YYYY-NNNN
+  month         Int      // 1-12
+  year          Int      // e.g. 2026
+  description   String?
+  amount        Decimal
+  categoryId    Int      // Qoyod product category ID
+  categoryName  String   // Cached Arabic name (نظافة, كهرباء, etc.)
+
+  // Relations
+  createdById String
+  createdBy   User @relation("JournalEntryCreatedBy", fields: [createdById], references: [id])
+  ownerId     String?
+
+  // Qoyod Sync
+  syncedToQoyod       Boolean   @default(false)
+  qoyodJournalEntryId String?
+  lastSyncAt          DateTime?
+
+  // Soft Delete
+  isDeleted Boolean   @default(false)
+  deletedAt DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([ownerId])
+  @@index([entryNumber])
+  @@index([year, month])
+  @@index([syncedToQoyod])
+  @@map("journal_entries")
 }
 
 // ============================================
