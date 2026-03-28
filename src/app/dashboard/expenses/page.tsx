@@ -48,9 +48,14 @@ interface Vendor {
 }
 
 import { useSubscription } from '@/hooks/useSubscription'
+import { useUser } from '@/providers/UserProvider'
+import { JournalEntriesContent } from '@/components/dashboard/JournalEntriesContent'
 
 export default function ExpensesPage() {
     const { isReadOnly } = useSubscription()
+    const { role } = useUser()
+    const [activeTab, setActiveTab] = useState<'expenses' | 'journal-entries'>('expenses')
+    const canSeeJournalEntries = ['SUPER_ADMIN', 'HALL_OWNER', 'ACCOUNTANT', 'ROOM_SUPERVISOR'].includes(role)
     const [expenses, setExpenses] = useState<Expense[]>([])
     const [vendors, setVendors] = useState<Vendor[]>([])
     const [loading, setLoading] = useState(true)
@@ -336,6 +341,29 @@ export default function ExpensesPage() {
             .reduce((sum, e) => sum + Number(e.amount), 0)
     }
 
+    if (activeTab === 'journal-entries' && canSeeJournalEntries) {
+        return (
+            <div className="space-y-6">
+                {/* Tab Bar */}
+                <div className="flex border-b border-[var(--border-color)]">
+                    <button
+                        onClick={() => setActiveTab('expenses')}
+                        className="px-6 py-3 text-sm font-medium border-b-2 transition-colors border-transparent text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
+                    >
+                        المصروفات
+                    </button>
+                    <button
+                        onClick={() => setActiveTab('journal-entries')}
+                        className="px-6 py-3 text-sm font-bold border-b-2 transition-colors border-[var(--primary-600)] text-[var(--primary-600)]"
+                    >
+                        القيود اليدوية
+                    </button>
+                </div>
+                <JournalEntriesContent />
+            </div>
+        )
+    }
+
     if (loading) {
         return (
             <div className="flex items-center justify-center h-64">
@@ -346,6 +374,24 @@ export default function ExpensesPage() {
 
     return (
         <div className="space-y-6">
+            {/* Tab Bar */}
+            {canSeeJournalEntries && (
+                <div className="flex border-b border-[var(--border-color)]">
+                    <button
+                        onClick={() => setActiveTab('expenses')}
+                        className="px-6 py-3 text-sm font-bold border-b-2 transition-colors border-[var(--primary-600)] text-[var(--primary-600)]"
+                    >
+                        المصروفات
+                    </button>
+                    <button
+                        onClick={() => setActiveTab('journal-entries')}
+                        className="px-6 py-3 text-sm font-medium border-b-2 transition-colors border-transparent text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
+                    >
+                        القيود اليدوية
+                    </button>
+                </div>
+            )}
+
             {/* Header */}
             <div className="flex items-center justify-between">
                 <div>

@@ -528,10 +528,11 @@ model JournalEntry {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
+  @@unique([ownerId, entryNumber])
   @@index([ownerId])
-  @@index([entryNumber])
   @@index([year, month])
   @@index([syncedToQoyod])
+  @@index([isDeleted])
   @@map("journal_entries")
 }
 

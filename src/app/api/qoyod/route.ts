@@ -1459,6 +1459,11 @@ export async function POST(request: Request) {
             })
             if (!entry) return NextResponse.json({ error: 'Journal entry not found' }, { status: 404 })
 
+            // Verify ownership
+            if (entry.ownerId !== session.user.ownerId) {
+                return NextResponse.json({ error: 'Unauthorized' }, { status: 403 })
+            }
+
             // Use first day of the month for Qoyod date
             const entryDate = `${entry.year}-${String(entry.month).padStart(2, '0')}-01`
 
@@ -1527,6 +1532,11 @@ export async function POST(request: Request) {
             const entry = await prisma.journalEntry.findUnique({ where: { id } })
             if (!entry) return NextResponse.json({ error: 'Journal entry not found' }, { status: 404 })
 
+            // Verify ownership
+            if (entry.ownerId !== session.user.ownerId) {
+                return NextResponse.json({ error: 'Unauthorized' }, { status: 403 })
+            }
+
             if (entry.syncedToQoyod && entry.qoyodJournalEntryId) {
                 try {
                     await qoyodRequest(`/journal_entries/${entry.qoyodJournalEntryId}`, 'DELETE', null, config)
@@ -1563,6 +1573,14 @@ export async function POST(request: Request) {
 
         // JOURNAL ENTRY — Unlink from Qoyod (keep local, remove sync)
         if (type === 'unlink-journal-entry') {
+            const entry = await prisma.journalEntry.findUnique({ where: { id } })
+            if (!entry) return NextResponse.json({ error: 'Journal entry not found' }, { status: 404 })
+
+            // Verify ownership
+            if (entry.ownerId !== session.user.ownerId) {
+                return NextResponse.json({ error: 'Unauthorized' }, { status: 403 })
+            }
+
             await prisma.journalEntry.update({
                 where: { id },
                 data: {

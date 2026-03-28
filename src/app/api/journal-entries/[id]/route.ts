@@ -4,6 +4,8 @@ import { NextResponse } from 'next/server'
 import { enforceSubscription } from '@/lib/subscription'
 import { getQoyodConfig, qoyodRequest } from '@/lib/services/qoyod'
 
+const ALLOWED_ROLES = ['SUPER_ADMIN', 'HALL_OWNER', 'ACCOUNTANT', 'ROOM_SUPERVISOR']
+
 // PUT - Update Journal Entry
 export async function PUT(
     req: Request,
@@ -15,6 +17,10 @@ export async function PUT(
             return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
         }
 
+        if (!ALLOWED_ROLES.includes(session.user.role)) {
+            return NextResponse.json({ error: 'Unauthorized' }, { status: 403 })
+        }
+
         const { id } = await params
 
         const subscriptionError = await enforceSubscription(session.user.id)
@@ -23,7 +29,7 @@ export async function PUT(
         const body = await req.json()
         const { amount, month, year, categoryId, categoryName, description } = body
 
-        if (!amount || !month || !year || !categoryId || !categoryName) {
+        if (amount == null || amount === '' || !month || !year || !categoryId || !categoryName) {
             return NextResponse.json({ error: 'المبلغ والشهر والسنة والصنف مطلوبة' }, { status: 400 })
         }
 
@@ -75,6 +81,10 @@ export async function DELETE(
         const session = await auth()
         if (!session || !session.user) {
             return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+        }
+
+        if (!ALLOWED_ROLES.includes(session.user.role)) {
+            return NextResponse.json({ error: 'Unauthorized' }, { status: 403 })
         }
 
         const { id } = await params
