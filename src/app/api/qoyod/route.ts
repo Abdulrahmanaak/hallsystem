@@ -545,21 +545,11 @@ export async function GET(request: Request) {
         // Action: Fetch product categories (الأصناف) for journal entries
         if (action === 'product-categories') {
             try {
-                // Fetch all accounts and filter for expense-type accounts
+                // Fetch all accounts and filter for expense-type ones
+                // These serve as "categories" for journal entries (نظافة, كهرباء, etc.)
                 const allRes = await qoyodRequest('/accounts', 'GET', null, config)
                 const accounts = allRes.accounts || []
-                // Log unique account types for debugging
-                const types = [...new Set(accounts.map((a: { account_type?: string; type?: string }) => a.account_type || a.type))]
-                console.log('[product-categories] account types found:', JSON.stringify(types))
-                // Filter for expense accounts (try multiple possible type names)
-                const expenseAccounts = accounts.filter((a: { account_type?: string; type?: string; classification?: string }) => {
-                    const t = (a.account_type || a.type || a.classification || '').toLowerCase()
-                    return t.includes('expense') || t.includes('مصروف') || t.includes('مصاريف')
-                })
-                console.log('[product-categories] expense accounts count:', expenseAccounts.length)
-                if (accounts.length > 0) {
-                    console.log('[product-categories] sample account:', JSON.stringify(accounts[0]))
-                }
+                const expenseAccounts = accounts.filter((a: { type?: string }) => a.type === 'Expense')
                 const categories = expenseAccounts.map((acc: { id: number; name_ar?: string; name?: string; name_en?: string }) => ({
                     id: acc.id,
                     name: acc.name_ar || acc.name || acc.name_en || '',
