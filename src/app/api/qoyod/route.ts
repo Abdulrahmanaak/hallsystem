@@ -554,6 +554,10 @@ export async function GET(request: Request) {
                     // Fallback: extract unique categories from products
                     const productsRes = await qoyodRequest('/products', 'GET', null, config)
                     const products = productsRes.products || []
+                    console.log('[product-categories fallback] products count:', products.length)
+                    if (products.length > 0) {
+                        console.log('[product-categories fallback] sample product:', JSON.stringify(products[0], null, 2))
+                    }
                     const categoryMap = new Map<number, { id: number; name: string; name_ar?: string; name_en?: string }>()
                     for (const p of products) {
                         const cat = p.category || p.product_category
@@ -567,6 +571,7 @@ export async function GET(request: Request) {
                         }
                     }
                     categories = Array.from(categoryMap.values())
+                    console.log('[product-categories fallback] extracted categories:', JSON.stringify(categories))
                 }
                 return NextResponse.json({ success: true, categories })
             } catch (e: unknown) {
