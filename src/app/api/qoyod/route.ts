@@ -545,11 +545,29 @@ export async function GET(request: Request) {
         // Action: Fetch product categories (الأصناف) for journal entries
         if (action === 'product-categories') {
             try {
-                const res = await qoyodRequest('/product_categories', 'GET', null, config)
-                return NextResponse.json({
-                    success: true,
-                    categories: res.product_categories || res.categories || []
-                })
+                // Try /product_categories first, fallback to /categories
+                let categories: unknown[] = []
+                try {
+                    const res = await qoyodRequest('/product_categories', 'GET', null, config)
+                    categories = res.product_categories || res.categories || []
+                } catch {
+                    // Fallback: extract unique categories from products
+                    const productsRes = await qoyodRequest('/products', 'GET', null, config)
+                    const products = productsRes.products || []
+                    const categoryMap = new Map<number, { id: number; name: string; name_ar?: string; name_en?: string }>()
+                    for (const p of products) {
+                        if (p.category && p.category.id && !categoryMap.has(p.category.id)) {
+                            categoryMap.set(p.category.id, {
+                                id: p.category.id,
+                                name: p.category.name_ar || p.category.name || p.category.name_en || '',
+                                name_ar: p.category.name_ar,
+                                name_en: p.category.name_en,
+                            })
+                        }
+                    }
+                    categories = Array.from(categoryMap.values())
+                }
+                return NextResponse.json({ success: true, categories })
             } catch (e: unknown) {
                 return NextResponse.json({
                     success: false,
