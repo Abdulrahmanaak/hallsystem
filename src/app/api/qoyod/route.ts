@@ -1430,7 +1430,7 @@ export async function POST(request: Request) {
         }
 
         // =============================================
-        // PRODUCT CATEGORIES — Create in Qoyod
+        // CREATE EXPENSE ACCOUNT — Create in Qoyod
         // =============================================
         if (type === 'create-category') {
             const { name } = body
@@ -1439,21 +1439,27 @@ export async function POST(request: Request) {
             }
 
             const payload = {
-                product_category: {
-                    name: name.trim()
+                account: {
+                    name_ar: name.trim(),
+                    name_en: name.trim(),
+                    type: 'Expense',
+                    account_nature: 'Expense',
+                    type_of_account: 'Debit',
+                    parent_type: 'Expense',
+                    status: 'Active'
                 }
             }
 
-            const result = await qoyodRequest('/product_categories', 'POST', payload, config)
-            const category = result.product_category || result
+            const result = await qoyodRequest('/accounts', 'POST', payload, config)
+            const account = result.account || result
 
             return NextResponse.json({
                 success: true,
                 category: {
-                    id: category.id,
-                    name: category.name || name.trim(),
-                    name_ar: category.name_ar || category.name || name.trim(),
-                    name_en: category.name_en || null
+                    id: account.id,
+                    name: account.name_ar || account.name || name.trim(),
+                    name_ar: account.name_ar || name.trim(),
+                    name_en: account.name_en || null
                 }
             })
         }
