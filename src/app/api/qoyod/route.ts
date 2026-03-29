@@ -551,27 +551,29 @@ export async function GET(request: Request) {
                     const res = await qoyodRequest('/product_categories', 'GET', null, config)
                     categories = res.product_categories || res.categories || []
                 } catch {
-                    // Fallback: extract unique categories from products
+                    // Fallback: get unique category_ids from products, then fetch each category
                     const productsRes = await qoyodRequest('/products', 'GET', null, config)
                     const products = productsRes.products || []
-                    console.log('[product-categories fallback] products count:', products.length)
-                    if (products.length > 0) {
-                        console.log('[product-categories fallback] sample product:', JSON.stringify(products[0], null, 2))
-                    }
+                    const categoryIds = [...new Set(products.map((p: { category_id?: number }) => p.category_id).filter(Boolean))] as number[]
+
                     const categoryMap = new Map<number, { id: number; name: string; name_ar?: string; name_en?: string }>()
-                    for (const p of products) {
-                        const cat = p.category || p.product_category
-                        if (cat && cat.id && !categoryMap.has(cat.id)) {
-                            categoryMap.set(cat.id, {
-                                id: cat.id,
-                                name: cat.name_ar || cat.name || cat.name_en || '',
-                                name_ar: cat.name_ar,
-                                name_en: cat.name_en,
-                            })
+                    for (const catId of categoryIds) {
+                        try {
+                            const catRes = await qoyodRequest(`/product_categories/${catId}`, 'GET', null, config)
+                            const cat = catRes.product_category || catRes
+                            if (cat && cat.id) {
+                                categoryMap.set(cat.id, {
+                                    id: cat.id,
+                                    name: cat.name_ar || cat.name || cat.name_en || '',
+                                    name_ar: cat.name_ar,
+                                    name_en: cat.name_en,
+                                })
+                            }
+                        } catch {
+                            // Skip categories that can't be fetched
                         }
                     }
                     categories = Array.from(categoryMap.values())
-                    console.log('[product-categories fallback] extracted categories:', JSON.stringify(categories))
                 }
                 return NextResponse.json({ success: true, categories })
             } catch (e: unknown) {
