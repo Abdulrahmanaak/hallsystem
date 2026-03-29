@@ -545,41 +545,21 @@ export async function GET(request: Request) {
         // Action: Fetch product categories (الأصناف) for journal entries
         if (action === 'product-categories') {
             try {
-                // Try /product_categories first, fallback to /categories
-                let categories: unknown[] = []
-                try {
-                    const res = await qoyodRequest('/product_categories', 'GET', null, config)
-                    categories = res.product_categories || res.categories || []
-                } catch {
-                    // Fallback: get unique category_ids from products, then fetch each category
-                    const productsRes = await qoyodRequest('/products', 'GET', null, config)
-                    const products = productsRes.products || []
-                    const categoryIds = [...new Set(products.map((p: { category_id?: number }) => p.category_id).filter(Boolean))] as number[]
-
-                    const categoryMap = new Map<number, { id: number; name: string; name_ar?: string; name_en?: string }>()
-                    for (const catId of categoryIds) {
-                        try {
-                            const catRes = await qoyodRequest(`/product_categories/${catId}`, 'GET', null, config)
-                            const cat = catRes.product_category || catRes
-                            if (cat && cat.id) {
-                                categoryMap.set(cat.id, {
-                                    id: cat.id,
-                                    name: cat.name_ar || cat.name || cat.name_en || '',
-                                    name_ar: cat.name_ar,
-                                    name_en: cat.name_en,
-                                })
-                            }
-                        } catch {
-                            // Skip categories that can't be fetched
-                        }
-                    }
-                    categories = Array.from(categoryMap.values())
-                }
+                // Fetch expense accounts from Qoyod — these are the "categories" for journal entries
+                // (e.g. نظافة, كهرباء, ترتيب, تغيير)
+                const expenseRes = await qoyodRequest('/accounts?q[type_eq]=Expense', 'GET', null, config)
+                const accounts = expenseRes.accounts || []
+                const categories = accounts.map((acc: { id: number; name_ar?: string; name?: string; name_en?: string }) => ({
+                    id: acc.id,
+                    name: acc.name_ar || acc.name || acc.name_en || '',
+                    name_ar: acc.name_ar,
+                    name_en: acc.name_en,
+                }))
                 return NextResponse.json({ success: true, categories })
             } catch (e: unknown) {
                 return NextResponse.json({
                     success: false,
-                    error: e instanceof Error ? e.message : 'Failed to fetch product categories'
+                    error: e instanceof Error ? e.message : 'Failed to fetch categories'
                 }, { status: 500 })
             }
         }
@@ -1494,8 +1474,8 @@ export async function POST(request: Request) {
             // Use first day of the month for Qoyod date
             const entryDate = `${entry.year}-${String(entry.month).padStart(2, '0')}-01`
 
-            // Get accounts for debit/credit
-            const expenseAccountId = await getExpenseAccountId(config, allAccounts)
+            // categoryId is the Qoyod expense account ID selected by the user
+            const expenseAccountId = entry.categoryId
             const bankAccountId = await getBankAccountId(config, allAccounts)
 
             const payload = {
