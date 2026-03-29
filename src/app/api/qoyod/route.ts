@@ -556,12 +556,13 @@ export async function GET(request: Request) {
                     const products = productsRes.products || []
                     const categoryMap = new Map<number, { id: number; name: string; name_ar?: string; name_en?: string }>()
                     for (const p of products) {
-                        if (p.category && p.category.id && !categoryMap.has(p.category.id)) {
-                            categoryMap.set(p.category.id, {
-                                id: p.category.id,
-                                name: p.category.name_ar || p.category.name || p.category.name_en || '',
-                                name_ar: p.category.name_ar,
-                                name_en: p.category.name_en,
+                        const cat = p.category || p.product_category
+                        if (cat && cat.id && !categoryMap.has(cat.id)) {
+                            categoryMap.set(cat.id, {
+                                id: cat.id,
+                                name: cat.name_ar || cat.name || cat.name_en || '',
+                                name_ar: cat.name_ar,
+                                name_en: cat.name_en,
                             })
                         }
                     }
