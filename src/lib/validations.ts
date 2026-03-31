@@ -24,7 +24,7 @@ export const createBookingSchema = z.object({
     startTime: z.string().optional(),
     endTime: z.string().optional(),
     guestCount: z.union([z.string(), z.number()]).optional(),
-    sectionType: z.enum(['MEN', 'WOMEN', 'BOTH']).optional().or(z.null()),
+    sectionType: z.enum(['men', 'women', 'both', 'MEN', 'WOMEN', 'BOTH']).optional().or(z.null()),
     mealType: z.string().optional().or(z.null()),
 
     // Services
