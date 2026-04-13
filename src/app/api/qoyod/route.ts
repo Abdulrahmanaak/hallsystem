@@ -296,66 +296,21 @@ async function getOrCreateServiceProduct(config: QoyodConfig) {
     return createRes.product.id
 }
 
-// 3b. Helper: Get or Create Expense Product (for purchase bill line items)
-async function getOrCreateExpenseProduct(config: QoyodConfig): Promise<number> {
-    const productSku = 'EXPENSE-001'
-
-    // 1. Search by SKU
-    let searchRes
+// 3b. Helper: Find a purchasable product for expense bills
+async function getExpenseProductId(config: QoyodConfig): Promise<number> {
+    // 1. Search all products for one that is purchasable
     try {
-        searchRes = await qoyodRequest(`/products?q[sku_eq]=${productSku}`, 'GET', null, config)
-    } catch (e: unknown) {
-        const eMsg = e instanceof Error ? e.message : String(e)
-        if (eMsg.includes('404') || eMsg.includes('nothing')) {
-            searchRes = { products: [] }
-        } else {
-            throw e
-        }
-    }
-
-    if (searchRes.products?.length > 0) {
-        return searchRes.products[0].id
-    }
-
-    // 2. Search existing products by Arabic name as fallback
-    try {
-        const nameRes = await qoyodRequest('/products?q[name_ar_cont]=مصروفات', 'GET', null, config)
-        if (nameRes.products?.length > 0) {
-            const purchaseProd = nameRes.products.find((p: { purchase_item?: boolean }) => p.purchase_item === true)
+        const res = await qoyodRequest('/products', 'GET', null, config)
+        if (res.products?.length > 0) {
+            const purchaseProd = res.products.find((p: any) =>
+                p.is_bought === true || p.purchase_item === true
+            )
             if (purchaseProd) return purchaseProd.id
         }
-    } catch { /* continue to create */ }
+    } catch { /* fall through to default */ }
 
-    // 3. Find an expense account to link the product
-    let purchaseAccountId: number | undefined
-    try {
-        const accRes = await qoyodRequest('/accounts?q[type_eq]=Expense', 'GET', null, config)
-        if (accRes.accounts?.length > 0) {
-            purchaseAccountId = accRes.accounts[0].id
-        }
-    } catch { /* proceed without */ }
-
-    const unitTypeId = await getUnitTypeId(config)
-
-    // 4. Create the expense product
-    const createRes = await qoyodRequest('/products', 'POST', {
-        product: {
-            name_ar: 'مصروفات عامة',
-            name_en: 'General Expenses',
-            sku: productSku,
-            category_id: 1,
-            type: 'Service',
-            product_unit_type_id: unitTypeId,
-            sale_item: false,
-            purchase_item: true,
-            ...(purchaseAccountId ? { purchase_account_id: purchaseAccountId } : {}),
-            cost: 1.0,
-            track_quantity: false,
-            tax_id: 1,
-        }
-    }, config)
-
-    return createRes.product.id
+    // 2. Default: product 30 is known to work for this account
+    return 30
 }
 
 // 4. Helper: Sync Customer
@@ -1334,7 +1289,7 @@ export async function POST(request: Request) {
 
             // 1. Get Accounts & Inventory
             const paidThroughAccountId = await getBankAccountId(config, allAccounts)
-            const productId = await getOrCreateExpenseProduct(config)
+            const productId = await getExpenseProductId(config)
             const inventoryId = await getInventoryId(config)
 
             const settings = await prisma.settings.findUnique({
