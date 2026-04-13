@@ -64,26 +64,23 @@ export async function PUT(
             try {
                 const config = await getQoyodConfig(ownerId)
                 if (config) {
-                    const payload: Record<string, Record<string, unknown>> = {
-                        expense: {
-                            reference: updatedExpense.description.substring(0, 50),
+                    const payload = {
+                        bill: {
+                            contact_id: updatedExpense.vendor?.qoyodVendorId
+                                ? Number(updatedExpense.vendor.qoyodVendorId) : undefined,
+                            status: 'Draft',
                             issue_date: updatedExpense.expenseDate.toISOString().split('T')[0],
-                            amount: Number(updatedExpense.amount),
-                            description: updatedExpense.description,
-                            tax_inclusive: true,
+                            due_date: updatedExpense.expenseDate.toISOString().split('T')[0],
+                            line_items: [{
+                                description: updatedExpense.description,
+                                quantity: 1,
+                                unit_price: Number(updatedExpense.amount),
+                                is_inclusive: true
+                            }]
                         }
                     }
 
-                    // Attempt to use default bank account if available
-                    if (config.defaultBankAccountId) {
-                        payload.expense.paid_through_account_id = config.defaultBankAccountId
-                    }
-
-                    if (updatedExpense.vendor?.qoyodVendorId) {
-                        payload.expense.contact_id = updatedExpense.vendor.qoyodVendorId
-                    }
-
-                    await qoyodRequest(`/expenses/${updatedExpense.qoyodExpenseId}`, 'PUT', payload, config)
+                    await qoyodRequest(`/bills/${updatedExpense.qoyodExpenseId}`, 'PUT', payload, config)
 
                     // Update last sync time
                     await prisma.expense.update({
@@ -143,7 +140,7 @@ export async function DELETE(
                 const config = await getQoyodConfig(ownerId)
 
                 if (config) {
-                    await qoyodRequest(`/expenses/${expense.qoyodExpenseId}`, 'DELETE', null, config)
+                    await qoyodRequest(`/bills/${expense.qoyodExpenseId}`, 'DELETE', null, config)
                     qoyodDeleted = true
                 } else {
                     // Qoyod disabled/missing config. Allow local delete but warn.
