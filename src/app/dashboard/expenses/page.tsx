@@ -82,6 +82,7 @@ export default function ExpensesPage() {
     })
     const [saving, setSaving] = useState(false)
     const [deletingId, setDeletingId] = useState<string | null>(null)
+    const [syncingExpenseId, setSyncingExpenseId] = useState<string | null>(null)
 
     const fetchData = async () => {
         try {
@@ -533,9 +534,19 @@ export default function ExpensesPage() {
                                                         <CheckCircle2 size={16} />
                                                         <span>مربوط</span>
                                                     </span>
+                                                ) : !expense.vendor ? (
+                                                    <button
+                                                        disabled
+                                                        title="أضف مورداً أولاً حتى تتمكن من المزامنة مع قيود"
+                                                        className="p-1 px-2 text-gray-400 cursor-not-allowed rounded-md flex items-center gap-1 text-sm border border-gray-200"
+                                                    >
+                                                        <RefreshCw size={14} />
+                                                        <span>ربط</span>
+                                                    </button>
                                                 ) : (
                                                     <button
                                                         onClick={async () => {
+                                                            setSyncingExpenseId(expense.id)
                                                             try {
                                                                 const res = await fetch('/api/qoyod', {
                                                                     method: 'POST',
@@ -550,11 +561,15 @@ export default function ExpensesPage() {
                                                                     alert(data.error || 'فشل المزامنة')
                                                                 }
                                                             } catch { alert('حدث خطأ في الاتصال') }
+                                                            finally { setSyncingExpenseId(null) }
                                                         }}
-                                                        className="p-1 px-2 text-blue-600 hover:bg-blue-50 rounded-md flex items-center gap-1 text-sm border border-blue-200"
+                                                        disabled={syncingExpenseId === expense.id}
+                                                        className="p-1 px-2 text-blue-600 hover:bg-blue-50 rounded-md flex items-center gap-1 text-sm border border-blue-200 disabled:opacity-50 disabled:cursor-not-allowed"
                                                         title="مزامنة مع قيود"
                                                     >
-                                                        <RefreshCw size={14} />
+                                                        {syncingExpenseId === expense.id
+                                                            ? <Loader2 size={14} className="animate-spin" />
+                                                            : <RefreshCw size={14} />}
                                                         <span>ربط</span>
                                                     </button>
                                                 )

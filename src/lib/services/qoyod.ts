@@ -160,6 +160,68 @@ export async function getSalesAccountId(config: QoyodConfig): Promise<number> {
     return 17
 }
 
+/** Get or create the expense product used for purchase bill line items */
+export async function getOrCreateExpenseProduct(config: QoyodConfig): Promise<number> {
+    const productSku = 'EXPENSE-001'
+
+    // 1. Search by SKU
+    let searchRes
+    try {
+        searchRes = await qoyodRequest(`/products?q[sku_eq]=${productSku}`, 'GET', null, config)
+    } catch (e: unknown) {
+        const eMsg = e instanceof Error ? e.message : String(e)
+        if (eMsg.includes('404') || eMsg.includes('nothing')) {
+            searchRes = { products: [] }
+        } else {
+            throw e
+        }
+    }
+
+    if (searchRes.products?.length > 0) {
+        return searchRes.products[0].id
+    }
+
+    // 2. Search by Arabic name (existing products in Qoyod account)
+    try {
+        const nameRes = await qoyodRequest('/products?q[name_ar_cont]=مصروفات', 'GET', null, config)
+        if (nameRes.products?.length > 0) {
+            const purchaseProd = nameRes.products.find((p: any) => p.purchase_item === true)
+            if (purchaseProd) return purchaseProd.id
+        }
+    } catch { /* continue to create */ }
+
+    // 3. Find an expense account to link the product
+    let purchaseAccountId: number | undefined
+    try {
+        const accRes = await qoyodRequest('/accounts?q[type_eq]=Expense', 'GET', null, config)
+        if (accRes.accounts?.length > 0) {
+            purchaseAccountId = accRes.accounts[0].id
+        }
+    } catch { /* use without account */ }
+
+    const unitTypeId = await getUnitTypeId(config)
+
+    // 4. Create the product
+    const createRes = await qoyodRequest('/products', 'POST', {
+        product: {
+            name_ar: 'مصروفات عامة',
+            name_en: 'General Expenses',
+            sku: productSku,
+            category_id: 1,
+            type: 'Service',
+            product_unit_type_id: unitTypeId,
+            sale_item: false,
+            purchase_item: true,
+            ...(purchaseAccountId ? { purchase_account_id: purchaseAccountId } : {}),
+            cost: 1.0,
+            track_quantity: false,
+            tax_id: 1,
+        }
+    }, config)
+
+    return createRes.product.id
+}
+
 /** Get or create the service product used for invoice line items */
 export async function getOrCreateServiceProduct(config: QoyodConfig): Promise<number> {
     const productSku = 'HALL-SVC-001'

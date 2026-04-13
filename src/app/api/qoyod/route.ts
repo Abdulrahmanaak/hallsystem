@@ -296,6 +296,68 @@ async function getOrCreateServiceProduct(config: QoyodConfig) {
     return createRes.product.id
 }
 
+// 3b. Helper: Get or Create Expense Product (for purchase bill line items)
+async function getOrCreateExpenseProduct(config: QoyodConfig): Promise<number> {
+    const productSku = 'EXPENSE-001'
+
+    // 1. Search by SKU
+    let searchRes
+    try {
+        searchRes = await qoyodRequest(`/products?q[sku_eq]=${productSku}`, 'GET', null, config)
+    } catch (e: unknown) {
+        const eMsg = e instanceof Error ? e.message : String(e)
+        if (eMsg.includes('404') || eMsg.includes('nothing')) {
+            searchRes = { products: [] }
+        } else {
+            throw e
+        }
+    }
+
+    if (searchRes.products?.length > 0) {
+        return searchRes.products[0].id
+    }
+
+    // 2. Search existing products by Arabic name as fallback
+    try {
+        const nameRes = await qoyodRequest('/products?q[name_ar_cont]=مصروفات', 'GET', null, config)
+        if (nameRes.products?.length > 0) {
+            const purchaseProd = nameRes.products.find((p: { purchase_item?: boolean }) => p.purchase_item === true)
+            if (purchaseProd) return purchaseProd.id
+        }
+    } catch { /* continue to create */ }
+
+    // 3. Find an expense account to link the product
+    let purchaseAccountId: number | undefined
+    try {
+        const accRes = await qoyodRequest('/accounts?q[type_eq]=Expense', 'GET', null, config)
+        if (accRes.accounts?.length > 0) {
+            purchaseAccountId = accRes.accounts[0].id
+        }
+    } catch { /* proceed without */ }
+
+    const unitTypeId = await getUnitTypeId(config)
+
+    // 4. Create the expense product
+    const createRes = await qoyodRequest('/products', 'POST', {
+        product: {
+            name_ar: 'مصروفات عامة',
+            name_en: 'General Expenses',
+            sku: productSku,
+            category_id: 1,
+            type: 'Service',
+            product_unit_type_id: unitTypeId,
+            sale_item: false,
+            purchase_item: true,
+            ...(purchaseAccountId ? { purchase_account_id: purchaseAccountId } : {}),
+            cost: 1.0,
+            track_quantity: false,
+            tax_id: 1,
+        }
+    }, config)
+
+    return createRes.product.id
+}
+
 // 4. Helper: Sync Customer
 async function syncCustomer(customerId: string, config: QoyodConfig): Promise<number> {
     const customer = await prisma.customer.findUnique({ where: { id: customerId } })
@@ -1236,25 +1298,43 @@ export async function POST(request: Request) {
 
             if (!expense) return NextResponse.json({ error: 'Expense not found' }, { status: 404 })
 
+            // 0. Ensure vendor exists and is synced to Qoyod
+            if (!expense.vendorId || !expense.vendor) {
+                return NextResponse.json(
+                    { error: 'يجب تعيين مورد للمصروف قبل المزامنة مع قيود' },
+                    { status: 400 }
+                )
+            }
+
+            let vendorQoyodId = expense.vendor.qoyodVendorId
+            if (!vendorQoyodId) {
+                // Auto-sync vendor to Qoyod via /vendors endpoint
+                const contactPayload = {
+                    contact: {
+                        name: expense.vendor.nameAr,
+                        mobile: expense.vendor.phone || undefined,
+                        email: expense.vendor.email || undefined,
+                    }
+                }
+                const vendorRes = await qoyodRequest('/vendors', 'POST', contactPayload, config)
+                const newVendorId = vendorRes?.contact?.id || vendorRes?.vendor?.id
+                if (newVendorId) {
+                    vendorQoyodId = newVendorId.toString()
+                    await prisma.vendor.update({
+                        where: { id: expense.vendor.id },
+                        data: { qoyodVendorId: vendorQoyodId }
+                    })
+                } else {
+                    return NextResponse.json(
+                        { error: 'فشل في مزامنة المورد مع قيود' },
+                        { status: 500 }
+                    )
+                }
+            }
+
             // 1. Get Accounts & Inventory
             const paidThroughAccountId = await getBankAccountId(config, allAccounts)
-            // Get expense product - try to find it dynamically instead of hardcoding
-            let productId: number
-            try {
-                const prodRes = await qoyodRequest('/products?q[sku_eq]=EXPENSE-001', 'GET', null, config)
-                if (prodRes.products?.length > 0) {
-                    productId = prodRes.products[0].id
-                } else {
-                    // Fallback: search for petty cash product by name
-                    const prodRes2 = await qoyodRequest('/products', 'GET', null, config)
-                    const expProd = prodRes2.products?.find((p: any) =>
-                        p.name_ar?.includes('نثريات') || p.name_ar?.includes('مصروفات') || p.purchase_item === true
-                    )
-                    productId = expProd?.id || 30 // Last resort fallback
-                }
-            } catch {
-                productId = 30 // Fallback if product search fails
-            }
+            const productId = await getOrCreateExpenseProduct(config)
             const inventoryId = await getInventoryId(config)
 
             const settings = await prisma.settings.findUnique({
@@ -1265,7 +1345,7 @@ export async function POST(request: Request) {
             // 2. Build Bill Payload (Purchases -> Bills)
             const billPayload = {
                 bill: {
-                    contact_id: expense.vendor?.qoyodVendorId ? Number(expense.vendor.qoyodVendorId) : undefined,
+                    contact_id: Number(vendorQoyodId),
                     status: 'Draft',
                     issue_date: expense.expenseDate.toISOString().split('T')[0],
                     due_date: expense.expenseDate.toISOString().split('T')[0],

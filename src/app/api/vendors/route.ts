@@ -75,14 +75,15 @@ export async function POST(req: Request) {
                     }
                 }
 
-                const qoyodRes = await qoyodRequest('/contacts', 'POST', payload, config) as { contact?: { id: number | string } }
+                const qoyodRes = await qoyodRequest('/vendors', 'POST', payload, config) as { contact?: { id: number | string }, vendor?: { id: number | string } }
 
-                if (qoyodRes?.contact?.id) {
+                const newVendorId = qoyodRes?.contact?.id || qoyodRes?.vendor?.id
+                if (newVendorId) {
                     await prisma.vendor.update({
                         where: { id: vendor.id },
-                        data: { qoyodVendorId: qoyodRes.contact.id.toString() }
+                        data: { qoyodVendorId: newVendorId.toString() }
                     })
-                    vendor.qoyodVendorId = qoyodRes.contact.id.toString()
+                    vendor.qoyodVendorId = newVendorId.toString()
                 }
             }
         } catch (error) {
